@@ -119,6 +119,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             } else if (view == llContent) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 Fragment fragment = new DetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("post", post);
+                fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
             }
         }
