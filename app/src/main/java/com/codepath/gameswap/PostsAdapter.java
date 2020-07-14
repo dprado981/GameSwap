@@ -4,6 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,9 +15,13 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.ConversationFragment;
 import com.codepath.gameswap.fragments.DetailFragment;
+import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
+import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -60,23 +67,57 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView tvNotes;
+        private LinearLayout llHeader;
+        private ImageView ivProfile;
+        private TextView tvUsername;
+        private LinearLayout llContent;
+        private TextView tvTitle;
+        private ImageView ivImage;
+        private RatingBar rbCondition;
+
+        private Post post;
 
         public ViewHolder(@NonNull View view) {
             super(view);
-            tvNotes = view.findViewById(R.id.tvNotes);
-            tvNotes.setOnClickListener(this);
+
+            llHeader = view.findViewById(R.id.llHeader);
+            ivProfile = view.findViewById(R.id.ivProfile);
+            tvUsername = view.findViewById(R.id.tvUsername);
+            llContent = view.findViewById(R.id.llContent);
+            tvTitle = view.findViewById(R.id.tvTitle);
+            ivImage = view.findViewById(R.id.ivImage);
+            rbCondition = view.findViewById(R.id.rbCondition);
+
+            llHeader.setOnClickListener(this);
+            llContent.setOnClickListener(this);
         }
 
         public void bind(Post post, int position) {
-            tvNotes.setText("hi " + position);
+            this.post = post;
+            ParseUser user = post.getUser();
+            tvUsername.setText(user.getUsername());
+            tvTitle.setText(post.getTitle());
+            rbCondition.setRating((float) post.getCondition() / 2);
+            ParseFile image = post.getImage();
+            if (image != null) {
+                Glide.with(context)
+                        .load(post.getImage().getUrl())
+                        .placeholder(R.drawable.ic_image)
+                        .into(ivImage);
+            }
         }
 
         @Override
         public void onClick(View view) {
-            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-            Fragment fragment = new DetailFragment();
-            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+            if (view == llHeader) {
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                Fragment fragment = new ProfileFragment();
+                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+            } else if (view == llContent) {
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                Fragment fragment = new DetailFragment();
+                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+            }
         }
     }
 }

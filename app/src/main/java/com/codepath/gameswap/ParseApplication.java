@@ -24,6 +24,7 @@ public class ParseApplication extends Application {
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("diego-gameswap") // should correspond to APP_ID env variable
                 .clientKey("ec7GNKG3Ad2Fx7kyh2EbT2d4x")  // set explicitly unless clientKey is explicitly configured on Parse server
-                .server("https://diego-gameswap.herokuapp.com/parse/").build());
+                .server("https://diego-gameswap.herokuapp.com/parse/")
+                .build());
     }
 }

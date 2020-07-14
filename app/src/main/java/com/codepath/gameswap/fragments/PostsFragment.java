@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,12 @@ import android.view.ViewGroup;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +30,8 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class PostsFragment extends Fragment {
+
+    public static final String TAG = PostsFragment.class.getSimpleName();
 
     private Context context;
 
@@ -60,11 +67,35 @@ public class PostsFragment extends Fragment {
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(layoutManager);
 
-        List<Post> fakeData = new ArrayList<>();
-        for (int i = 0; i < 400; i++) {
-            fakeData.add(new Post());
+        queryPosts(false);
+    }
+
+    protected void queryPosts(final boolean loadNext) {
+        // Specify which class to query
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        // Find all posts
+        query.include(Post.KEY_USER);
+        query.setLimit(20);
+        query.addDescendingOrder(Post.KEY_CREATED_AT);
+        if (loadNext) {
+            Date olderThanDate = allPosts.get(allPosts.size()-1).getCreatedAt();
+            Log.i(TAG, "Loading posts older than " + olderThanDate);
+            query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
         }
-        adapter.addAll(fakeData);
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+                if (!loadNext) {
+                    adapter.clear();
+                }
+                adapter.addAll(posts);
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
 }

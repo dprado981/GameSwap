@@ -1,6 +1,7 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +44,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Conversation conversation = conversations.get(position);
-        holder.bind(conversation, position);
+        holder.bind(conversation);
     }
 
     @Override
@@ -65,6 +66,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
         private LinearLayout llPreview;
         private TextView tvUsername;
+        private TextView tvPreview;
 
         private Conversation conversation;
 
@@ -72,19 +74,20 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             super(view);
             llPreview = view.findViewById(R.id.llPreview);
             tvUsername = view.findViewById(R.id.tvUsername);
-
+            tvPreview = view.findViewById(R.id.tvPreview);
             llPreview.setOnClickListener(this);
         }
 
-        public void bind(Conversation conversation, int position) {
+        public void bind(Conversation conversation) {
             this.conversation = conversation;
             ParseUser userOne = conversation.getUserOne();
-            ParseUser userTwo = conversation.getUserOne();
-            if (userOne.equals(ParseUser.getCurrentUser())) {
+            ParseUser userTwo = conversation.getUserTwo();
+            if (userOne.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
                 tvUsername.setText(userTwo.getUsername());
             } else {
                 tvUsername.setText(userOne.getUsername());
             }
+            tvPreview.setText(conversation.getLastMessage().getText());
         }
 
         @Override

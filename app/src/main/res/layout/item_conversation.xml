@@ -14,7 +14,7 @@
         app:cardCornerRadius="50dp">
 
         <ImageView
-            android:id="@+id/ivProfileImage"
+            android:id="@+id/ivProfile"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:contentDescription="Profile Picture"

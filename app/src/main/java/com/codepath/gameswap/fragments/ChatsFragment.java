@@ -24,6 +24,7 @@ import com.codepath.gameswap.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,27 +68,30 @@ public class ChatsFragment extends Fragment {
         rvConversations.setAdapter(adapter);
         rvConversations.setLayoutManager(layoutManager);
 
-        queryConversations(false);
-        /*
-        List<Conversation> fakeData = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            fakeData.add(new Conversation());
-        }
-        adapter.addAll(fakeData);*/
+        queryConversations();
     }
 
-    protected void queryConversations(final boolean loadNext) {
+    protected void queryConversations() {
         // Specify which class to query
-        ParseQuery<Conversation> query = ParseQuery.getQuery(Conversation.class);
-        // Find all posts
+        ParseQuery<Conversation> userOneQuery = ParseQuery.getQuery(Conversation.class);
+        ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);
+
+        // Find all Conversations that include the current user
+        userOneQuery.whereEqualTo(Conversation.KEY_USERONE, ParseUser.getCurrentUser());
+        userTwoQuery.whereEqualTo(Conversation.KEY_USERTWO, ParseUser.getCurrentUser());
+
+        // Combine queries into a compound query
+        List<ParseQuery<Conversation>> queries = new ArrayList<>();
+        queries.add(userOneQuery);
+        queries.add(userTwoQuery);
+        ParseQuery<Conversation> query = ParseQuery.or(queries);
+
+        // Include Users and sort by most recent
         query.include(Conversation.KEY_USERONE);
         query.include(Conversation.KEY_USERTWO);
+        query.include(Conversation.KEY_LASTMESSAGE);
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
-        if (loadNext) {
-            Date olderThanDate = conversations.get(conversations.size()-1).getCreatedAt();
-            Log.i(TAG, "Loading posts older than " + olderThanDate);
-            query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
-        }
+
         query.findInBackground(new FindCallback<Conversation>() {
             @Override
             public void done(List<Conversation> conversations, ParseException e) {
@@ -95,9 +99,7 @@ public class ChatsFragment extends Fragment {
                     Log.e(TAG, "Issue with getting posts", e);
                     return;
                 }
-                if (!loadNext) {
-                    adapter.clear();
-                }
+                adapter.clear();
                 adapter.addAll(conversations);
                 adapter.notifyDataSetChanged();
             }
