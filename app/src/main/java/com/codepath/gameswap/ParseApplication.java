@@ -2,6 +2,8 @@ package com.codepath.gameswap;
 
 import android.app.Application;
 
+import com.codepath.gameswap.models.Conversation;
+import com.codepath.gameswap.models.Message;
 import com.codepath.gameswap.models.Post;
 import com.parse.Parse;
 import com.parse.ParseObject;
@@ -13,6 +15,8 @@ public class ParseApplication extends Application {
 
         // Register Parse models
         ParseObject.registerSubclass(Post.class);
+        ParseObject.registerSubclass(Conversation.class);
+        ParseObject.registerSubclass(Message.class);
 
         // set applicationId, and server server based on the values in the Heroku settings.
         // clientKey is not needed unless explicitly configured

@@ -8,14 +8,12 @@ import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.codepath.gameswap.fragments.ChatFragment;
+import com.codepath.gameswap.fragments.ChatsFragment;
 import com.codepath.gameswap.fragments.ComposeFragment;
 import com.codepath.gameswap.fragments.MapsFragment;
 import com.codepath.gameswap.fragments.PostsFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationMenu;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new ComposeFragment();
                         break;
                     case R.id.actionChat:
-                        fragment = new ChatFragment();
+                        fragment = new ChatsFragment();
                         break;
                     case R.id.actionProfile:
                     default:
