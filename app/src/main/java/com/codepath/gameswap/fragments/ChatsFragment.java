@@ -71,7 +71,7 @@ public class ChatsFragment extends Fragment {
         queryConversations();
     }
 
-    protected void queryConversations() {
+    private void queryConversations() {
         // Specify which class to query
         ParseQuery<Conversation> userOneQuery = ParseQuery.getQuery(Conversation.class);
         ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);

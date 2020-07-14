@@ -37,8 +37,8 @@ public class PostsFragment extends Fragment {
 
     private List<Post> allPosts;
     private LinearLayoutManager layoutManager;
-    protected PostsAdapter adapter;
-    protected RecyclerView rvPosts;
+    private PostsAdapter adapter;
+    private RecyclerView rvPosts;
 
     public PostsFragment() {
         // Required empty public constructor
@@ -70,7 +70,7 @@ public class PostsFragment extends Fragment {
         queryPosts(false);
     }
 
-    protected void queryPosts(final boolean loadNext) {
+    private void queryPosts(final boolean loadNext) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
