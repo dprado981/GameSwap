@@ -22,7 +22,7 @@
                 android:id="@+id/ivProfile"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:contentDescription="Profile Picture"
+                android:contentDescription="@string/profile_picture"
                 android:scaleType="centerCrop"
                 tools:srcCompat="@tools:sample/avatars" />
         </androidx.cardview.widget.CardView>
@@ -58,6 +58,7 @@
             android:id="@+id/ivImage"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
+            android:contentDescription="@string/post_image"
             android:scaleType="center"
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
@@ -67,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="0dp"
+            android:isIndicator="true"
             android:numStars="5" />
     </LinearLayout>
 

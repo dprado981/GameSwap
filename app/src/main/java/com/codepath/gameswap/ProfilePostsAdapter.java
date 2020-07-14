@@ -1,7 +1,6 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,14 +24,14 @@ import com.parse.ParseUser;
 
 import java.util.List;
 
-public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
+public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapter.ViewHolder>{
 
     public static final String TAG = PostsAdapter.class.getSimpleName();
 
     private final Context context;
     private final List<Post> posts;
 
-    public PostsAdapter(Context context, List<Post> posts) {
+    public ProfilePostsAdapter(Context context, List<Post> posts) {
         this.context = context;
         this.posts = posts;
     }
@@ -40,7 +39,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view  = LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        View view  = LayoutInflater.from(context).inflate(R.layout.item_profile_post, parent, false);
         return new ViewHolder(view);
     }
 
@@ -67,9 +66,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private LinearLayout llHeader;
-        private ImageView ivProfile;
-        private TextView tvUsername;
         private LinearLayout llContent;
         private TextView tvTitle;
         private ImageView ivImage;
@@ -80,22 +76,17 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         public ViewHolder(@NonNull View view) {
             super(view);
 
-            llHeader = view.findViewById(R.id.llHeader);
-            ivProfile = view.findViewById(R.id.ivProfile);
-            tvUsername = view.findViewById(R.id.tvUsername);
             llContent = view.findViewById(R.id.llContent);
             tvTitle = view.findViewById(R.id.tvTitle);
             ivImage = view.findViewById(R.id.ivImage);
             rbCondition = view.findViewById(R.id.rbCondition);
 
-            llHeader.setOnClickListener(this);
             llContent.setOnClickListener(this);
         }
 
         public void bind(Post post) {
             this.post = post;
             ParseUser user = post.getUser();
-            tvUsername.setText(user.getUsername());
             tvTitle.setText(post.getTitle());
             rbCondition.setRating((float) post.getCondition() / 2);
             ParseFile image = post.getImage();
@@ -109,14 +100,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
         @Override
         public void onClick(View view) {
-            if (view == llHeader) {
-                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                Fragment fragment = new ProfileFragment();
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(Post.KEY_USER, post.getUser());
-                fragment.setArguments(bundle);
-                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
-            } else if (view == llContent) {
+            if (view == llContent) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 Fragment fragment = new DetailFragment();
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
