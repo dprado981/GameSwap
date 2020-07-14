@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">GameSwap</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="condition">Condition:</string>
+    <string name="game_title">Game Title</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="preview">Preview</string>
+    <string name="notes">Notes</string>
+</resources>
