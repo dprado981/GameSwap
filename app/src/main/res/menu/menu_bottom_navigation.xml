@@ -8,9 +8,19 @@
         android:title="Home"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/actionMap"
+        android:icon="@drawable/ic_map"
+        android:title="Map"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/actionCompose"
         android:icon="@drawable/ic_compose"
         android:title="Create"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/actionChat"
+        android:icon="@drawable/ic_chat"
+        android:title="Chat"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/actionProfile"

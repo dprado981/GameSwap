@@ -7,8 +7,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.codepath.gameswap.fragments.ConversationFragment;
+import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.models.Post;
 
 import java.util.List;
@@ -53,17 +58,25 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView tvNotes;
 
         public ViewHolder(@NonNull View view) {
             super(view);
             tvNotes = view.findViewById(R.id.tvNotes);
+            tvNotes.setOnClickListener(this);
         }
 
         public void bind(Post post, int position) {
             tvNotes.setText("hi " + position);
+        }
+
+        @Override
+        public void onClick(View view) {
+            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+            Fragment fragment = new DetailFragment();
+            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
         }
     }
 }

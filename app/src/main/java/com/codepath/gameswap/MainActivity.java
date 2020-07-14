@@ -8,7 +8,9 @@ import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.codepath.gameswap.fragments.ChatFragment;
 import com.codepath.gameswap.fragments.ComposeFragment;
+import com.codepath.gameswap.fragments.MapsFragment;
 import com.codepath.gameswap.fragments.PostsFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationMenu;
@@ -38,8 +40,14 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.actionHome:
                         fragment = new PostsFragment();
                         break;
+                    case R.id.actionMap:
+                        fragment = new MapsFragment();
+                        break;
                     case R.id.actionCompose:
                         fragment = new ComposeFragment();
+                        break;
+                    case R.id.actionChat:
+                        fragment = new ChatFragment();
                         break;
                     case R.id.actionProfile:
                     default:
