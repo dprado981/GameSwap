@@ -1,6 +1,7 @@
 package com.codepath.gameswap.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -16,31 +17,41 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
+import com.codepath.gameswap.CustomWindowAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 
 import java.util.List;
+import java.util.Random;
+
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class MapsFragment extends Fragment implements OnMyLocationButtonClickListener,
-        OnMyLocationClickListener,
-        OnMapReadyCallback {
+        OnMyLocationClickListener, OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
 
+    public static final int LOCATION_PERMISSION_CODE = 100;
     public static final String TAG = MapsFragment.class.getSimpleName();
+
     private Context context;
     private GoogleMap map;
 
@@ -79,42 +90,98 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 }
                 for (Post post : posts) {
                     ParseGeoPoint geoPoint = post.getCoordinates();
+                    Log.d(TAG, post.getTitle());
                     Log.d(TAG, "(" + geoPoint.getLatitude() + ", " + geoPoint.getLongitude() + ")");
                     LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-                    Circle circle = map.addCircle(new CircleOptions()
+                    map.addCircle(new CircleOptions()
                             .center(point)
                             .radius(100)
                             .strokeColor(Color.RED)
                             .fillColor(Color.argb(50, 255, 0, 0)));
-                    map.addMarker(new MarkerOptions().position(point).title(post.getTitle()));
+                    map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
                 }
             }
         });
         map.moveCamera(CameraUpdateFactory.zoomTo(10));
     }
 
-    private void zoomToCurrentLocation(GoogleMap map) {
 
+    @SuppressLint("MissingPermission")
+    private void zoomToCurrentLocation() {
+        FusedLocationProviderClient locationClient = getFusedLocationProviderClient(context);
+        locationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            float zoomLevel = 16.0f; //This goes up to 21
+                            double currentLatitude = location.getLatitude();
+                            double currentLongitude = location.getLongitude();
+                            LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                        e.printStackTrace();
+                    }
+                });
     }
 
     @Override
     public void onMapReady(GoogleMap map) {
         this.map = map;
+        map.getUiSettings().setZoomControlsEnabled(true);
         addPoints(map);
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+        map.setInfoWindowAdapter(new CustomWindowAdapter(getLayoutInflater(), context));
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_PERMISSION_CODE);
+        } else {
+            zoomToCurrentLocation();
+            map.setMyLocationEnabled(true);
+            map.setOnMyLocationButtonClickListener(this);
+            map.setOnMyLocationClickListener(this);
         }
-        map.setMyLocationEnabled(true);
-        map.setOnMyLocationButtonClickListener(this);
-        map.setOnMyLocationClickListener(this);
-        zoomToCurrentLocation(map);
+
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                Fragment fragment = new DetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("post", (Post) marker.getTag());
+                fragment.setArguments(bundle);
+                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+            }
+        });
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_CODE) {
+            // Checking whether user granted the permission or not.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Showing the toast message
+                Toast.makeText(context,
+                        "Location Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                onMapReady(map);
+            } else {
+                Toast.makeText(context,
+                        "Location Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
     }
 
     @Override

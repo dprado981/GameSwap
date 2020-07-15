@@ -23,6 +23,13 @@ android {
 
 }
 
+ext {
+    appCompatVersion = '1.0.0'
+    designSupportVersion = '1.1.0'
+    recyclerViewVersion = '1.0.0'
+    googlePlayVersion = "17.0.0"
+}
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -39,4 +46,6 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     // Glide v4 uses this new annotation processor -- see https://bumptech.github.io/glide/doc/generatedapi.html
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation "com.google.android.gms:play-services-maps:$googlePlayVersion"
+    implementation "com.google.android.gms:play-services-location:$googlePlayVersion"
 }

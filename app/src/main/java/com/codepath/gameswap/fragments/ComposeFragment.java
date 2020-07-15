@@ -1,9 +1,13 @@
 package com.codepath.gameswap.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -28,16 +33,23 @@ import androidx.fragment.app.FragmentManager;
 
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Random;
 
 import static android.app.Activity.RESULT_OK;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -46,14 +58,15 @@ import static android.app.Activity.RESULT_OK;
 public class ComposeFragment extends Fragment implements View.OnClickListener {
 
     public final String TAG = ComposeFragment.class.getSimpleName();
-    public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1042;
-    public final static int SELECT_IMAGE_ACTIVITY_REQUEST_CODE = 1042;
+    public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 101;
+    public final static int SELECT_IMAGE_ACTIVITY_REQUEST_CODE = 102;
+    public final static int LOCATION_PERMISSION_CODE = MapsFragment.LOCATION_PERMISSION_CODE;
     private String photoFileName = "photo.jpg";
     private File photoFile;
     private boolean photoStored;
-    private boolean conditionGiven;
 
     private Context context;
+    private LatLng currentLocation;
 
     private EditText etTitle;
     private Button btnCapture;
@@ -94,6 +107,58 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
 
         ivPreview.setImageDrawable(context.getDrawable(R.drawable.ic_image));
 
+        setCurrentLocation();
+
+    }
+
+    private void setCurrentLocation() {
+        FusedLocationProviderClient locationClient = getFusedLocationProviderClient(context);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_PERMISSION_CODE);
+        } else {
+            locationClient.getLastLocation()
+                    .addOnSuccessListener(new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                double currentLatitude = location.getLatitude();
+                                double currentLongitude = location.getLongitude();
+                                currentLocation = adjustedLatLng(currentLatitude, currentLongitude, 100);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                            e.printStackTrace();
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_CODE) {
+            // Checking whether user granted the permission or not.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Showing the toast message
+                Toast.makeText(context,
+                        "Location Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                setCurrentLocation();
+            } else {
+                Toast.makeText(context,
+                        "Location Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
     }
 
     /**
@@ -108,7 +173,8 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
         // Ensure that it's safe to use the Intent
-        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+        Activity activity = getActivity();
+        if (activity != null && intent.resolveActivity(activity.getPackageManager()) != null) {
             // Start the image capture intent to take photo
             startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
         }
@@ -190,8 +256,12 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         Post post = new Post();
         post.setTitle(etTitle.getText().toString());
         post.setNotes(etNotes.getText().toString());
-        System.out.println((int)(rbCondition.getRating()*2));
         post.setCondition((int)(rbCondition.getRating()*2));
+        if (currentLocation != null) {
+            post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));
+        } else {
+            post.setCoordinates(new ParseGeoPoint(0,0));
+        }
 
         Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -228,5 +298,16 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
             }
         });
 
+    }
+
+    private LatLng adjustedLatLng(double latitude, double longitude, int radius) {
+        double metersToDegrees = 111111;
+        Random random = new Random();
+        int precisionDecimals = (int) Math.log10(radius);
+        int powerOfTen = (int) Math.pow(10, precisionDecimals);
+        int bound = 2 * powerOfTen + 1;
+        double latAdjustment = radius / metersToDegrees * (random.nextInt(bound) - powerOfTen) / powerOfTen;
+        double longAdjustment = radius / metersToDegrees * (random.nextInt(bound) - powerOfTen) / powerOfTen;
+        return new LatLng(latitude + latAdjustment, longitude + longAdjustment);
     }
 }
