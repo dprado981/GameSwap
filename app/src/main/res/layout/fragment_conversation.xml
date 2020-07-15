@@ -6,12 +6,45 @@
     android:layout_height="match_parent"
     tools:context=".fragments.ConversationFragment">
 
+    <LinearLayout
+        android:id="@+id/llHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvProfile"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:cardCornerRadius="50dp">
+
+            <ImageView
+                android:id="@+id/ivProfile"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:contentDescription="@string/profile_picture"
+                android:scaleType="centerCrop"
+                tools:srcCompat="@tools:sample/avatars" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:ems="10"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            tools:text="Username" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMessages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/etMessage"
-        android:layout_marginBottom="0dp" />
+        android:layout_below="@+id/llHeader" />
 
     <EditText
         android:id="@+id/etMessage"
@@ -23,7 +56,7 @@
         android:layout_toStartOf="@+id/ibSend"
         android:hint="@string/write_a_message"
         android:importantForAutofill="no"
-        android:inputType="text"></EditText>
+        android:inputType="text"/>
 
     <ImageButton
         android:id="@+id/ibSend"
@@ -32,6 +65,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="0dp"
+        android:contentDescription="@string/send"
         android:src="@drawable/ic_send" />
 
 </RelativeLayout>

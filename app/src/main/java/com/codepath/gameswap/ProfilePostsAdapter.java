@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapter.ViewHolder>{
 
-    public static final String TAG = PostsAdapter.class.getSimpleName();
+    public static final String TAG = ProfilePostsAdapter.class.getSimpleName();
 
     private final Context context;
     private final List<Post> posts;

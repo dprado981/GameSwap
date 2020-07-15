@@ -42,7 +42,6 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 
 import java.util.List;
-import java.util.Random;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 

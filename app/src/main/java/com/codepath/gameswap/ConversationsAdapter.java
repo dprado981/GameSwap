@@ -1,6 +1,7 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.codepath.gameswap.fragments.ConversationFragment;
+import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.models.Conversation;
+import com.codepath.gameswap.models.Post;
 import com.parse.ParseUser;
 
 import org.w3c.dom.Text;
@@ -80,13 +83,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
         public void bind(Conversation conversation) {
             this.conversation = conversation;
-            ParseUser userOne = conversation.getUserOne();
-            ParseUser userTwo = conversation.getUserTwo();
-            if (userOne.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
-                tvUsername.setText(userTwo.getUsername());
-            } else {
-                tvUsername.setText(userOne.getUsername());
-            }
+            tvUsername.setText(getOtherUser(conversation).getUsername());
             tvPreview.setText(conversation.getLastMessage().getText());
         }
 
@@ -94,7 +91,20 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
         public void onClick(View view) {
             FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
             Fragment fragment = new ConversationFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Conversation.TAG, conversation);
+            fragment.setArguments(bundle);
             fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+        }
+
+        private ParseUser getOtherUser(Conversation conversation) {
+            ParseUser userOne = conversation.getUserOne();
+            ParseUser userTwo = conversation.getUserTwo();
+            if (userOne.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                return userTwo;
+            } else {
+                return userOne;
+            }
         }
     }
 }
