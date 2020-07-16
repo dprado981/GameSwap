@@ -9,12 +9,15 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -41,6 +44,8 @@ import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
@@ -66,6 +71,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
+        setHasOptionsMenu(true);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -194,6 +200,56 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search_bar, menu);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setMaxWidth( Integer.MAX_VALUE );
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String queryString) {
+                // perform query here
+                querySearch(queryString);
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String queryString) {
+                return false;
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void querySearch(String queryString) {
+        // Specify which class to query
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        // Find all posts
+        query.include(Post.KEY_USER);
+        query.setLimit(20);
+        if (!queryString.isEmpty()) {
+            query.whereContains(Post.KEY_TITLE, queryString);
+        }
+        query.addDescendingOrder(Post.KEY_CREATED_AT);
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+                if (!posts.isEmpty()) {
+                    ParseGeoPoint newGeoPoint = posts.get(0).getCoordinates();
+                    LatLng newCoords = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(newCoords, 16));
+                }
+            }
+        });
     }
 
 }

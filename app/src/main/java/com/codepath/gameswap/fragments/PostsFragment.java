@@ -5,14 +5,21 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
@@ -20,6 +27,8 @@ import com.codepath.gameswap.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,6 +77,7 @@ public class PostsFragment extends Fragment {
         rvPosts.setLayoutManager(layoutManager);
 
         queryPosts(false);
+        setHasOptionsMenu(true);
     }
 
     private void queryPosts(final boolean loadNext) {
@@ -92,6 +102,56 @@ public class PostsFragment extends Fragment {
                 if (!loadNext) {
                     adapter.clear();
                 }
+                adapter.addAll(posts);
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search_bar, menu);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setMaxWidth( Integer.MAX_VALUE );
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String queryString) {
+                // perform query here
+                querySearch(queryString);
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String queryString) {
+                querySearch(queryString);
+                return false;
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void querySearch(String queryString) {
+        // Specify which class to query
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        // Find all posts
+        query.include(Post.KEY_USER);
+        query.setLimit(20);
+        if (!queryString.isEmpty()) {
+            query.whereContains(Post.KEY_TITLE, queryString);
+        }
+        query.addDescendingOrder(Post.KEY_CREATED_AT);
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+                adapter.clear();
                 adapter.addAll(posts);
                 adapter.notifyDataSetChanged();
             }
