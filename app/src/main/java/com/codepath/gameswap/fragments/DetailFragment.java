@@ -72,7 +72,7 @@ public class DetailFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            post = bundle.getParcelable("post");
+            post = bundle.getParcelable(Post.TAG);
             ParseUser user = post.getUser();
             tvUsername.setText(user.getUsername());
             tvTitle.setText(post.getTitle());

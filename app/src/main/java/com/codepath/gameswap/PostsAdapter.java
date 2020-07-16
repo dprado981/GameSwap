@@ -120,7 +120,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 Fragment fragment = new DetailFragment();
                 Bundle bundle = new Bundle();
-                bundle.putParcelable("post", post);
+                bundle.putParcelable(Post.TAG, post);
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
             }

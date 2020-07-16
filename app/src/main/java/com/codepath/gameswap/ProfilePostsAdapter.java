@@ -1,6 +1,7 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailFragment;
-import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -103,6 +103,9 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
             if (view == llContent) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 Fragment fragment = new DetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(Post.TAG, post);
+                fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
             }
         }

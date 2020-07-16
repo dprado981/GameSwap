@@ -154,7 +154,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 Fragment fragment = new DetailFragment();
                 Bundle bundle = new Bundle();
-                bundle.putParcelable("post", (Post) marker.getTag());
+                bundle.putParcelable(Post.TAG, (Post) marker.getTag());
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
             }

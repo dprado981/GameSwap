@@ -29,6 +29,8 @@ import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -96,8 +98,16 @@ public class ConversationFragment extends Fragment {
             }
         });
 
-        queryMessages();
-
+        // Get new messages every second
+        Timer timer = new Timer();
+        int begin = 0;
+        int timeInterval = 1000;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                queryMessages();
+            }
+        }, begin, timeInterval);
     }
 
     private void sendMessage(String messageText) {
@@ -146,6 +156,7 @@ public class ConversationFragment extends Fragment {
         // Include Users and sort by most recent
         query.include(Message.KEY_FROM);
         query.include(Message.KEY_TO);
+        query.setLimit(20);
         query.addDescendingOrder(Conversation.KEY_CREATED_AT);
 
         query.findInBackground(new FindCallback<Message>() {

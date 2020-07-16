@@ -9,6 +9,7 @@ import com.parse.ParseUser;
 @ParseClassName("Post")
 public class Post extends ParseObject {
 
+    public static final String TAG = Post.class.getSimpleName();
     public static final String KEY_TITLE = "title";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_CONDITION = "condition";

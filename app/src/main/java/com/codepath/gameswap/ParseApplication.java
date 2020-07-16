@@ -1,6 +1,7 @@
 package com.codepath.gameswap;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Message;
@@ -10,9 +11,6 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class ParseApplication extends Application {
     @Override
@@ -33,11 +31,9 @@ public class ParseApplication extends Application {
                 .server("https://diego-gameswap.herokuapp.com/parse/")
                 .build());
 
-        // Init Live Query Client
-//        ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
-        /* TODO: GET THE LIVEQUERY WORKING:
-        * https://www.back4app.com/docs/android/live-query and https://github.com/parse-community/ParseLiveQuery-Android
-        * Figure out how to reference parseLiveQueryClient
+
+        /* TODO: GET THE LIVEQUERY WORKING: basically, make a new parse server then upload it to heroku
+        * Then you can get the settings to allow live queries
         */
     }
 }
