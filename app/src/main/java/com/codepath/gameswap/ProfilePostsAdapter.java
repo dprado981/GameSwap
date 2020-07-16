@@ -1,16 +1,23 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
+import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -19,6 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.models.Post;
+import com.parse.DeleteCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
@@ -68,6 +77,7 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
 
         private LinearLayout llContent;
         private TextView tvTitle;
+        private ImageButton ibMore;
         private ImageView ivImage;
         private RatingBar rbCondition;
 
@@ -78,10 +88,12 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
 
             llContent = view.findViewById(R.id.llContent);
             tvTitle = view.findViewById(R.id.tvTitle);
+            ibMore = view.findViewById(R.id.ibMore);
             ivImage = view.findViewById(R.id.ivImage);
             rbCondition = view.findViewById(R.id.rbCondition);
 
             llContent.setOnClickListener(this);
+            ibMore.setOnClickListener(this);
         }
 
         public void bind(Post post) {
@@ -107,6 +119,34 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
                 bundle.putParcelable(Post.TAG, post);
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+            } else if (view == ibMore) {
+                Log.d(TAG, "hi");
+                PopupMenu popup = new PopupMenu(context, view);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        post.deleteInBackground(new DeleteCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e != null) {
+                                    Log.e(TAG, "Issue with deleting post", e);
+                                    return;
+                                }
+                                Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
+                                int index = posts.indexOf(post);
+                                posts.remove(index);
+                                notifyItemRemoved(index);
+                            }
+                        });
+                        return true;
+                    }
+                });
+
+                popup.show();
             }
         }
     }
