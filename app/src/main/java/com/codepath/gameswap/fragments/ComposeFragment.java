@@ -219,7 +219,6 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     @Override
     public void onClick(View view) {
         if (view == btnCapture) {

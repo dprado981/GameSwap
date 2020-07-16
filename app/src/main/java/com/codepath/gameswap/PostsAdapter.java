@@ -105,6 +105,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                         .placeholder(R.drawable.ic_image)
                         .into(ivImage);
             }
+            ParseFile profileImage = (ParseFile) user.get("image");
+            if (profileImage != null) {
+                Glide.with(context)
+                        .load(profileImage.getUrl())
+                        .placeholder(R.drawable.ic_profile)
+                        .into(ivProfile);
+            }
         }
 
         @Override
