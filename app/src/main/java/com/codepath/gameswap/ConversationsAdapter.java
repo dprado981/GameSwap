@@ -59,7 +59,11 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
     }
 
     public void addAll(List<Conversation> list) {
-        conversations.addAll(list);
+        for (Conversation conversation : list) {
+            if (conversation.getLastMessage() != null) {
+                conversations.add(conversation);
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -88,7 +92,9 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             currentUser = ParseUser.getCurrentUser();
             otherUser = getOtherUser(conversation);
             tvUsername.setText(otherUser.getUsername());
-            tvPreview.setText(conversation.getLastMessage().getText());
+            if (conversation.getLastMessage() != null) {
+                tvPreview.setText(conversation.getLastMessage().getText());
+            }
             ParseFile image = (ParseFile) otherUser.get("image");
             if (image != null) {
                 Glide.with(context)
