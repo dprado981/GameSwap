@@ -2,12 +2,11 @@
     <string name="app_name">GameSwapz</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
-    <string name="condition">Condition:</string>
     <string name="game_title">Game Title</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="preview">Preview</string>
-    <string name="notes">Notes</string>
+    <string name="notes">Notes:</string>
     <string name="write_a_message">Write a message</string>
     <string name="log_out">Log Out</string>
     <string name="profile_picture">Profile Picture</string>
@@ -20,4 +19,8 @@
     <string name="post">Post</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
+    <string name="condition">Condition:</string>
+    <string name="difficulty">Difficulty:</string>
+    <string name="age_rating">Age Rating:</string>
+    <string name="not_specified">Not specified</string>
 </resources>

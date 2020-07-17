@@ -16,11 +16,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -73,6 +75,8 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
     private ImageView ivPreview;
     private EditText etNotes;
     private RatingBar rbCondition;
+    private RatingBar rbDifficulty;
+    private Spinner spAgeRating;
     private Button btnPost;
     private ProgressBar pbLoading;
 
@@ -99,6 +103,8 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         ivPreview = view.findViewById(R.id.ivPreview);
         etNotes = view.findViewById(R.id.etNotes);
         rbCondition = view.findViewById(R.id.rbCondition);
+        rbDifficulty = view.findViewById(R.id.rbDifficulty);
+        spAgeRating = view.findViewById(R.id.spAgeRating);
         btnPost = view.findViewById(R.id.btnPost);
         pbLoading = view.findViewById(R.id.pbLoading);
 
@@ -106,6 +112,12 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         btnPost.setOnClickListener(this);
 
         ivPreview.setImageDrawable(context.getDrawable(R.drawable.ic_image));
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
+                R.array.age_ratings_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spAgeRating.setAdapter(adapter);
+        spAgeRating.setSelection(0);
 
         setCurrentLocation();
 
@@ -256,12 +268,13 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         post.setTitle(etTitle.getText().toString());
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*2));
+        post.setDifficulty((int)(rbDifficulty.getRating()*2));
+        post.setAgeRating(Integer.parseInt((String)spAgeRating.getSelectedItem()));
         if (currentLocation != null) {
             post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));
         } else {
             post.setCoordinates(new ParseGeoPoint(0,0));
         }
-
         Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         takenImage.compress(Bitmap.CompressFormat.PNG, 0, stream);
@@ -309,4 +322,5 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         double longAdjustment = radius / metersToDegrees * (random.nextInt(bound) - powerOfTen) / powerOfTen;
         return new LatLng(latitude + latAdjustment, longitude + longAdjustment);
     }
+
 }

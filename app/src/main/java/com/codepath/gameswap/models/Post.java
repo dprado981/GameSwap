@@ -16,6 +16,8 @@ public class Post extends ParseObject {
     public static final String KEY_NOTES = "notes";
     public static final String KEY_USER = "user";
     public static final String KEY_COORDINATES = "coordinates";
+    public static final String KEY_DIFFICULTY = "difficulty";
+    public static final String KEY_AGE_RATING = "ageRating";
 
     public String getTitle() { return getString(KEY_TITLE); }
 
@@ -40,4 +42,12 @@ public class Post extends ParseObject {
     public ParseGeoPoint getCoordinates() { return getParseGeoPoint(KEY_COORDINATES); }
 
     public void setCoordinates(ParseGeoPoint parseGeoPoint) { put(KEY_COORDINATES, parseGeoPoint); }
+
+    public int getDifficulty() { return getInt(KEY_DIFFICULTY); }
+
+    public void setDifficulty(int difficulty) { put(KEY_DIFFICULTY, difficulty); }
+
+    public int getAgeRating() { return getInt(KEY_AGE_RATING); }
+
+    public void setAgeRating(int ageRating) { put(KEY_AGE_RATING, ageRating); }
 }

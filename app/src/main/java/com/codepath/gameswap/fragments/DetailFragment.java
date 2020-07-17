@@ -1,6 +1,7 @@
 package com.codepath.gameswap.fragments;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,11 +16,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
@@ -52,8 +56,10 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
     private TextView tvUsername;
     private TextView tvTitle;
     private ImageView ivImage;
+    private TextView tvNotesContent;
     private RatingBar rbCondition;
-    private TextView tvNotes;
+    private RatingBar rbDifficulty;
+    private TextView tvAgeRatingValue;
     private Button btnMessage;
 
     public DetailFragment() {
@@ -77,25 +83,55 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         tvUsername = view.findViewById(R.id.tvUsername);
         tvTitle = view.findViewById(R.id.tvTitle);
         ivImage = view.findViewById(R.id.ivImage);
+        tvNotesContent = view.findViewById(R.id.tvNotesContent);
         rbCondition = view.findViewById(R.id.rbCondition);
-        tvNotes = view.findViewById(R.id.tvNotes);
+        rbDifficulty = view.findViewById(R.id.rbDifficulty);
+        tvAgeRatingValue = view.findViewById(R.id.tvAgeRatingValue);
         btnMessage = view.findViewById(R.id.btnMessage);
 
         Bundle bundle = getArguments();
-        if (bundle != null) {
-            post = bundle.getParcelable(Post.TAG);
-            user = post.getUser();
-            tvUsername.setText(user.getUsername());
-            tvTitle.setText(post.getTitle());
-            rbCondition.setRating((float) post.getCondition() / 2);
-            tvNotes.setText(post.getNotes());
-            ParseFile image = post.getImage();
-            if (image != null) {
-                Glide.with(context)
-                        .load(post.getImage().getUrl())
-                        .placeholder(R.drawable.ic_image)
-                        .into(ivImage);
-            }
+        if (bundle == null) {
+            return;
+        }
+        post = bundle.getParcelable(Post.TAG);
+        user = post.getUser();
+        tvUsername.setText(user.getUsername());
+        tvTitle.setText(post.getTitle());
+        rbCondition.setRating((float) post.getCondition() / 2);
+        rbDifficulty.setRating((float) post.getDifficulty() / 2);
+        int ageRating = post.getAgeRating();
+        if (ageRating == 0) {
+            tvAgeRatingValue.setText(R.string.not_specified);
+        } else {
+            tvAgeRatingValue.setText(post.getAgeRating() +  "+");
+        }
+        String notes = post.getNotes();
+        if (notes.isEmpty()) {
+            tvNotesContent.setText(R.string.not_specified);
+        } else {
+            tvNotesContent.setText(notes);
+        }
+
+        ParseFile image = post.getImage();
+        if (image != null) {
+            Glide.with(context)
+                    .load(post.getImage().getUrl())
+                    .placeholder(R.drawable.ic_image)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            Log.e(TAG, "Glide failed to load image");
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            // Make all images square
+                            ivImage.getLayoutParams().height = ((View) ivImage.getParent()).getWidth();
+                            return false;
+                        }
+                    })
+                    .into(ivImage);
 
             ParseFile profileImage = (ParseFile) post.getUser().get("image");
             if (profileImage != null) {
@@ -132,11 +168,11 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);
 
         // Find the Conversation that include the current user and the other user
-        userOneQuery.whereEqualTo(Conversation.KEY_USERONE, ParseUser.getCurrentUser());
-        userOneQuery.whereEqualTo(Conversation.KEY_USERTWO, post.getUser());
+        userOneQuery.whereEqualTo(Conversation.KEY_USER_ONE, ParseUser.getCurrentUser());
+        userOneQuery.whereEqualTo(Conversation.KEY_USER_TWO, post.getUser());
 
-        userTwoQuery.whereEqualTo(Conversation.KEY_USERTWO, ParseUser.getCurrentUser());
-        userTwoQuery.whereEqualTo(Conversation.KEY_USERONE, post.getUser());
+        userTwoQuery.whereEqualTo(Conversation.KEY_USER_TWO, ParseUser.getCurrentUser());
+        userTwoQuery.whereEqualTo(Conversation.KEY_USER_ONE, post.getUser());
 
         // Combine queries into a compound query
         List<ParseQuery<Conversation>> queries = new ArrayList<>();
@@ -145,9 +181,9 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         ParseQuery<Conversation> query = ParseQuery.or(queries);
 
         // Include Users and sort by most recent
-        query.include(Conversation.KEY_USERONE);
-        query.include(Conversation.KEY_USERTWO);
-        query.include(Conversation.KEY_LASTMESSAGE);
+        query.include(Conversation.KEY_USER_ONE);
+        query.include(Conversation.KEY_USER_TWO);
+        query.include(Conversation.KEY_LAST_MESSAGE);
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
 
         query.findInBackground(new FindCallback<Conversation>() {

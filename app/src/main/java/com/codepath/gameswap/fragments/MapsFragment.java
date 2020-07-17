@@ -120,7 +120,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                     @Override
                     public void onSuccess(Location location) {
                         if (location != null) {
-                            float zoomLevel = 16.0f; //This goes up to 21
+                            float zoomLevel = 12.0f; //This goes up to 21
                             double currentLatitude = location.getLatitude();
                             double currentLongitude = location.getLongitude();
                             LatLng latLng = new LatLng(currentLatitude, currentLongitude);
