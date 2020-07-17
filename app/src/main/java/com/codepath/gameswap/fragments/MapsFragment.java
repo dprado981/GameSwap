@@ -100,8 +100,9 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                     LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
                     map.addCircle(new CircleOptions()
                             .center(point)
-                            .radius(100)
+                            .radius(3000)
                             .strokeColor(Color.RED)
+                            .strokeWidth(4)
                             .fillColor(Color.argb(50, 255, 0, 0)));
                     map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
                 }

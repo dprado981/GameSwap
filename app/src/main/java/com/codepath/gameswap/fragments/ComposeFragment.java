@@ -126,7 +126,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
                             if (location != null) {
                                 double currentLatitude = location.getLatitude();
                                 double currentLongitude = location.getLongitude();
-                                currentLocation = adjustedLatLng(currentLatitude, currentLongitude, 100);
+                                currentLocation = adjustedLatLng(currentLatitude, currentLongitude, 1000);
                             }
                         }
                     })

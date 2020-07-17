@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -36,15 +37,24 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = DetailFragment.class.getSimpleName();
 
     private Context context;
 
     private Post post;
+    private ParseUser user;
 
     private Conversation targetConversation;
+
+    private ImageView ivProfile;
+    private TextView tvUsername;
+    private TextView tvTitle;
+    private ImageView ivImage;
+    private RatingBar rbCondition;
+    private TextView tvNotes;
+    private Button btnMessage;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -63,18 +73,18 @@ public class DetailFragment extends Fragment {
 
         context = getContext();
 
-        ImageView ivProfile = view.findViewById(R.id.ivProfile);
-        TextView tvUsername = view.findViewById(R.id.tvUsername);
-        TextView tvTitle = view.findViewById(R.id.tvTitle);
-        ImageView ivImage = view.findViewById(R.id.ivImage);
-        RatingBar rbCondition = view.findViewById(R.id.rbCondition);
-        TextView tvNotes = view.findViewById(R.id.tvNotes);
-        Button btnMessage = view.findViewById(R.id.btnMessage);
+        ivProfile = view.findViewById(R.id.ivProfile);
+        tvUsername = view.findViewById(R.id.tvUsername);
+        tvTitle = view.findViewById(R.id.tvTitle);
+        ivImage = view.findViewById(R.id.ivImage);
+        rbCondition = view.findViewById(R.id.rbCondition);
+        tvNotes = view.findViewById(R.id.tvNotes);
+        btnMessage = view.findViewById(R.id.btnMessage);
 
         Bundle bundle = getArguments();
         if (bundle != null) {
             post = bundle.getParcelable(Post.TAG);
-            ParseUser user = post.getUser();
+            user = post.getUser();
             tvUsername.setText(user.getUsername());
             tvTitle.setText(post.getTitle());
             rbCondition.setRating((float) post.getCondition() / 2);
@@ -96,13 +106,24 @@ public class DetailFragment extends Fragment {
             }
         }
 
-        btnMessage.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                setTargetConversation();
-            }
-        });
+        ivProfile.setOnClickListener(this);
+        tvUsername.setOnClickListener(this);
+        btnMessage.setOnClickListener(this);
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == btnMessage) {
+            setTargetConversation();
+        } else if (view == ivProfile || view == tvUsername) {
+            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+            Fragment fragment = new ProfileFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Post.KEY_USER, user);
+            fragment.setArguments(bundle);
+            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+        }
     }
 
     private void setTargetConversation() {
@@ -166,5 +187,4 @@ public class DetailFragment extends Fragment {
         fragment.setArguments(bundle);
         fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
-
 }
