@@ -195,13 +195,11 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
                 }
                 if (!conversations.isEmpty()) {
                     targetConversation = conversations.get(0);
-                    Log.d(TAG, targetConversation.getLastMessage().getText());
                     goToConversationFragment(targetConversation);
                 } else {
                     targetConversation = new Conversation();
                     targetConversation.setUserOne(ParseUser.getCurrentUser());
                     targetConversation.setUserTwo(post.getUser());
-                    //targetConversation.setLastMessage(null);
                     targetConversation.saveInBackground(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {

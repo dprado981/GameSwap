@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GameSwapz</string>
+    <string name="app_name">GameSwap</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="game_title">Game Title</string>

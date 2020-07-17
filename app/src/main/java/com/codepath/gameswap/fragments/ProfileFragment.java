@@ -214,7 +214,7 @@ public class ProfileFragment extends Fragment {
             if (resultCode == RESULT_OK) {
                 final Bitmap takenImage = BitmapFactory.decodeFile(profileImageFile.getAbsolutePath());
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                takenImage.compress(Bitmap.CompressFormat.PNG, 0, stream);
+                takenImage.compress(Bitmap.CompressFormat.JPEG, 10, stream);
                 byte[] bitmapBytes = stream.toByteArray();
                 ParseFile image = new ParseFile(photoFileName, bitmapBytes);
                 user.put("image", image);

@@ -277,7 +277,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         }
         Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        takenImage.compress(Bitmap.CompressFormat.PNG, 0, stream);
+        takenImage.compress(Bitmap.CompressFormat.JPEG, 20, stream);
         byte[] bitmapBytes = stream.toByteArray();
         ParseFile image = new ParseFile("myImage", bitmapBytes);
         post.setImage(image);
