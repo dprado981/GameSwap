@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.codepath.gameswap.models.Message;
+import com.parse.ParseException;
 import com.parse.ParseUser;
 
 import java.util.List;
@@ -30,10 +31,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemViewType(int position) {
-        if (messages.get(position).getFrom().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
-            return SENT_MESSAGE;
-        } else {
-            return RECEIVED_MESSAGE;
+        try {
+            if (messages.get(position).getFrom().fetchIfNeeded().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                return SENT_MESSAGE;
+            } else {
+                return RECEIVED_MESSAGE;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 
@@ -44,9 +50,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (viewType == SENT_MESSAGE) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_sent_message, parent, false);
             return new SentViewHolder(view);
-        } else { // Is RECEIVED_MESSAGE
+        } else if (viewType == RECEIVED_MESSAGE) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_received_message, parent, false);
             return new ReceivedViewHolder(view);
+        } else {
+            return null;
         }
     }
 

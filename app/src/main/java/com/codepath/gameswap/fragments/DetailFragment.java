@@ -63,6 +63,7 @@ public class DetailFragment extends Fragment {
 
         context = getContext();
 
+        ImageView ivProfile = view.findViewById(R.id.ivProfile);
         TextView tvUsername = view.findViewById(R.id.tvUsername);
         TextView tvTitle = view.findViewById(R.id.tvTitle);
         ImageView ivImage = view.findViewById(R.id.ivImage);
@@ -84,6 +85,14 @@ public class DetailFragment extends Fragment {
                         .load(post.getImage().getUrl())
                         .placeholder(R.drawable.ic_image)
                         .into(ivImage);
+            }
+
+            ParseFile profileImage = (ParseFile) post.getUser().get("image");
+            if (profileImage != null) {
+                Glide.with(context)
+                        .load(profileImage.getUrl())
+                        .placeholder(R.drawable.ic_profile)
+                        .into(ivProfile);
             }
         }
 

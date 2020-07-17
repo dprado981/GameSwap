@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvConfirmation"
         android:layout_marginTop="4dp"
-        tools:text="Login" />
+        android:text="@string/login" />
 
     <Button
         android:id="@+id/btnRegister"
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/btnLogin"
         android:layout_marginTop="20dp"
-        tools:text="Register" />
+        android:text="@string/register" />
 
     <ProgressBar
         android:id="@+id/pbLogin"

@@ -2,12 +2,15 @@ package com.codepath.gameswap.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,20 +20,22 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.codepath.gameswap.MessagesAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Message;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.livequery.ParseLiveQueryClient;
+import com.parse.livequery.SubscriptionHandling;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,6 +49,9 @@ public class ConversationFragment extends Fragment {
     private Conversation conversation;
     private ParseUser currentUser;
     private ParseUser otherUser;
+
+    private ImageView ivProfile;
+    private TextView tvUsername;
 
     private RecyclerView rvMessages;
     private List<Message> messages;
@@ -82,7 +90,16 @@ public class ConversationFragment extends Fragment {
         layoutManager.setReverseLayout(true);
         rvMessages.setLayoutManager(layoutManager);
 
-        TextView tvUsername = view.findViewById(R.id.tvUsername);
+        ivProfile = view.findViewById(R.id.ivProfile);
+        ParseFile image = (ParseFile) otherUser.get("image");
+        if (image != null) {
+            Glide.with(context)
+                    .load(image.getUrl())
+                    .placeholder(R.drawable.ic_profile)
+                    .into(ivProfile);
+        }
+
+        tvUsername = view.findViewById(R.id.tvUsername);
         tvUsername.setText(otherUser.getUsername());
 
         etMessage = view.findViewById(R.id.etMessage);
@@ -98,16 +115,56 @@ public class ConversationFragment extends Fragment {
             }
         });
 
-        // Get new messages every second
-        Timer timer = new Timer();
-        int begin = 0;
-        int timeInterval = 1000;
-        timer.scheduleAtFixedRate(new TimerTask() {
+        queryMessages();
+
+        ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
+        ParseQuery<Message> fromQuery = ParseQuery.getQuery(Message.class);
+        ParseQuery<Message> toQuery = ParseQuery.getQuery(Message.class);
+
+        // Find all Messages from current user to other user
+        fromQuery.whereEqualTo(Message.KEY_FROM, currentUser);
+        fromQuery.whereEqualTo(Message.KEY_TO, otherUser);
+
+        // Find all Messages to current user from other user
+        toQuery.whereEqualTo(Message.KEY_TO, currentUser);
+        toQuery.whereEqualTo(Message.KEY_FROM, otherUser);
+
+        // Combine queries into a compound query
+        List<ParseQuery<Message>> queries = new ArrayList<>();
+        queries.add(fromQuery);
+        queries.add(toQuery);
+        ParseQuery<Message> query = ParseQuery.or(queries);
+
+        // Include Users
+        query.include(Message.KEY_FROM);
+        query.include(Message.KEY_TO);
+
+        parseLiveQueryClient.subscribe(query).handleEvents(new SubscriptionHandling.HandleEventsCallback<Message>() {
             @Override
-            public void run() {
-                queryMessages();
+            public void onEvents(ParseQuery<Message> query, final SubscriptionHandling.Event event, final Message message) {
+                Handler refresh = new Handler(Looper.getMainLooper());
+                refresh.post(new Runnable() {
+                    public void run()
+                    {
+                        Message newLastMessage = null;
+                        if (event == SubscriptionHandling.Event.CREATE) {
+                            messages.add(0, message);
+                            newLastMessage = message;
+                        } else if (event == SubscriptionHandling.Event.DELETE) {
+                            messages.remove(message);
+                            newLastMessage = messages.get(0);
+                        } else {
+                            Log.i(TAG, "not implemented yet");
+                        }
+                        if (newLastMessage != null) {
+                            adapter.notifyDataSetChanged();
+                            conversation.setLastMessage(newLastMessage);
+                            conversation.saveInBackground();
+                        }
+                    }
+                });
             }
-        }, begin, timeInterval);
+        });
     }
 
     private void sendMessage(String messageText) {
@@ -126,10 +183,10 @@ public class ConversationFragment extends Fragment {
                 }
                 Log.d(TAG, "Sent successfully");
                 etMessage.setText("");
-                messages.add(0, message);
+                /*messages.add(0, message);
                 adapter.notifyItemInserted(0);
                 conversation.setLastMessage(message);
-                conversation.saveInBackground();
+                conversation.saveInBackground();*/
             }
         });
     }

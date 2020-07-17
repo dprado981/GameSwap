@@ -2,10 +2,10 @@ package com.codepath.gameswap;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,13 +15,11 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.ConversationFragment;
-import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.models.Conversation;
-import com.codepath.gameswap.models.Post;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -67,14 +65,18 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        private ImageView ivProfile;
         private LinearLayout llPreview;
         private TextView tvUsername;
         private TextView tvPreview;
 
         private Conversation conversation;
+        private ParseUser currentUser;
+        private ParseUser otherUser;
 
         public ViewHolder(@NonNull View view) {
             super(view);
+            ivProfile = view.findViewById(R.id.ivProfile);
             llPreview = view.findViewById(R.id.llPreview);
             tvUsername = view.findViewById(R.id.tvUsername);
             tvPreview = view.findViewById(R.id.tvPreview);
@@ -83,8 +85,17 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
         public void bind(Conversation conversation) {
             this.conversation = conversation;
-            tvUsername.setText(getOtherUser(conversation).getUsername());
+            currentUser = ParseUser.getCurrentUser();
+            otherUser = getOtherUser(conversation);
+            tvUsername.setText(otherUser.getUsername());
             tvPreview.setText(conversation.getLastMessage().getText());
+            ParseFile image = (ParseFile) otherUser.get("image");
+            if (image != null) {
+                Glide.with(context)
+                        .load(image.getUrl())
+                        .placeholder(R.drawable.ic_profile)
+                        .into(ivProfile);
+            }
         }
 
         @Override
