@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.codepath.gameswap.ConversationsAdapter;
+import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.parse.FindCallback;
@@ -24,6 +25,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +40,7 @@ public class ChatsFragment extends Fragment {
 
     private RecyclerView rvConversations;
     private SwipeRefreshLayout swipeContainer;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     private List<Conversation> conversations;
     private LinearLayoutManager layoutManager;
@@ -68,13 +71,24 @@ public class ChatsFragment extends Fragment {
         rvConversations.setAdapter(adapter);
         rvConversations.setLayoutManager(layoutManager);
 
-        queryConversations();
+        queryConversations(false);
+
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                queryConversations(true);
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvConversations.addOnScrollListener(scrollListener);
 
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                queryConversations();
+                queryConversations(false);
             }
         });
         // Configure the refreshing colors
@@ -85,7 +99,7 @@ public class ChatsFragment extends Fragment {
                 android.R.color.holo_red_light);
     }
 
-    private void queryConversations() {
+    private void queryConversations(final boolean loadNext) {
         // Specify which class to query
         ParseQuery<Conversation> userOneQuery = ParseQuery.getQuery(Conversation.class);
         ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);
@@ -104,19 +118,28 @@ public class ChatsFragment extends Fragment {
         query.include(Conversation.KEY_USER_ONE);
         query.include(Conversation.KEY_USER_TWO);
         query.include(Conversation.KEY_LAST_MESSAGE);
+        query.setLimit(20);
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
+        if (loadNext) {
+            Date olderThanDate = conversations.get(conversations.size()-1).getCreatedAt();
+            Log.i(TAG, "Loading conversations older than " + olderThanDate);
+            query.whereLessThan(Conversation.KEY_UPDATED_AT, olderThanDate);
+        }
 
         query.findInBackground(new FindCallback<Conversation>() {
             @Override
             public void done(List<Conversation> conversations, ParseException e) {
                 if (e != null) {
-                    Log.e(TAG, "Issue with getting posts", e);
+                    Log.e(TAG, "Issue with getting conversations", e);
                     return;
                 }
-                adapter.clear();
+                if (!loadNext) {
+                    adapter.clear();
+                    scrollListener.resetState();
+                    swipeContainer.setRefreshing(false);
+                }
                 adapter.addAll(conversations);
                 adapter.notifyDataSetChanged();
-                swipeContainer.setRefreshing(false);
             }
         });
     }

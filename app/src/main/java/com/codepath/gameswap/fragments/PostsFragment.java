@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
@@ -45,6 +46,7 @@ public class PostsFragment extends Fragment {
     private PostsAdapter adapter;
     private RecyclerView rvPosts;
     private SwipeRefreshLayout swipeContainer;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     public PostsFragment() {
         // Required empty public constructor
@@ -76,6 +78,17 @@ public class PostsFragment extends Fragment {
 
         queryPosts(false);
         setHasOptionsMenu(true);
+
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                queryPosts(true);
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvPosts.addOnScrollListener(scrollListener);
 
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -113,6 +126,7 @@ public class PostsFragment extends Fragment {
                 }
                 if (!loadNext) {
                     adapter.clear();
+                    scrollListener.resetState();
                     swipeContainer.setRefreshing(false);
                 }
                 adapter.addAll(posts);
@@ -152,7 +166,7 @@ public class PostsFragment extends Fragment {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
         query.include(Post.KEY_USER);
-        query.setLimit(20);
+        query.setLimit(2);
         if (!queryString.isEmpty()) {
             query.whereContains(Post.KEY_TITLE, queryString);
         }
