@@ -24,6 +24,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.LoginActivity;
@@ -58,10 +59,11 @@ public class ProfileFragment extends Fragment {
 
     private Context context;
 
-    private RecyclerView rvPosts;
     private ImageView ivProfile;
     private TextView tvUsername;
     private Button btnLogout;
+    private RecyclerView rvPosts;
+    private SwipeRefreshLayout swipeContainer;
 
     private List<Post> allPosts;
     private LinearLayoutManager layoutManager;
@@ -87,10 +89,11 @@ public class ProfileFragment extends Fragment {
 
         context = getContext();
 
-        rvPosts = view.findViewById(R.id.rvPosts);
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
         btnLogout = view.findViewById(R.id.btnLogout);
+        rvPosts = view.findViewById(R.id.rvPosts);
+        swipeContainer = view.findViewById(R.id.swipeContainer);
 
         layoutManager = new LinearLayoutManager(context);
         allPosts = new ArrayList<>();
@@ -144,6 +147,20 @@ public class ProfileFragment extends Fragment {
                 launchCamera();
             }
         });
+
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                queryPosts();
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
     private void queryPosts() {
@@ -163,6 +180,7 @@ public class ProfileFragment extends Fragment {
                 adapter.clear();
                 adapter.addAll(posts);
                 adapter.notifyDataSetChanged();
+                swipeContainer.setRefreshing(false);
             }
         });
     }

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,9 +36,11 @@ public class ChatsFragment extends Fragment {
 
     private Context context;
 
-    private LinearLayoutManager layoutManager;
-    private List<Conversation> conversations;
     private RecyclerView rvConversations;
+    private SwipeRefreshLayout swipeContainer;
+
+    private List<Conversation> conversations;
+    private LinearLayoutManager layoutManager;
     private ConversationsAdapter adapter;
 
     public ChatsFragment() {
@@ -56,14 +59,30 @@ public class ChatsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
 
-        conversations = new ArrayList<>();
         rvConversations = view.findViewById(R.id.rvConversations);
+        swipeContainer = view.findViewById(R.id.swipeContainer);
+
+        conversations = new ArrayList<>();
         layoutManager = new LinearLayoutManager(context);
         adapter = new ConversationsAdapter(context, conversations);
         rvConversations.setAdapter(adapter);
         rvConversations.setLayoutManager(layoutManager);
 
         queryConversations();
+
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                queryConversations();
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
     private void queryConversations() {
@@ -97,6 +116,7 @@ public class ChatsFragment extends Fragment {
                 adapter.clear();
                 adapter.addAll(conversations);
                 adapter.notifyDataSetChanged();
+                swipeContainer.setRefreshing(false);
             }
         });
     }

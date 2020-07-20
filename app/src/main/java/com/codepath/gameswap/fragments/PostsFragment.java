@@ -2,24 +2,20 @@ package com.codepath.gameswap.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.view.MenuItemCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
@@ -48,6 +44,7 @@ public class PostsFragment extends Fragment {
     private LinearLayoutManager layoutManager;
     private PostsAdapter adapter;
     private RecyclerView rvPosts;
+    private SwipeRefreshLayout swipeContainer;
 
     public PostsFragment() {
         // Required empty public constructor
@@ -67,6 +64,7 @@ public class PostsFragment extends Fragment {
         context = getContext();
 
         rvPosts = view.findViewById(R.id.rvPosts);
+        swipeContainer = view.findViewById(R.id.swipeContainer);
 
         layoutManager = new LinearLayoutManager(context);
         allPosts = new ArrayList<>();
@@ -78,6 +76,20 @@ public class PostsFragment extends Fragment {
 
         queryPosts(false);
         setHasOptionsMenu(true);
+
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                queryPosts(false);
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
     private void queryPosts(final boolean loadNext) {
@@ -101,6 +113,7 @@ public class PostsFragment extends Fragment {
                 }
                 if (!loadNext) {
                     adapter.clear();
+                    swipeContainer.setRefreshing(false);
                 }
                 adapter.addAll(posts);
                 adapter.notifyDataSetChanged();
