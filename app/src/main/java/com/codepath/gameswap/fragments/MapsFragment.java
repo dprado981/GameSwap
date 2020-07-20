@@ -1,7 +1,6 @@
 package com.codepath.gameswap.fragments;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -57,7 +56,9 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     public static final String TAG = MapsFragment.class.getSimpleName();
 
     private Context context;
+    private FusedLocationProviderClient locationClient;
     private GoogleMap map;
+    private LatLng recentLatLng;
 
     @Nullable
     @Override
@@ -95,8 +96,6 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 }
                 for (Post post : posts) {
                     ParseGeoPoint geoPoint = post.getCoordinates();
-                    Log.d(TAG, post.getTitle());
-                    Log.d(TAG, "(" + geoPoint.getLatitude() + ", " + geoPoint.getLongitude() + ")");
                     LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
                     map.addCircle(new CircleOptions()
                             .center(point)
@@ -108,37 +107,11 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 }
             }
         });
-        map.moveCamera(CameraUpdateFactory.zoomTo(10));
-    }
-
-
-    @SuppressLint("MissingPermission")
-    private void zoomToCurrentLocation() {
-        FusedLocationProviderClient locationClient = getFusedLocationProviderClient(context);
-        locationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            float zoomLevel = 12.0f; //This goes up to 21
-                            double currentLatitude = location.getLatitude();
-                            double currentLongitude = location.getLongitude();
-                            LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("MapDemoActivity", "Error trying to get last GPS location");
-                        e.printStackTrace();
-                    }
-                });
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(final GoogleMap map) {
+        locationClient = getFusedLocationProviderClient(context);
         this.map = map;
         map.getUiSettings().setZoomControlsEnabled(true);
         addPoints(map);
@@ -149,7 +122,21 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     MapUtils.LOCATION_PERMISSION_CODE);
         } else {
-            zoomToCurrentLocation();
+            // Get current location and zoom in
+            locationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>(){
+                @Override
+                public void onSuccess(Location location) {
+                    double currentLatitude = location.getLatitude();
+                    double currentLongitude = location.getLongitude();
+                    recentLatLng = new LatLng(currentLatitude, currentLongitude);
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(recentLatLng, 12));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "Error trying to get last GPS location", e);
+                }
+            });
             map.setMyLocationEnabled(true);
             map.setOnMyLocationButtonClickListener(this);
             map.setOnMyLocationClickListener(this);
@@ -224,6 +211,13 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 return false;
             }
         });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                addPoints(map);
+                return false;
+            }
+        });
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -232,6 +226,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
         query.include(Post.KEY_USER);
+        query.whereNear(Post.KEY_COORDINATES, new ParseGeoPoint(recentLatLng.latitude, recentLatLng.longitude));
         query.setLimit(20);
         if (!queryString.isEmpty()) {
             query.whereContains(Post.KEY_TITLE, queryString);
@@ -245,12 +240,23 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                     return;
                 }
                 if (!posts.isEmpty()) {
+                    map.clear();
+                    for (Post post : posts) {
+                        ParseGeoPoint geoPoint = post.getCoordinates();
+                        LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+                        map.addCircle(new CircleOptions()
+                                .center(point)
+                                .radius(3000)
+                                .strokeColor(Color.RED)
+                                .strokeWidth(4)
+                                .fillColor(Color.argb(50, 255, 0, 0)));
+                        map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
+                    }
                     ParseGeoPoint newGeoPoint = posts.get(0).getCoordinates();
-                    LatLng newCoords = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(newCoords, 16));
+                    LatLng newLatLng = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 14));
                 }
             }
         });
     }
-
 }

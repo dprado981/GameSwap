@@ -32,6 +32,7 @@ import com.codepath.gameswap.LoginActivity;
 import com.codepath.gameswap.ProfilePostsAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
+import com.codepath.gameswap.utils.CameraUtils;
 import com.parse.FindCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
@@ -55,8 +56,6 @@ import static android.app.Activity.RESULT_OK;
 public class ProfileFragment extends Fragment {
 
     public static final String TAG = ProfileFragment.class.getSimpleName();
-    public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = ComposeFragment.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE;
-    public final static int PICK_IMAGE_ACTIVITY_REQUEST_CODE = ComposeFragment.PICK_IMAGE_ACTIVITY_REQUEST_CODE;
     private String photoFileName = "profile_photo.jpg";
 
     private Context context;
@@ -223,7 +222,7 @@ public class ProfileFragment extends Fragment {
         Activity activity = getActivity();
         if (activity != null && intent.resolveActivity(activity.getPackageManager()) != null) {
             // Start the image capture intent to take photo
-            startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+            startActivityForResult(intent, CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
         }
     }
 
@@ -251,7 +250,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+        if (requestCode == CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 final Bitmap takenImage = BitmapFactory.decodeFile(profileImageFile.getAbsolutePath());
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();

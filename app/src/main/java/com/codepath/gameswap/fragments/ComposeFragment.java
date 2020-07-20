@@ -37,6 +37,7 @@ import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.utils.MapUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -146,7 +147,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.e("MapDemoActivity", "Error trying to get last GPS location");
+                            Log.e(TAG, "Error trying to get last GPS location");
                             e.printStackTrace();
                         }
                     });
