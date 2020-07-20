@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
 
     public static final String TAG = ProfileFragment.class.getSimpleName();
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = ComposeFragment.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE;
-    public final static int SELECT_IMAGE_ACTIVITY_REQUEST_CODE = ComposeFragment.SELECT_IMAGE_ACTIVITY_REQUEST_CODE;
+    public final static int PICK_IMAGE_ACTIVITY_REQUEST_CODE = ComposeFragment.PICK_IMAGE_ACTIVITY_REQUEST_CODE;
     private String photoFileName = "profile_photo.jpg";
 
     private Context context;

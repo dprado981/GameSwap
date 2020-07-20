@@ -1,14 +1,15 @@
 package com.codepath.gameswap.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -46,8 +47,10 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 import static android.app.Activity.RESULT_OK;
@@ -60,10 +63,12 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
 public class ComposeFragment extends Fragment implements View.OnClickListener {
 
     public final String TAG = ComposeFragment.class.getSimpleName();
-    public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 101;
-    public final static int SELECT_IMAGE_ACTIVITY_REQUEST_CODE = 102;
-    public final static int LOCATION_PERMISSION_CODE = MapsFragment.LOCATION_PERMISSION_CODE;
-    private String photoFileName = "photo.jpg";
+    public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 101;
+    public static final int PICK_IMAGE_ACTIVITY_REQUEST_CODE = 102;
+    public static final int JPEG_COMPRESSION_FACTOR = 20;
+    public static final int LOCATION_PERMISSION_CODE = MapsFragment.LOCATION_PERMISSION_CODE;
+    private enum ImageLocation { CAMERA, GALLERY }
+    private static final String PHOTO_FILE_NAME = "photo.jpg";
     private File photoFile;
     private boolean photoStored;
 
@@ -71,7 +76,8 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
     private LatLng currentLocation;
 
     private EditText etTitle;
-    private Button btnCapture;
+    private Button btnCamera;
+    private Button btnGallery;
     private ImageView ivPreview;
     private EditText etNotes;
     private RatingBar rbCondition;
@@ -98,8 +104,9 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
 
         photoStored = false;
 
-        btnCapture = view.findViewById(R.id.btnCapture);
         etTitle = view.findViewById(R.id.etTitle);
+        btnCamera = view.findViewById(R.id.btnCapture);
+        btnGallery = view.findViewById(R.id.btnGallery);
         ivPreview = view.findViewById(R.id.ivPreview);
         etNotes = view.findViewById(R.id.etNotes);
         rbCondition = view.findViewById(R.id.rbCondition);
@@ -108,7 +115,8 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         btnPost = view.findViewById(R.id.btnPost);
         pbLoading = view.findViewById(R.id.pbLoading);
 
-        btnCapture.setOnClickListener(this);
+        btnCamera.setOnClickListener(this);
+        btnGallery.setOnClickListener(this);
         btnPost.setOnClickListener(this);
 
         ivPreview.setImageDrawable(context.getDrawable(R.drawable.ic_image));
@@ -145,7 +153,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                            Log.e("MapDemoActivity", "Error trying to get last GPS location");
                             e.printStackTrace();
                         }
                     });
@@ -173,22 +181,27 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    /**
-     * Starts the camera and sets the URI where the photo will be stored
-     */
-    public void launchCamera() {
-        // Create Intent to take a picture and return control to the calling application
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Create a File reference for future access
-        photoFile = getPhotoFileUri(photoFileName);
-        // Wrap File object into a content provider (required for API >= 24)
-        Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", photoFile);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
+    public void getPhoto(ImageLocation imageLocation) {
+        photoFile = getPhotoFileUri(PHOTO_FILE_NAME);
+        Intent intent = null;
+        int requestCode = -1;
+        if (imageLocation == ImageLocation.CAMERA) {
+            // Open the camera
+            intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // Set URI for new photo
+            Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", photoFile);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
+            requestCode = CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE;
+        } else if (imageLocation == ImageLocation.GALLERY) {
+            // Open the photo gallery
+            intent = new Intent(Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            requestCode = PICK_IMAGE_ACTIVITY_REQUEST_CODE;
+        }
         // Ensure that it's safe to use the Intent
-        Activity activity = getActivity();
-        if (activity != null && intent.resolveActivity(activity.getPackageManager()) != null) {
+        if (intent != null && intent.resolveActivity(context.getPackageManager()) != null) {
             // Start the image capture intent to take photo
-            startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+            startActivityForResult(intent, requestCode);
         }
     }
 
@@ -203,7 +216,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            Log.d(TAG, "failed to create directory");
+            Log.e(TAG, "failed to create directory");
         }
 
         // Return the file target for the photo based on filename
@@ -218,23 +231,71 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                // by this point we have the camera photo on disk
+                // Get image from path into bitmap
                 Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-                // RESIZE BITMAP, see section below
-                // Load the taken image into a preview
-                ivPreview.setScaleType(ImageView.ScaleType.CENTER);
-                ivPreview.setImageBitmap(takenImage);
-                photoStored = true;
+                loadImage(takenImage);
             } else { // Result was a failure
-                Toast.makeText(context, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Image wasn't captured!", Toast.LENGTH_SHORT).show();
             }
+        } else if (data != null && requestCode == PICK_IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                // Get image from path into bitmap
+                Uri photoUri = data.getData();
+                Bitmap selectedImage = loadFromUri(photoUri);
+                loadImage(selectedImage);
+            }
+        } else { // Result was a failure
+            Toast.makeText(context, "Image wasn't selected!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void loadImage(Bitmap bitmap) {
+        compressBitmap(bitmap, photoFile);
+        // Load into ImageView
+        ivPreview.setImageBitmap(bitmap);
+        ivPreview.setScaleType(ImageView.ScaleType.CENTER);
+        ivPreview.getLayoutParams().height = ((View) ivPreview.getParent()).getWidth();
+        photoStored = true;
+    }
+
+    private void compressBitmap(Bitmap bitmap, File targetFile) {
+        try {
+            FileOutputStream fileOutputStream;
+            fileOutputStream = new FileOutputStream(targetFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_COMPRESSION_FACTOR, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "Invalid target file", e);
+        } catch (IOException e) {
+            Log.e(TAG, "Error compressing image", e);
+        }
+    }
+
+    private Bitmap loadFromUri(Uri photoUri) {
+        Bitmap image = null;
+        try {
+            // check version of Android on device
+            if(Build.VERSION.SDK_INT > 27){
+                // on newer versions of Android, use the new decodeBitmap method
+                ImageDecoder.Source source = ImageDecoder.createSource(context.getContentResolver(), photoUri);
+                image = ImageDecoder.decodeBitmap(source);
+            } else {
+                // support older versions of Android by using getBitmap
+                image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), photoUri);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
     }
 
     @Override
     public void onClick(View view) {
-        if (view == btnCapture) {
-            launchCamera();
+        if (view == btnCamera) {
+            getPhoto(ImageLocation.CAMERA);
+        } else if (view == btnGallery) {
+            getPhoto(ImageLocation.GALLERY);
         } else if (view == btnPost) {
             if (allFieldsFilled()) {
                 savePost();
@@ -258,13 +319,16 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         } if (rbCondition.getRating() == 0) {
             Toast.makeText(context, "Game must have a condition", Toast.LENGTH_SHORT).show();
             return false;
+        } if (rbDifficulty.getRating() == 0) {
+            Toast.makeText(context, "Game must have a difficulty", Toast.LENGTH_SHORT).show();
+            return false;
         }
         return true;
     }
 
     private void savePost() {
         pbLoading.setVisibility(View.VISIBLE);
-        Post post = new Post();
+        final Post post = new Post();
         post.setTitle(etTitle.getText().toString());
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*2));
@@ -275,19 +339,13 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         } else {
             post.setCoordinates(new ParseGeoPoint(0,0));
         }
-        Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        takenImage.compress(Bitmap.CompressFormat.JPEG, 20, stream);
-        byte[] bitmapBytes = stream.toByteArray();
-        ParseFile image = new ParseFile("myImage", bitmapBytes);
-        post.setImage(image);
+        post.setImage(new ParseFile(photoFile));
         post.setUser(ParseUser.getCurrentUser());
-
         etTitle.setText("");
         ivPreview.setImageResource(0);
         etNotes.setText("");
         rbCondition.setRating(0);
-
+        rbDifficulty.setRating(0);
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -309,6 +367,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
+
 
     }
 
