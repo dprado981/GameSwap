@@ -26,6 +26,7 @@ import androidx.fragment.app.FragmentManager;
 import com.codepath.gameswap.CustomWindowAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
+import com.codepath.gameswap.utils.MapUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -53,7 +54,6 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
 public class MapsFragment extends Fragment implements OnMyLocationButtonClickListener,
         OnMyLocationClickListener, OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
 
-    public static final int LOCATION_PERMISSION_CODE = 100;
     public static final String TAG = MapsFragment.class.getSimpleName();
 
     private Context context;
@@ -147,7 +147,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    LOCATION_PERMISSION_CODE);
+                    MapUtils.LOCATION_PERMISSION_CODE);
         } else {
             zoomToCurrentLocation();
             map.setMyLocationEnabled(true);
@@ -172,7 +172,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_CODE) {
+        if (requestCode == MapUtils.LOCATION_PERMISSION_CODE) {
             // Checking whether user granted the permission or not.
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Showing the toast message
