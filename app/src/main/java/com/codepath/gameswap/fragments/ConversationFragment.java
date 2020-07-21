@@ -116,36 +116,48 @@ public class ConversationFragment extends Fragment {
         });
 
         queryMessages();
+        liveQueryMessages();
+    }
 
+    /**
+     * Get all of the messages from this conversations
+     */
+    private void queryMessages() {
+        ParseQuery<Message> query = conversation.getMessagesRelation().getQuery();
+        query.setLimit(20);
+        query.addDescendingOrder(Message.KEY_CREATED_AT);
+        query.findInBackground(new FindCallback<Message>() {
+            @Override
+            public void done(List<Message> messages, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting messages", e);
+                    return;
+                }
+                for (Message m : messages) {
+                    Log.d(TAG, "text:" + m.getText());
+                }
+                adapter.clear();
+                adapter.addAll(messages);
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    /**
+     * Updates the view when a new message is updated
+     * Note: ParseRelation queries are not supported by ParseLiveQuery, using a pointer
+     */
+    private void liveQueryMessages() {
         ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
-        ParseQuery<Message> fromQuery = ParseQuery.getQuery(Message.class);
-        ParseQuery<Message> toQuery = ParseQuery.getQuery(Message.class);
-
-        // Find all Messages from current user to other user
-        fromQuery.whereEqualTo(Message.KEY_FROM, currentUser);
-        fromQuery.whereEqualTo(Message.KEY_TO, otherUser);
-
-        // Find all Messages to current user from other user
-        toQuery.whereEqualTo(Message.KEY_TO, currentUser);
-        toQuery.whereEqualTo(Message.KEY_FROM, otherUser);
-
-        // Combine queries into a compound query
-        List<ParseQuery<Message>> queries = new ArrayList<>();
-        queries.add(fromQuery);
-        queries.add(toQuery);
-        ParseQuery<Message> query = ParseQuery.or(queries);
-
-        // Include Users
-        query.include(Message.KEY_FROM);
-        query.include(Message.KEY_TO);
+        ParseQuery<Message> query = ParseQuery.getQuery(Message.class);
+        query.whereEqualTo(Message.KEY_CONVERSATION, conversation);
 
         parseLiveQueryClient.subscribe(query).handleEvents(new SubscriptionHandling.HandleEventsCallback<Message>() {
             @Override
             public void onEvents(ParseQuery<Message> query, final SubscriptionHandling.Event event, final Message message) {
                 Handler refresh = new Handler(Looper.getMainLooper());
                 refresh.post(new Runnable() {
-                    public void run()
-                    {
+                    public void run() {
                         Message newLastMessage = null;
                         if (event == SubscriptionHandling.Event.CREATE) {
                             messages.add(0, message);
@@ -158,7 +170,7 @@ public class ConversationFragment extends Fragment {
                         }
                         if (newLastMessage != null) {
                             adapter.notifyDataSetChanged();
-                            conversation.setLastMessage(newLastMessage);
+                            conversation.setLastMessage(message);
                             conversation.saveInBackground();
                         }
                     }
@@ -167,6 +179,10 @@ public class ConversationFragment extends Fragment {
         });
     }
 
+    /**
+     * Creates and saves a new message with the text from messageText.
+     * Adds it to the users current conversation
+     */
     private void sendMessage(String messageText) {
         final Message message = new Message();
         message.setText(messageText);
@@ -183,53 +199,16 @@ public class ConversationFragment extends Fragment {
                 }
                 Log.d(TAG, "Sent successfully");
                 etMessage.setText("");
-                /*messages.add(0, message);
-                adapter.notifyItemInserted(0);
+                conversation.getRelation("messages").add(message);
                 conversation.setLastMessage(message);
-                conversation.saveInBackground();*/
+                conversation.saveInBackground();
             }
         });
     }
 
-    private void queryMessages() {
-        // Specify which class to query
-        ParseQuery<Message> fromQuery = ParseQuery.getQuery(Message.class);
-        ParseQuery<Message> toQuery = ParseQuery.getQuery(Message.class);
-
-        // Find all Messages from current user to other user
-        fromQuery.whereEqualTo(Message.KEY_FROM, currentUser);
-        fromQuery.whereEqualTo(Message.KEY_TO, otherUser);
-
-        // Find all Messages to current user from other user
-        toQuery.whereEqualTo(Message.KEY_TO, currentUser);
-        toQuery.whereEqualTo(Message.KEY_FROM, otherUser);
-
-        // Combine queries into a compound query
-        List<ParseQuery<Message>> queries = new ArrayList<>();
-        queries.add(fromQuery);
-        queries.add(toQuery);
-        ParseQuery<Message> query = ParseQuery.or(queries);
-
-        // Include Users and sort by most recent
-        query.include(Message.KEY_FROM);
-        query.include(Message.KEY_TO);
-        query.setLimit(20);
-        query.addDescendingOrder(Conversation.KEY_CREATED_AT);
-
-        query.findInBackground(new FindCallback<Message>() {
-            @Override
-            public void done(List<Message> messages, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with getting messages", e);
-                    return;
-                }
-                adapter.clear();
-                adapter.addAll(messages);
-                adapter.notifyDataSetChanged();
-            }
-        });
-    }
-
+    /**
+     * Returns the ParseUser in the conversation that is not currently signed in
+     */
     private ParseUser getOtherUser(Conversation conversation) {
         ParseUser userOne = conversation.getUserOne();
         ParseUser userTwo = conversation.getUserTwo();

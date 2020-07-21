@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -60,6 +61,10 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     private GoogleMap map;
     private LatLng recentLatLng;
 
+    private BottomNavigationView bottomNavigation;
+
+    // TODO: Chnage bottomNavigation into a horizontal recyclerview/swiping cardview thats populated with results of search queries
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -72,6 +77,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
+        bottomNavigation = view.findViewById(R.id.bottomNavigation);
         setHasOptionsMenu(true);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -215,6 +221,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
             @Override
             public boolean onClose() {
                 addPoints(map);
+                bottomNavigation.setVisibility(View.GONE);
                 return false;
             }
         });
@@ -251,6 +258,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                                 .strokeWidth(4)
                                 .fillColor(Color.argb(50, 255, 0, 0)));
                         map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
+                        bottomNavigation.setVisibility(View.VISIBLE);
                     }
                     ParseGeoPoint newGeoPoint = posts.get(0).getCoordinates();
                     LatLng newLatLng = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
