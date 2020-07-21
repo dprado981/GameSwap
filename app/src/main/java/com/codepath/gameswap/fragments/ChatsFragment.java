@@ -186,6 +186,7 @@ public class ChatsFragment extends Fragment {
         query.include(Conversation.KEY_USER_ONE);
         query.include(Conversation.KEY_USER_TWO);
         query.include(Conversation.KEY_LAST_MESSAGE);
+        query.include(Conversation.KEY_FROM_POST);
         query.setLimit(20);
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
         if (loadNext) {

@@ -17,6 +17,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,6 +57,7 @@ public class ConversationFragment extends Fragment {
 
     private ImageView ivProfile;
     private TextView tvUsername;
+    private ImageView ivPost;
 
     private RecyclerView rvMessages;
     private List<Message> messages;
@@ -95,16 +98,40 @@ public class ConversationFragment extends Fragment {
         rvMessages.setLayoutManager(layoutManager);
 
         ivProfile = view.findViewById(R.id.ivProfile);
-        ParseFile image = (ParseFile) otherUser.get("image");
-        if (image != null) {
+        ParseFile profileImage = (ParseFile) otherUser.get("image");
+        if (profileImage != null) {
             Glide.with(context)
-                    .load(image.getUrl())
+                    .load(profileImage.getUrl())
                     .placeholder(R.drawable.ic_profile)
                     .into(ivProfile);
         }
 
         tvUsername = view.findViewById(R.id.tvUsername);
         tvUsername.setText(otherUser.getUsername());
+
+        if (conversation.getFromPost() != null) {
+            ivPost = view.findViewById(R.id.ivPost);
+            ivPost.setVisibility(View.VISIBLE);
+            final Post fromPost = conversation.getFromPost();
+            ParseFile postImage = fromPost.getImage();
+            if (postImage != null) {
+                Glide.with(context)
+                        .load(postImage.getUrl())
+                        .placeholder(R.drawable.ic_profile)
+                        .into(ivPost);
+            }
+            ivPost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                    Fragment fragment = new DetailFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Post.TAG, fromPost);
+                    fragment.setArguments(bundle);
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+                }
+            });
+        }
 
         etMessage = view.findViewById(R.id.etMessage);
         ibSend = view.findViewById(R.id.ibSend);

@@ -37,6 +37,8 @@ import com.parse.SaveCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: add conversation when going to one from detail page
+
 /**
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
@@ -94,7 +96,11 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         }
         post = bundle.getParcelable(Post.TAG);
         user = post.getUser();
-        tvUsername.setText(user.getUsername());
+        try {
+            tvUsername.setText(user.fetchIfNeeded().getUsername());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         tvTitle.setText(post.getTitle());
         rbCondition.setRating((float) post.getCondition() / 2);
         rbDifficulty.setRating((float) post.getDifficulty() / 2);
@@ -212,7 +218,6 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
     }
 
     private void goToConversationFragment(Conversation targetConversation) {
-        // Go to conversation fragment
         FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
         Fragment fragment = new ConversationFragment();
         Bundle bundle = new Bundle();

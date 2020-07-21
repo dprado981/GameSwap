@@ -6,17 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".fragments.ConversationFragment">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/llHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cvProfile"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             app:cardCornerRadius="50dp"
-            app:cardElevation="0dp" >
+            app:cardElevation="0dp">
 
             <ImageView
                 android:id="@+id/ivProfile"
@@ -24,21 +29,35 @@
                 android:layout_height="100dp"
                 android:contentDescription="@string/profile_picture"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/ic_profile"  />
+                app:srcCompat="@drawable/ic_profile" />
         </androidx.cardview.widget.CardView>
 
         <TextView
             android:id="@+id/tvUsername"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            android:ems="10"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="4dp"
+            android:layout_toEndOf="@+id/cvProfile"
             android:textSize="30sp"
             android:textStyle="bold"
             tools:text="Username" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/ivPost"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/profile_picture"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_profile" />
+
+    </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
