@@ -5,4 +5,8 @@
         android:title="@string/delete"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
+    <item android:id="@+id/actionEdit"
+        android:title="@string/edit"
+        app:showAsAction="ifRoom"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
 </menu>

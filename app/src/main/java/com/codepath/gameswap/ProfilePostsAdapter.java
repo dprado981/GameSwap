@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailFragment;
+import com.codepath.gameswap.fragments.EditFragment;
 import com.codepath.gameswap.models.Post;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;
@@ -73,7 +74,8 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener, PopupMenu.OnMenuItemClickListener{
 
         private LinearLayout llContent;
         private TextView tvTitle;
@@ -99,6 +101,9 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
         public void bind(Post post) {
             this.post = post;
             ParseUser user = post.getUser();
+            if (!user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                ibMore.setVisibility(View.GONE);
+            }
             tvTitle.setText(post.getTitle());
             rbCondition.setRating((float) post.getCondition() / 2);
             ParseFile image = post.getImage();
@@ -124,29 +129,39 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
                 PopupMenu popup = new PopupMenu(context, view);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+                popup.setOnMenuItemClickListener(this);
+                popup.show();
+            }
+        }
 
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            int id = item.getItemId();
+            if (id == R.id.actionDelete) {
+                post.deleteInBackground(new DeleteCallback() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        post.deleteInBackground(new DeleteCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e != null) {
-                                    Log.e(TAG, "Issue with deleting post", e);
-                                    return;
-                                }
-                                Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
-                                int index = posts.indexOf(post);
-                                posts.remove(index);
-                                notifyItemRemoved(index);
-                            }
-                        });
-                        return true;
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Issue with deleting post", e);
+                            return;
+                        }
+                        Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
+                        int index = posts.indexOf(post);
+                        posts.remove(index);
+                        notifyItemRemoved(index);
                     }
                 });
-
-                popup.show();
+                return true;
+            } else if (id == R.id.actionEdit) {
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                Fragment fragment = new EditFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(Post.TAG, post);
+                fragment.setArguments(bundle);
+                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+                return true;
+            } else {
+                return false;
             }
         }
     }
