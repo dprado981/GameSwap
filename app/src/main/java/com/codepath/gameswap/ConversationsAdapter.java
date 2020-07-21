@@ -1,21 +1,29 @@
 package com.codepath.gameswap;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.codepath.gameswap.fragments.ConversationFragment;
 import com.codepath.gameswap.models.Conversation;
 import com.parse.ParseFile;
@@ -65,6 +73,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        private LinearLayout llParent;
         private ImageView ivProfile;
         private LinearLayout llPreview;
         private TextView tvUsername;
@@ -76,6 +85,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
         public ViewHolder(@NonNull View view) {
             super(view);
+            llParent = view.findViewById(R.id.llParent);
             ivProfile = view.findViewById(R.id.ivProfile);
             llPreview = view.findViewById(R.id.llPreview);
             tvUsername = view.findViewById(R.id.tvUsername);
@@ -92,6 +102,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
                 tvPreview.setText(conversation.getLastMessage().getText());
             }
             ParseFile image = (ParseFile) otherUser.get("image");
+            ivProfile.setImageDrawable(context.getDrawable(R.drawable.ic_profile));
             if (image != null) {
                 Glide.with(context)
                         .load(image.getUrl())

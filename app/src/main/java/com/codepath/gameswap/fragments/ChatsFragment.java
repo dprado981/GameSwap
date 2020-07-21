@@ -1,11 +1,14 @@
 package com.codepath.gameswap.fragments;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -19,14 +22,20 @@ import com.codepath.gameswap.ConversationsAdapter;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
+import com.google.android.material.snackbar.Snackbar;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,6 +54,63 @@ public class ChatsFragment extends Fragment {
     private List<Conversation> conversations;
     private LinearLayoutManager layoutManager;
     private ConversationsAdapter adapter;
+
+    private Conversation deletedConversation;
+
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            final int position = viewHolder.getAdapterPosition();
+            deletedConversation = conversations.get(position);
+            conversations.remove(position);
+            adapter.notifyItemRemoved(position);
+
+            final ParseUser userOne = deletedConversation.getUserOne();
+            if (userOne.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                deletedConversation.setDeletedByOne(true);
+            } else {
+                deletedConversation.setDeletedByTwo(true);
+            }
+            deletedConversation.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e != null) {
+                        Log.e(TAG, "Error while deleting", e);
+                    }
+                    Log.d(TAG, "deleted");
+                }
+            });
+            Snackbar.make(rvConversations, "Conversation deleted", Snackbar.LENGTH_SHORT)
+                    .setAction("Undo", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            conversations.add(position, deletedConversation);
+                            adapter.notifyItemInserted(position);
+                            if (userOne.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                                deletedConversation.setDeletedByOne(false);
+                            } else {
+                                deletedConversation.setDeletedByTwo(false);
+                            }
+                            deletedConversation.saveInBackground();
+                        }
+                    }).show();
+        }
+
+        @Override
+        public void onChildDraw (Canvas c, @NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(context, R.color.colorAccent))
+                    .addSwipeLeftActionIcon(R.drawable.ic_delete)
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -70,6 +136,8 @@ public class ChatsFragment extends Fragment {
         adapter = new ConversationsAdapter(context, conversations);
         rvConversations.setAdapter(adapter);
         rvConversations.setLayoutManager(layoutManager);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rvConversations);
 
         queryConversations(false);
 
@@ -133,15 +201,25 @@ public class ChatsFragment extends Fragment {
                     Log.e(TAG, "Issue with getting conversations", e);
                     return;
                 }
+                List<Conversation> notDeletedConversations = new ArrayList<>();
+                for (Conversation conversation : conversations) {
+                    // If the current user hasn't deleted the conversation, add it
+                    boolean isUserOne = conversation.getUserOne().getUsername().equals(ParseUser.getCurrentUser().getUsername());
+                    if (!((isUserOne && conversation.getDeletedByOne())
+                            || (!isUserOne && conversation.getDeletedByTwo()))) {
+                        Log.d(TAG, "hi");
+                        notDeletedConversations.add(conversation);
+                    }
+                }
+
                 if (!loadNext) {
                     adapter.clear();
                     scrollListener.resetState();
                     swipeContainer.setRefreshing(false);
                 }
-                adapter.addAll(conversations);
+                adapter.addAll(notDeletedConversations);
                 adapter.notifyDataSetChanged();
             }
         });
     }
-
 }

@@ -53,4 +53,5 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     implementation "com.google.android.gms:play-services-maps:$googlePlayVersion"
     implementation "com.google.android.gms:play-services-location:$googlePlayVersion"
+    implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
 }

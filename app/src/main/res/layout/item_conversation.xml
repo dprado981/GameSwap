@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/llParent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -20,7 +21,7 @@
             android:layout_height="100dp"
             android:contentDescription="@string/profile_picture"
             android:scaleType="centerCrop"
-            app:srcCompat="@drawable/ic_profile"/>
+            app:srcCompat="@drawable/ic_profile" />
     </androidx.cardview.widget.CardView>
 
     <LinearLayout
