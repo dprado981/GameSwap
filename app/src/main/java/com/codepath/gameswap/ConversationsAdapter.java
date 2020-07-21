@@ -59,11 +59,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
     }
 
     public void addAll(List<Conversation> list) {
-        for (Conversation conversation : list) {
-            if (conversation.getLastMessage() != null) {
-                conversations.add(conversation);
-            }
-        }
+        conversations.addAll(list);
         notifyDataSetChanged();
     }
 

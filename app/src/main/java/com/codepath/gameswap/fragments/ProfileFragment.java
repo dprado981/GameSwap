@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -31,6 +33,7 @@ import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.LoginActivity;
 import com.codepath.gameswap.ProfilePostsAdapter;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.utils.CameraUtils;
 import com.parse.FindCallback;
@@ -53,7 +56,7 @@ import static android.app.Activity.RESULT_OK;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = ProfileFragment.class.getSimpleName();
     private String photoFileName = "profile_photo.jpg";
@@ -63,6 +66,7 @@ public class ProfileFragment extends Fragment {
     private ImageView ivProfile;
     private TextView tvUsername;
     private Button btnLogout;
+    private Button btnMessage;
     private RecyclerView rvPosts;
     private SwipeRefreshLayout swipeContainer;
     private EndlessRecyclerViewScrollListener scrollListener;
@@ -73,6 +77,7 @@ public class ProfileFragment extends Fragment {
 
     private ParseUser user;
     private File profileImageFile;
+    private Conversation targetConversation;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -94,6 +99,7 @@ public class ProfileFragment extends Fragment {
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
         btnLogout = view.findViewById(R.id.btnLogout);
+        btnMessage = view.findViewById(R.id.btnMessage);
         rvPosts = view.findViewById(R.id.rvPosts);
         swipeContainer = view.findViewById(R.id.swipeContainer);
 
@@ -106,6 +112,7 @@ public class ProfileFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle == null) {
             user = ParseUser.getCurrentUser();
+            btnMessage.setVisibility(View.GONE);
         } else {
             user = bundle.getParcelable(Post.KEY_USER);
             btnLogout.setVisibility(View.GONE);
@@ -122,33 +129,9 @@ public class ProfileFragment extends Fragment {
 
         queryPosts(false);
 
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ParseUser.logOutInBackground(new LogOutCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e != null) {
-                            Log.e(TAG, "Issue with logout:", e);
-                            return;
-                        }
-                        Intent intent = new Intent(context, LoginActivity.class);
-                        startActivity(intent);
-                        Activity activity = getActivity();
-                        if (activity != null ){
-                            activity.finishAffinity();
-                        }
-                    }
-                });
-            }
-        });
-
-        ivProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                launchCamera();
-            }
-        });
+        btnLogout.setOnClickListener(this);
+        btnMessage.setOnClickListener(this);
+        ivProfile.setOnClickListener(this);
 
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
@@ -205,6 +188,17 @@ public class ProfileFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == ivProfile) {
+            launchCamera();
+        } else if (view == btnLogout) {
+            logOut();
+        } else if (view == btnMessage) {
+            goToConversation();
+        }
     }
 
     /**
@@ -276,4 +270,82 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    private void logOut() {
+        ParseUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with logout:", e);
+                    return;
+                }
+                Intent intent = new Intent(context, LoginActivity.class);
+                startActivity(intent);
+                Activity activity = getActivity();
+                if (activity != null ){
+                    activity.finishAffinity();
+                }
+            }
+        });
+    }
+
+
+    private void goToConversation() {
+        // Specify which class to query
+        ParseQuery<Conversation> userOneQuery = ParseQuery.getQuery(Conversation.class);
+        ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);
+
+        // Find the Conversation that include the current user and the other user
+        userOneQuery.whereEqualTo(Conversation.KEY_USER_ONE, ParseUser.getCurrentUser());
+        userOneQuery.whereEqualTo(Conversation.KEY_USER_TWO, user);
+
+        userTwoQuery.whereEqualTo(Conversation.KEY_USER_TWO, ParseUser.getCurrentUser());
+        userTwoQuery.whereEqualTo(Conversation.KEY_USER_ONE, user);
+
+        // Combine queries into a compound query
+        List<ParseQuery<Conversation>> queries = new ArrayList<>();
+        queries.add(userOneQuery);
+        queries.add(userTwoQuery);
+        ParseQuery<Conversation> query = ParseQuery.or(queries);
+
+        // Include Users and sort by most recent
+        query.include(Conversation.KEY_USER_ONE);
+        query.include(Conversation.KEY_USER_TWO);
+        query.include(Conversation.KEY_LAST_MESSAGE);
+        query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
+
+        query.findInBackground(new FindCallback<Conversation>() {
+            @Override
+            public void done(List<Conversation> conversations, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+                if (!conversations.isEmpty()) {
+                    targetConversation = conversations.get(0);
+                    goToConversationFragment(targetConversation);
+                } else {
+                    targetConversation = new Conversation();
+                    targetConversation.setUserOne(ParseUser.getCurrentUser());
+                    targetConversation.setUserTwo(user);
+                    targetConversation.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            goToConversationFragment(targetConversation);
+                        }
+                    });
+                }
+
+            }
+        });
+    }
+
+    private void goToConversationFragment(Conversation targetConversation) {
+        // Go to conversation fragment
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        Fragment fragment = new ConversationFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Conversation.TAG, targetConversation);
+        fragment.setArguments(bundle);
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+    }
 }

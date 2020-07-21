@@ -46,7 +46,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         if (viewType == SENT_MESSAGE) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_sent_message, parent, false);
             return new SentViewHolder(view);
@@ -88,7 +87,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class SentViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvMessage;
-        private Message message;
 
         public SentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -96,7 +94,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         public void bind(Message message) {
-            this.message = message;
             tvMessage.setText(message.getText());
         }
 
@@ -106,7 +103,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class ReceivedViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvMessage;
-        private Message message;
 
         public ReceivedViewHolder(@NonNull View view) {
             super(view);
@@ -114,7 +110,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         public void bind(Message message) {
-            this.message = message;
             tvMessage.setText(message.getText());
         }
 

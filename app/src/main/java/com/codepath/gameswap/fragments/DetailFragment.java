@@ -49,7 +49,6 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
 
     private Post post;
     private ParseUser user;
-
     private Conversation targetConversation;
 
     private ImageView ivProfile;

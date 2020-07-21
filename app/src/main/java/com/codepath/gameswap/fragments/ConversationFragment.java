@@ -21,10 +21,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.MessagesAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Message;
+import com.codepath.gameswap.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -35,6 +37,7 @@ import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +60,7 @@ public class ConversationFragment extends Fragment {
     private List<Message> messages;
     private LinearLayoutManager layoutManager;
     private MessagesAdapter adapter;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     private EditText etMessage;
     private ImageButton ibSend;
@@ -115,6 +119,17 @@ public class ConversationFragment extends Fragment {
             }
         });
 
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                queryOlder();
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvMessages.addOnScrollListener(scrollListener);
+
         queryMessages();
         liveQueryMessages();
     }
@@ -123,8 +138,9 @@ public class ConversationFragment extends Fragment {
      * Get all of the messages from this conversations
      */
     private void queryMessages() {
-        ParseQuery<Message> query = conversation.getMessagesRelation().getQuery();
-        query.setLimit(20);
+        ParseQuery<Message> query = ParseQuery.getQuery(Message.class);
+        query.whereEqualTo(Message.KEY_CONVERSATION, conversation);
+        query.setLimit(5);
         query.addDescendingOrder(Message.KEY_CREATED_AT);
         query.findInBackground(new FindCallback<Message>() {
             @Override
@@ -137,6 +153,7 @@ public class ConversationFragment extends Fragment {
                     Log.d(TAG, "text:" + m.getText());
                 }
                 adapter.clear();
+                scrollListener.resetState();
                 adapter.addAll(messages);
                 adapter.notifyDataSetChanged();
             }
@@ -145,13 +162,11 @@ public class ConversationFragment extends Fragment {
 
     /**
      * Updates the view when a new message is updated
-     * Note: ParseRelation queries are not supported by ParseLiveQuery, using a pointer
      */
     private void liveQueryMessages() {
         ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
         ParseQuery<Message> query = ParseQuery.getQuery(Message.class);
         query.whereEqualTo(Message.KEY_CONVERSATION, conversation);
-
         parseLiveQueryClient.subscribe(query).handleEvents(new SubscriptionHandling.HandleEventsCallback<Message>() {
             @Override
             public void onEvents(ParseQuery<Message> query, final SubscriptionHandling.Event event, final Message message) {
@@ -170,7 +185,7 @@ public class ConversationFragment extends Fragment {
                         }
                         if (newLastMessage != null) {
                             adapter.notifyDataSetChanged();
-                            conversation.setLastMessage(message);
+                            conversation.setLastMessage(newLastMessage);
                             conversation.saveInBackground();
                         }
                     }
@@ -199,9 +214,34 @@ public class ConversationFragment extends Fragment {
                 }
                 Log.d(TAG, "Sent successfully");
                 etMessage.setText("");
-                conversation.getRelation("messages").add(message);
                 conversation.setLastMessage(message);
                 conversation.saveInBackground();
+            }
+        });
+    }
+
+    /**
+     * Get all of the messages from this conversations
+     */
+    private void queryOlder() {
+        ParseQuery<Message> query = ParseQuery.getQuery(Message.class);
+        query.whereEqualTo(Message.KEY_CONVERSATION, conversation);
+        Date olderThanDate = messages.get(messages.size()-1).getCreatedAt();
+        query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
+        query.setLimit(5);
+        query.addDescendingOrder(Message.KEY_CREATED_AT);
+        query.findInBackground(new FindCallback<Message>() {
+            @Override
+            public void done(List<Message> messages, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting messages", e);
+                    return;
+                }
+                for (Message m : messages) {
+                    Log.d(TAG, "text:" + m.getText());
+                }
+                adapter.addAll(messages);
+                adapter.notifyDataSetChanged();
             }
         });
     }
