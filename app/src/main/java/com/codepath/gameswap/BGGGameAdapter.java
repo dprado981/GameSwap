@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -70,25 +71,30 @@ public class BGGGameAdapter extends RecyclerView.Adapter<BGGGameAdapter.ViewHold
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        private ImageView ivImage;
         private TextView tvTitle;
 
         private BGGGame game;
 
         public ViewHolder(@NonNull View view) {
             super(view);
+            ivImage = view.findViewById(R.id.ivImage);
             tvTitle = view.findViewById(R.id.tvTitle);
+            view.setOnClickListener(this);
         }
 
         public void bind(BGGGame game) {
             this.game = game;
             tvTitle.setText(game.getTitle());
+            Glide.with(context)
+                    .load(game.getImageUrl())
+                    .placeholder(R.drawable.ic_image)
+                    .into(ivImage);
         }
 
         @Override
         public void onClick(View view) {
-            if (view == tvTitle) {
-                Log.d(TAG, "clicking title");
-            }
+            Log.d(TAG, "clicking result");
         }
     }
 }
