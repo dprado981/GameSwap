@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
@@ -122,6 +123,18 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         spAgeRating.setSelection(0);
 
         setCurrentLocation();
+
+        Snackbar.make(view, "Autofill with BoardGameGeek?", Snackbar.LENGTH_SHORT)
+                .setAction("Go", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.flContainer, new BGGSearchFragment())
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                }).show();
 
     }
 
@@ -328,17 +341,13 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
                     Toast.makeText(context, "Error while saving", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Log.i(TAG, "Post was saved successfully");
                 pbLoading.setVisibility(View.INVISIBLE);
-
-                FragmentActivity activity = getActivity();
-                if (activity != null) {
-                    // Ensure that correct menu item is selected
-                    ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionHome);
-                    // Go to home fragment
-                    FragmentManager fragmentManager = activity.getSupportFragmentManager();
-                    fragmentManager.beginTransaction().replace(R.id.flContainer, new PostsFragment()).commit();
-                }
+                FragmentActivity activity = (FragmentActivity) context;
+                // Ensure that correct menu item is selected
+                ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionHome);
+                // Go to home fragment
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.flContainer, new PostsFragment()).commit();
             }
         });
 

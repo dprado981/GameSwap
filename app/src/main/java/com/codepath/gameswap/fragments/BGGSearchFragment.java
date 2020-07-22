@@ -17,9 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.codepath.gameswap.BGGGameAdapter;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.BGGGame;
 import com.codepath.gameswap.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -35,20 +37,20 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class PostsFragment extends Fragment {
+public class BGGSearchFragment extends Fragment {
 
     public static final String TAG = PostsFragment.class.getSimpleName();
 
     private Context context;
 
-    private List<Post> allPosts;
+    private List<BGGGame> games;
     private LinearLayoutManager layoutManager;
-    private PostsAdapter adapter;
-    private RecyclerView rvPosts;
+    private BGGGameAdapter adapter;
+    private RecyclerView rvResults;
     private SwipeRefreshLayout swipeContainer;
     private EndlessRecyclerViewScrollListener scrollListener;
 
-    public PostsFragment() {
+    public BGGSearchFragment() {
         // Required empty public constructor
     }
 
@@ -56,7 +58,7 @@ public class PostsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_posts, container, false);
+        return inflater.inflate(R.layout.fragment_bgg_search, container, false);
     }
 
     @Override
@@ -65,20 +67,25 @@ public class PostsFragment extends Fragment {
 
         context = getContext();
 
-        rvPosts = view.findViewById(R.id.rvPosts);
+        rvResults = view.findViewById(R.id.rvResults);
         swipeContainer = view.findViewById(R.id.swipeContainer);
 
         layoutManager = new LinearLayoutManager(context);
-        allPosts = new ArrayList<>();
+        games = new ArrayList<>();
 
-        adapter = new PostsAdapter(context, allPosts);
+        adapter = new BGGGameAdapter(context, games);
 
-        rvPosts.setAdapter(adapter);
-        rvPosts.setLayoutManager(layoutManager);
+        rvResults.setAdapter(adapter);
+        rvResults.setLayoutManager(layoutManager);
 
-        queryPosts(false);
+        for (int i = 0; i < 40; i++) {
+            BGGGame game = new BGGGame("title");
+            games.add(game);
+        }
+        adapter.notifyDataSetChanged();
+
         setHasOptionsMenu(true);
-
+/*
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -102,10 +109,10 @@ public class PostsFragment extends Fragment {
                 android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+                android.R.color.holo_red_light);*/
     }
 
-    private void queryPosts(final boolean loadNext) {
+    /*private void queryPosts(final boolean loadNext) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
@@ -132,12 +139,13 @@ public class PostsFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         });
-    }
+    }*/
 
     @Override
     public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_search_bar, menu);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setIconified(false);
         searchView.setMaxWidth( Integer.MAX_VALUE );
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -153,7 +161,7 @@ public class PostsFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String queryString) {
-                querySearch(queryString);
+                //querySearch(queryString);
                 return false;
             }
         });
@@ -161,27 +169,7 @@ public class PostsFragment extends Fragment {
     }
 
     private void querySearch(String queryString) {
-        // Specify which class to query
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        // Find all posts
-        query.include(Post.KEY_USER);
-        query.setLimit(2);
-        if (!queryString.isEmpty()) {
-            query.whereContains(Post.KEY_TITLE, queryString);
-        }
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with getting posts", e);
-                    return;
-                }
-                adapter.clear();
-                adapter.addAll(posts);
-                adapter.notifyDataSetChanged();
-            }
-        });
+        Log.d(TAG, "Searching for " + queryString);
     }
 
 }

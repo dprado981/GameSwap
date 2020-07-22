@@ -176,9 +176,6 @@ public class ConversationFragment extends Fragment {
                     Log.e(TAG, "Issue with getting messages", e);
                     return;
                 }
-                for (Message m : messages) {
-                    Log.d(TAG, "text:" + m.getText());
-                }
                 adapter.clear();
                 scrollListener.resetState();
                 adapter.addAll(messages);
@@ -208,7 +205,7 @@ public class ConversationFragment extends Fragment {
                             messages.remove(message);
                             newLastMessage = messages.get(0);
                         } else {
-                            Log.i(TAG, "not implemented yet");
+                            Log.e(TAG, "event not implemented yet");
                         }
                         if (newLastMessage != null) {
                             adapter.notifyDataSetChanged();
@@ -239,7 +236,6 @@ public class ConversationFragment extends Fragment {
                     Toast.makeText(context, "Error while sending", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Log.d(TAG, "Sent successfully");
                 etMessage.setText("");
                 conversation.setLastMessage(message);
                 conversation.saveInBackground();
@@ -263,9 +259,6 @@ public class ConversationFragment extends Fragment {
                 if (e != null) {
                     Log.e(TAG, "Issue with getting messages", e);
                     return;
-                }
-                for (Message m : messages) {
-                    Log.d(TAG, "text:" + m.getText());
                 }
                 adapter.addAll(messages);
                 adapter.notifyDataSetChanged();

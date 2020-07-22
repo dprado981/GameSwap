@@ -69,7 +69,6 @@ public class LoginActivity extends AppCompatActivity implements TextView.OnEdito
     }
 
     private void loginUser(String username, String password) {
-        Log.i(TAG, "Attempting to log in user " + username);
         ParseUser.logInInBackground(username, password, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException e) {
@@ -102,7 +101,6 @@ public class LoginActivity extends AppCompatActivity implements TextView.OnEdito
                     fadeOut(tvConfirmation, 1000);
                     return;
                 }
-                Log.i(TAG, "Registration successful!");
                 etUsername.setText("");
                 etPassword.setText("");
                 tvConfirmation.setText("Sucesss!");
@@ -214,13 +212,11 @@ public class LoginActivity extends AppCompatActivity implements TextView.OnEdito
         String username = etUsername.getText().toString();
         String password = etPassword.getText().toString();
         if (view.getId() == R.id.btnLogin) {
-            Log.i(TAG, "onClick login button");
             loginUser(username, password);
         } else if (view.getId() == R.id.btnRegister) {
-            Log.i(TAG, "onClick register button");
             registerUser(username, password);
         } else {
-            Log.i(TAG, "This click has not been setup yet");
+            Log.e(TAG, "This click has not been setup yet");
         }
     }
 }

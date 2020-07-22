@@ -82,7 +82,6 @@ public class ChatsFragment extends Fragment {
                     if (e != null) {
                         Log.e(TAG, "Error while deleting", e);
                     }
-                    Log.d(TAG, "deleted");
                 }
             });
             Snackbar.make(rvConversations, "Conversation deleted", Snackbar.LENGTH_SHORT)
@@ -191,7 +190,6 @@ public class ChatsFragment extends Fragment {
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
         if (loadNext) {
             Date olderThanDate = conversations.get(conversations.size()-1).getCreatedAt();
-            Log.i(TAG, "Loading conversations older than " + olderThanDate);
             query.whereLessThan(Conversation.KEY_UPDATED_AT, olderThanDate);
         }
 
@@ -208,7 +206,6 @@ public class ChatsFragment extends Fragment {
                     boolean isUserOne = conversation.getUserOne().getUsername().equals(ParseUser.getCurrentUser().getUsername());
                     if (!((isUserOne && conversation.getDeletedByOne())
                             || (!isUserOne && conversation.getDeletedByTwo()))) {
-                        Log.d(TAG, "hi");
                         notDeletedConversations.add(conversation);
                     }
                 }

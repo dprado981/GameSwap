@@ -169,7 +169,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         query.addDescendingOrder(Post.KEY_CREATED_AT);
         if (loadNext) {
             Date olderThanDate = allPosts.get(allPosts.size()-1).getCreatedAt();
-            Log.i(TAG, "Loading posts older than " + olderThanDate);
             query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
         }
         query.findInBackground(new FindCallback<Post>() {
@@ -231,7 +230,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            Log.d(TAG, "failed to create directory");
+            Log.e(TAG, "failed to create directory");
         }
 
         // Return the file target for the photo based on filename
@@ -256,7 +255,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void done(ParseException e) {
                         if (e != null) {
-                            Log.i(TAG, "Error saving photo");
+                            Log.e(TAG, "Error saving photo");
                             return;
                         }
                         // Load the taken image into a preview

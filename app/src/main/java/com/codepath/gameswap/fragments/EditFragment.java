@@ -367,7 +367,6 @@ public class EditFragment extends Fragment implements View.OnClickListener {
                     Toast.makeText(context, "Error while saving", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Log.i(TAG, "Post was saved successfully");
                 pbLoading.setVisibility(View.INVISIBLE);
 
                 FragmentActivity activity = getActivity();
