@@ -53,6 +53,11 @@ public class BGGGameAdapter extends RecyclerView.Adapter<BGGGameAdapter.ViewHold
         return games.size();
     }
 
+    public void add(BGGGame game) {
+        games.add(game);
+        notifyItemInserted(games.size() - 1);
+    }
+
     public void clear() {
         games.clear();
         notifyDataSetChanged();

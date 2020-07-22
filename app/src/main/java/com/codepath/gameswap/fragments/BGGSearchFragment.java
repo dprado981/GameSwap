@@ -17,27 +17,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.codepath.gameswap.BGGAsyncTask;
 import com.codepath.gameswap.BGGGameAdapter;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
-import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.BGGGame;
-import com.codepath.gameswap.models.Post;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class BGGSearchFragment extends Fragment {
+public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGResponse {
 
     public static final String TAG = PostsFragment.class.getSimpleName();
 
@@ -77,12 +84,6 @@ public class BGGSearchFragment extends Fragment {
 
         rvResults.setAdapter(adapter);
         rvResults.setLayoutManager(layoutManager);
-
-        for (int i = 0; i < 40; i++) {
-            BGGGame game = new BGGGame("title");
-            games.add(game);
-        }
-        adapter.notifyDataSetChanged();
 
         setHasOptionsMenu(true);
 /*
@@ -169,7 +170,85 @@ public class BGGSearchFragment extends Fragment {
     }
 
     private void querySearch(String queryString) {
-        Log.d(TAG, "Searching for " + queryString);
+        adapter.clear();
+        String modifiedQuery = queryString.replaceAll("\\s", "+");
+        String base = "https://www.boardgamegeek.com/xmlapi2/search?query=%s&type=boardgame";
+        String url = String.format(base, modifiedQuery);
+        BGGAsyncTask test = new BGGAsyncTask(this, BGGResponseType.SEARCH);
+        test.execute(url);
     }
 
+    private void getSearchResults(Document doc) {
+        NodeList itemList = doc.getElementsByTagName("item");
+        int maxResults = Math.min(itemList.getLength(), 20);
+        for (int i = 0; i < maxResults; i++) {
+            Node itemNode = itemList.item(i);
+            if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element item = (Element) itemNode;
+                String id = item.getAttribute("id");
+                Log.d(TAG, "Getting details of: " + id);
+                queryDetails(id);
+            }
+        }
+    }
+
+    private void queryDetails(String id) {
+        String base = "https://www.boardgamegeek.com/xmlapi2/thing?id=%s";
+        String url = String.format(base, id);
+        BGGAsyncTask test = new BGGAsyncTask(this, BGGResponseType.DETAIL);
+        test.execute(url);
+    }
+
+    @Override
+    public void onFinish(String output, BGGResponseType responseType) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputSource is = new InputSource(new StringReader(output));
+            Document doc = builder.parse(is);
+            if (responseType == BGGResponseType.SEARCH) {
+                getSearchResults(doc);
+            } else if (responseType == BGGResponseType.DETAIL) {
+                getDetails(doc);
+            }
+
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getDetails(Document doc) {
+        List<BGGGame> queriedGames = new ArrayList<>();
+        NodeList itemNodes = doc.getElementsByTagName("item");
+        String id = null;
+        for (int i = 0; i < itemNodes.getLength(); i++) {
+            Node itemNode = itemNodes.item(i);
+            if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element itemElement = (Element) itemNode;
+                id = itemElement.getAttribute("id");
+            }
+        }
+        NodeList imageNodes = doc.getElementsByTagName("image");
+        String imageUrl = null;
+        for (int i = 0; i < imageNodes.getLength(); i++) {
+            Node imageNode = imageNodes.item(i);
+            if (imageNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element imageElement = (Element) imageNode;
+                imageUrl = imageElement.getTextContent();
+            }
+        }
+        NodeList nameNodes = doc.getElementsByTagName("name");
+        String name = null;
+        for (int i = 0; i < nameNodes.getLength(); i++) {
+            Node nameNode = nameNodes.item(i);
+            if (nameNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element nameElement = (Element) nameNode;
+                if (nameElement.getAttribute("type").equals("primary")) {
+                    name = nameElement.getAttribute("value");
+                }
+            }
+        }
+        BGGGame game = new BGGGame(id, name, imageUrl);
+        adapter.add(game);
+    }
 }
