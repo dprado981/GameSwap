@@ -167,7 +167,7 @@ public class ConversationFragment extends Fragment {
     private void queryMessages() {
         ParseQuery<Message> query = ParseQuery.getQuery(Message.class);
         query.whereEqualTo(Message.KEY_CONVERSATION, conversation);
-        query.setLimit(5);
+        query.setLimit(20);
         query.addDescendingOrder(Message.KEY_CREATED_AT);
         query.findInBackground(new FindCallback<Message>() {
             @Override
@@ -255,7 +255,7 @@ public class ConversationFragment extends Fragment {
         query.whereEqualTo(Message.KEY_CONVERSATION, conversation);
         Date olderThanDate = messages.get(messages.size()-1).getCreatedAt();
         query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
-        query.setLimit(5);
+        query.setLimit(15);
         query.addDescendingOrder(Message.KEY_CREATED_AT);
         query.findInBackground(new FindCallback<Message>() {
             @Override

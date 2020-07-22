@@ -37,8 +37,6 @@ import com.parse.SaveCallback;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: add conversation when going to one from detail page
-
 /**
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
@@ -200,18 +198,18 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
                 }
                 if (!conversations.isEmpty()) {
                     targetConversation = conversations.get(0);
-                    goToConversationFragment(targetConversation);
                 } else {
                     targetConversation = new Conversation();
                     targetConversation.setUserOne(ParseUser.getCurrentUser());
                     targetConversation.setUserTwo(post.getUser());
-                    targetConversation.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            goToConversationFragment(targetConversation);
-                        }
-                    });
                 }
+                targetConversation.setFromPost(post);
+                targetConversation.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        goToConversationFragment(targetConversation);
+                    }
+                });
 
             }
         });
