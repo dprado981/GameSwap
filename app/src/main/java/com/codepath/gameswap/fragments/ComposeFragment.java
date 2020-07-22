@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.codepath.gameswap.models.BGGGame;
 import com.codepath.gameswap.utils.CameraUtils;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
@@ -120,6 +121,14 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
                 R.array.age_ratings_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spAgeRating.setAdapter(adapter);
+
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            Log.d(TAG, "bundle is not null");
+            BGGGame game = bundle.getParcelable(BGGGame.TAG);
+            etTitle.setText(game.getTitle());
+        }
+
         spAgeRating.setSelection(0);
 
         setCurrentLocation();
