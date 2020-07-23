@@ -70,7 +70,6 @@ public class EditFragment extends Fragment implements View.OnClickListener {
 
     public enum ImageLocation { CAMERA, GALLERY }
     private File photoFile;
-    private boolean photoStored;
 
     private Context context;
     private Post post;
@@ -104,8 +103,6 @@ public class EditFragment extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
 
-        photoStored = false;
-
         etTitle = view.findViewById(R.id.etTitle);
         btnCamera = view.findViewById(R.id.btnCapture);
         btnGallery = view.findViewById(R.id.btnGallery);
@@ -135,8 +132,8 @@ public class EditFragment extends Fragment implements View.OnClickListener {
         post = bundle.getParcelable(Post.TAG);
         user = post.getUser();
         etTitle.setText(post.getTitle());
-        rbCondition.setRating((float) post.getCondition() / 2);
-        rbDifficulty.setRating((float) post.getDifficulty() / 2);
+        rbCondition.setRating((float) post.getCondition() / 10);
+        rbDifficulty.setRating((float) post.getDifficulty() / 10);
         int ageRating = post.getAgeRating();
         int spinnerPosition = adapter.getPosition(Integer.toString(ageRating));
         spAgeRating.setSelection(spinnerPosition);
@@ -301,7 +298,6 @@ public class EditFragment extends Fragment implements View.OnClickListener {
         ivPreview.setImageBitmap(bitmap);
         ivPreview.setScaleType(ImageView.ScaleType.CENTER);
         ivPreview.getLayoutParams().height = ((View) ivPreview.getParent()).getWidth();
-        photoStored = true;
     }
 
     @Override
@@ -320,9 +316,6 @@ public class EditFragment extends Fragment implements View.OnClickListener {
     private boolean allFieldsFilled() {
         if (etTitle.getText().toString().isEmpty()) {
             Toast.makeText(context, "Game must have a title", Toast.LENGTH_SHORT).show();
-            return false;
-        } if (!photoStored) {
-            Toast.makeText(context, "Post must include a photo", Toast.LENGTH_SHORT).show();
             return false;
         } if (etNotes.getText().toString().isEmpty()) {
             Toast.makeText(context, "Game must have a title", Toast.LENGTH_SHORT).show();
@@ -344,15 +337,17 @@ public class EditFragment extends Fragment implements View.OnClickListener {
         pbLoading.setVisibility(View.VISIBLE);
         post.setTitle(etTitle.getText().toString());
         post.setNotes(etNotes.getText().toString());
-        post.setCondition((int)(rbCondition.getRating()*2));
-        post.setDifficulty((int)(rbDifficulty.getRating()*2));
+        post.setCondition((int)(rbCondition.getRating()*10));
+        post.setDifficulty((int)(rbDifficulty.getRating()*10));
         post.setAgeRating(Integer.parseInt((String)spAgeRating.getSelectedItem()));
         if (currentLocation != null) {
             post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));
         } else {
             post.setCoordinates(new ParseGeoPoint(0,0));
         }
-        post.setImage(new ParseFile(photoFile));
+        if (photoFile != null) {
+            post.setImage(new ParseFile(photoFile));
+        }
         post.setUser(ParseUser.getCurrentUser());
         etTitle.setText("");
         ivPreview.setImageResource(0);

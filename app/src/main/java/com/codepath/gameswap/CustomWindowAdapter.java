@@ -45,7 +45,7 @@ public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
         Post post = (Post) marker.getTag();
         if (post != null) {
             RatingBar condition = v.findViewById(R.id.rbCondition);
-            condition.setRating(post.getCondition() / 2.0f);
+            condition.setRating(post.getCondition() / 10.0f);
 
             final ImageView ivImage = v.findViewById(R.id.ivImage);
             ParseFile image = post.getImage();

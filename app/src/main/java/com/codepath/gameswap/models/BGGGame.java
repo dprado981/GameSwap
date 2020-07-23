@@ -10,17 +10,24 @@ public class BGGGame implements Parcelable {
     private String id;
     private String title;
     private String imageUrl;
+    private float difficulty;
 
-    public BGGGame(String id, String title, String imageUrl) {
+    private String ageRating;
+
+    public BGGGame(String id, String title, String imageUrl, float difficulty, String ageRating) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
+        this.difficulty = difficulty;
+        this.ageRating = ageRating;
     }
 
     protected BGGGame(Parcel in) {
         id = in.readString();
         title = in.readString();
         imageUrl = in.readString();
+        difficulty = in.readFloat();
+        ageRating = in.readString();
     }
 
     public static final Creator<BGGGame> CREATOR = new Creator<BGGGame>() {
@@ -35,6 +42,20 @@ public class BGGGame implements Parcelable {
         }
     };
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(title);
+        parcel.writeString(imageUrl);
+        parcel.writeFloat(difficulty);
+        parcel.writeString(ageRating);
+    }
+
     public String getId() { return id; }
 
     public void setId(String id) { this.id = id; }
@@ -47,15 +68,11 @@ public class BGGGame implements Parcelable {
 
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+    public float getDifficulty() { return difficulty; }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(id);
-        parcel.writeString(title);
-        parcel.writeString(imageUrl);
-    }
+    public void setDifficulty(float difficulty) { this.difficulty = difficulty; }
+
+    public String getAgeRating() { return ageRating; }
+
+    public void setAgeRating(String ageRating) { this.ageRating = ageRating; }
 }

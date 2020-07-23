@@ -32,13 +32,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.codepath.gameswap.models.BGGGame;
-import com.codepath.gameswap.utils.CameraUtils;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.BGGGame;
 import com.codepath.gameswap.models.Post;
+import com.codepath.gameswap.utils.CameraUtils;
 import com.codepath.gameswap.utils.MapUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -55,6 +54,8 @@ import java.io.IOException;
 
 import static android.app.Activity.RESULT_OK;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+
+// TODO: GET MORE INFORMATION FROM BGG API
 
 /**
  * A simple {@link Fragment} subclass.
@@ -121,19 +122,19 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
                 R.array.age_ratings_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spAgeRating.setAdapter(adapter);
+        spAgeRating.setSelection(0);
 
         Bundle bundle = getArguments();
         if (bundle != null) {
             Log.d(TAG, "bundle is not null");
             BGGGame game = bundle.getParcelable(BGGGame.TAG);
             etTitle.setText(game.getTitle());
+            rbDifficulty.setRating(game.getDifficulty());
+            spAgeRating.setSelection(adapter.getPosition(game.getAgeRating()));
         }
 
-        spAgeRating.setSelection(0);
-
         setCurrentLocation();
-
-        Snackbar.make(view, "Autofill with BoardGameGeek?", Snackbar.LENGTH_SHORT)
+        Snackbar.make(view, "Autofill with BoardGameGeek?", Snackbar.LENGTH_INDEFINITE)
                 .setAction("Go", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -327,8 +328,8 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         final Post post = new Post();
         post.setTitle(etTitle.getText().toString());
         post.setNotes(etNotes.getText().toString());
-        post.setCondition((int)(rbCondition.getRating()*2));
-        post.setDifficulty((int)(rbDifficulty.getRating()*2));
+        post.setCondition((int)(rbCondition.getRating()*10));
+        post.setDifficulty((int)(rbDifficulty.getRating()*10));
         post.setAgeRating(Integer.parseInt((String)spAgeRating.getSelectedItem()));
         if (currentLocation != null) {
             post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));

@@ -100,8 +100,8 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
             e.printStackTrace();
         }
         tvTitle.setText(post.getTitle());
-        rbCondition.setRating((float) post.getCondition() / 2);
-        rbDifficulty.setRating((float) post.getDifficulty() / 2);
+        rbCondition.setRating((float) post.getCondition() / 10);
+        rbDifficulty.setRating((float) post.getDifficulty() / 10);
         int ageRating = post.getAgeRating();
         if (ageRating == 0) {
             tvAgeRatingValue.setText(R.string.not_specified);

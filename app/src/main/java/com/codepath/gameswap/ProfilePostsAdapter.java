@@ -105,7 +105,7 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
                 ibMore.setVisibility(View.GONE);
             }
             tvTitle.setText(post.getTitle());
-            rbCondition.setRating((float) post.getCondition() / 2);
+            rbCondition.setRating((float) post.getCondition() / 10);
             ParseFile image = post.getImage();
             if (image != null) {
                 Glide.with(context)

@@ -97,7 +97,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             ParseUser user = post.getUser();
             tvUsername.setText(user.getUsername());
             tvTitle.setText(post.getTitle());
-            rbCondition.setRating((float) post.getCondition() / 2);
+            rbCondition.setRating((float) post.getCondition() / 10);
             ParseFile image = post.getImage();
             if (image != null) {
                 Glide.with(context)

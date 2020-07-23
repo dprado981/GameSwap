@@ -96,7 +96,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:isIndicator="true"
-                    android:numStars="5" />
+                    android:numStars="5"
+                    android:secondaryProgressTint="#00000000"
+                    android:stepSize="0.1" />
 
                 <TextView
                     android:id="@+id/tvDifficulty"
@@ -112,7 +114,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:isIndicator="true"
-                    android:numStars="5" />
+                    android:numStars="5"
+                    android:secondaryProgressTint="#00000000"
+                    android:stepSize="0.1" />
 
                 <TextView
                     android:id="@+id/tvAgeRating"
@@ -128,6 +132,8 @@
                     android:layout_marginStart="8dp"
                     android:isIndicator="true"
                     android:numStars="5"
+                    android:secondaryProgressTint="#00000000"
+                    android:stepSize="0.1"
                     android:visibility="invisible" />
 
                 <TextView
@@ -157,6 +163,8 @@
                     android:layout_marginStart="8dp"
                     android:isIndicator="true"
                     android:numStars="5"
+                    android:secondaryProgressTint="#00000000"
+                    android:stepSize="0.1"
                     android:visibility="invisible" />
 
                 <TextView

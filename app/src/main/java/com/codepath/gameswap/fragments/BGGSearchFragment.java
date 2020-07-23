@@ -193,7 +193,7 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
     }
 
     private void queryDetails(String id) {
-        String base = "https://www.boardgamegeek.com/xmlapi2/thing?id=%s";
+        String base = "https://www.boardgamegeek.com/xmlapi2/thing?id=%s&stats=1";
         String url = String.format(base, id);
         BGGAsyncTask test = new BGGAsyncTask(this, BGGResponseType.DETAIL);
         test.execute(url);
@@ -218,7 +218,7 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
     }
 
     private void getDetails(Document doc) {
-        List<BGGGame> queriedGames = new ArrayList<>();
+        // Get id of game
         NodeList itemNodes = doc.getElementsByTagName("item");
         String id = null;
         for (int i = 0; i < itemNodes.getLength(); i++) {
@@ -226,8 +226,11 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
             if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element itemElement = (Element) itemNode;
                 id = itemElement.getAttribute("id");
+                break;
             }
         }
+
+        // Get image URL of game
         NodeList imageNodes = doc.getElementsByTagName("image");
         String imageUrl = null;
         for (int i = 0; i < imageNodes.getLength(); i++) {
@@ -235,8 +238,11 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
             if (imageNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element imageElement = (Element) imageNode;
                 imageUrl = imageElement.getTextContent();
+                break;
             }
         }
+
+        // Get primary name of game
         NodeList nameNodes = doc.getElementsByTagName("name");
         String name = null;
         for (int i = 0; i < nameNodes.getLength(); i++) {
@@ -245,10 +251,36 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
                 Element nameElement = (Element) nameNode;
                 if (nameElement.getAttribute("type").equals("primary")) {
                     name = nameElement.getAttribute("value");
+                    break;
                 }
             }
         }
-        BGGGame game = new BGGGame(id, name, imageUrl);
+
+        // Get difficulty of game ("weight")
+        NodeList weightNodes = doc.getElementsByTagName("averageweight");
+        float difficulty = 0;
+        for (int i = 0; i < weightNodes.getLength(); i++) {
+            Node weightNode = weightNodes.item(i);
+            if (weightNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element weightElement = (Element) weightNode;
+                difficulty = Float.parseFloat(weightElement.getAttribute("value"));
+                break;
+            }
+        }
+
+        // Get age rating of game ("minage")
+        NodeList ageNodes = doc.getElementsByTagName("minage");
+        String ageRating = "2";
+        for (int i = 0; i < ageNodes.getLength(); i++) {
+            Node ageNode = ageNodes.item(i);
+            if (ageNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element ageElement = (Element) ageNode;
+                ageRating = ageElement.getAttribute("value");
+                break;
+            }
+        }
+
+        BGGGame game = new BGGGame(id, name, imageUrl, difficulty, ageRating);
         adapter.add(game);
     }
 }
