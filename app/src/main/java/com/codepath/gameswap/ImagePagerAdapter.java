@@ -87,9 +87,6 @@ public class ImagePagerAdapter<T> extends PagerAdapter implements View.OnClickLi
                     .into(imageView);
         }
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        /*imageView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));*/
         container.addView(imageView, 0);
         imageView.setOnClickListener(this);
         return imageView;

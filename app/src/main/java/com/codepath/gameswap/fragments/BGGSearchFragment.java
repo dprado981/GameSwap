@@ -180,7 +180,7 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
 
     private void getSearchResults(Document doc) {
         NodeList itemList = doc.getElementsByTagName("item");
-        int maxResults = Math.min(itemList.getLength(), 20);
+        int maxResults = Math.min(itemList.getLength(), 25);
         for (int i = 0; i < maxResults; i++) {
             Node itemNode = itemList.item(i);
             if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -280,7 +280,56 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
             }
         }
 
-        BGGGame game = new BGGGame(id, name, imageUrl, difficulty, ageRating);
+        // Get min players time of game
+        NodeList minPlayersNodes = doc.getElementsByTagName("minplayers");
+        int minPlayers = 0;
+        for (int i = 0; i < minPlayersNodes.getLength(); i++) {
+            Node minPlayersNode = minPlayersNodes.item(i);
+            if (minPlayersNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element minPlayersElement = (Element) minPlayersNode;
+                minPlayers = Integer.parseInt(minPlayersElement.getAttribute("value"));
+                break;
+            }
+        }
+
+        // Get max players time of game
+        NodeList maxPlayersNodes = doc.getElementsByTagName("maxplayers");
+        int maxPlayers = 0;
+        for (int i = 0; i < maxPlayersNodes.getLength(); i++) {
+            Node maxPlayersNode = maxPlayersNodes.item(i);
+            if (maxPlayersNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element maxPlayersElement = (Element) maxPlayersNode;
+                maxPlayers = Integer.parseInt(maxPlayersElement.getAttribute("value"));
+                break;
+            }
+        }
+
+        // Get min playing time of game
+        NodeList minPlayingTimeNodes = doc.getElementsByTagName("minplaytime");
+        int minPlayingTime = 0;
+        for (int i = 0; i < minPlayingTimeNodes.getLength(); i++) {
+            Node minPlayingTimeNode = minPlayingTimeNodes.item(i);
+            if (minPlayingTimeNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element minPlayingTimeElement = (Element) minPlayingTimeNode;
+                minPlayingTime = Integer.parseInt(minPlayingTimeElement.getAttribute("value"));
+                break;
+            }
+        }
+
+        // Get max playing time of game
+        NodeList maxPlayingTimeNodes = doc.getElementsByTagName("maxplaytime");
+        int maxPlayingTime = 0;
+        for (int i = 0; i < maxPlayingTimeNodes.getLength(); i++) {
+            Node maxPlayingTimeNode = maxPlayingTimeNodes.item(i);
+            if (maxPlayingTimeNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element maxPlayingTimeElement = (Element) maxPlayingTimeNode;
+                maxPlayingTime = Integer.parseInt(maxPlayingTimeElement.getAttribute("value"));
+                break;
+            }
+        }
+
+        BGGGame game = new BGGGame(id, name, imageUrl, difficulty, ageRating,
+                minPlayers, maxPlayers, minPlayingTime, maxPlayingTime);
         adapter.add(game);
     }
 }

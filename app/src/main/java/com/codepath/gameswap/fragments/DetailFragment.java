@@ -126,7 +126,6 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         images = new ArrayList<>();
         adapter = new ImagePagerAdapter<>(context, images);
         viewPager.setAdapter(adapter);
-        adapter.setPost(post);
         adapter.clear();
         adapter.addAll(post.getImages());
         ViewTreeObserver viewTreeObserver = viewPager.getViewTreeObserver();
