@@ -48,7 +48,7 @@ public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
             condition.setRating(post.getCondition() / 10.0f);
 
             final ImageView ivImage = v.findViewById(R.id.ivImage);
-            ParseFile image = post.getImage();
+            ParseFile image = post.getImageOne();
             if (image != null) {
                 Glide.with(context)
                      .asBitmap()

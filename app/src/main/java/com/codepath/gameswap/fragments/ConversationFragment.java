@@ -113,7 +113,7 @@ public class ConversationFragment extends Fragment {
             ivPost = view.findViewById(R.id.ivPost);
             ivPost.setVisibility(View.VISIBLE);
             final Post fromPost = conversation.getFromPost();
-            ParseFile postImage = fromPost.getImage();
+            ParseFile postImage = fromPost.getImageOne();
             if (postImage != null) {
                 Glide.with(context)
                         .load(postImage.getUrl())

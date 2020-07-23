@@ -106,10 +106,10 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
             }
             tvTitle.setText(post.getTitle());
             rbCondition.setRating((float) post.getCondition() / 10);
-            ParseFile image = post.getImage();
+            ParseFile image = post.getImageOne();
             if (image != null) {
                 Glide.with(context)
-                        .load(post.getImage().getUrl())
+                        .load(image.getUrl())
                         .placeholder(R.drawable.ic_image)
                         .into(ivImage);
             }

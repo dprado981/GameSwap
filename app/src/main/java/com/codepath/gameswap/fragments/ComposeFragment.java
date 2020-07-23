@@ -1,6 +1,7 @@
 package com.codepath.gameswap.fragments;
 
 import android.Manifest;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,7 +32,9 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.viewpager.widget.ViewPager;
 
+import com.codepath.gameswap.ImagePagerAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.BGGGame;
 import com.codepath.gameswap.models.Post;
@@ -51,6 +54,8 @@ import com.parse.SaveCallback;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
@@ -66,16 +71,18 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
     public final String TAG = ComposeFragment.class.getSimpleName();
 
     public enum ImageLocation { CAMERA, GALLERY }
-    private File photoFile;
+    private List<File> photoFiles;
     private boolean photoStored;
 
     private Context context;
     private LatLng currentLocation;
+    private List<Bitmap> bitmaps;
+    private ImagePagerAdapter adapter;
 
     private EditText etTitle;
     private Button btnCamera;
     private Button btnGallery;
-    private ImageView ivPreview;
+    private ViewPager viewPager;
     private EditText etNotes;
     private RatingBar rbCondition;
     private RatingBar rbDifficulty;
@@ -104,7 +111,6 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         etTitle = view.findViewById(R.id.etTitle);
         btnCamera = view.findViewById(R.id.btnCapture);
         btnGallery = view.findViewById(R.id.btnGallery);
-        ivPreview = view.findViewById(R.id.ivPreview);
         etNotes = view.findViewById(R.id.etNotes);
         rbCondition = view.findViewById(R.id.rbCondition);
         rbDifficulty = view.findViewById(R.id.rbDifficulty);
@@ -112,11 +118,15 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         btnPost = view.findViewById(R.id.btnPost);
         pbLoading = view.findViewById(R.id.pbLoading);
 
+        photoFiles = new ArrayList<>(4);
+        viewPager = view.findViewById(R.id.viewPager);
+        bitmaps = new ArrayList<>();
+        adapter = new ImagePagerAdapter(context, bitmaps);
+        viewPager.setAdapter(adapter);
+
         btnCamera.setOnClickListener(this);
         btnGallery.setOnClickListener(this);
         btnPost.setOnClickListener(this);
-
-        ivPreview.setImageDrawable(context.getDrawable(R.drawable.ic_image));
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
                 R.array.age_ratings_array, android.R.layout.simple_spinner_item);
@@ -199,12 +209,13 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
     }
 
     public void getPhoto(ImageLocation imageLocation) {
-        photoFile = getPhotoFileUri(CameraUtils.PHOTO_FILE_NAME);
         Intent intent = null;
         int requestCode = -1;
         if (imageLocation == ImageLocation.CAMERA) {
             // Open the camera
             intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File photoFile = getPhotoFileUri(CameraUtils.getFileName());
+            photoFiles.add(photoFile);
             // Set URI for new photo
             Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", photoFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
@@ -213,6 +224,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
             // Open the photo gallery
             intent = new Intent(Intent.ACTION_PICK,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
             requestCode = CameraUtils.PICK_IMAGE_ACTIVITY_REQUEST_CODE;
         }
         // Ensure that it's safe to use the Intent
@@ -249,10 +261,10 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         if (requestCode == CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 // Get image from path into bitmap
-                Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                Bitmap takenImage = BitmapFactory.decodeFile(photoFiles.get(0).getAbsolutePath());
                 Bitmap adjustedImage;
                 try {
-                    adjustedImage = CameraUtils.adjustRotation(takenImage, photoFile);
+                    adjustedImage = CameraUtils.adjustRotation(takenImage, photoFiles.get(0));
                 } catch (IOException e) {
                     adjustedImage = takenImage;
                 }
@@ -262,28 +274,45 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
             }
         } else if (data != null && requestCode == CameraUtils.PICK_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                // Get image from path into bitmap
-                Uri photoUri = data.getData();
-                Bitmap selectedImage = CameraUtils.loadFromUri(context, photoUri);
-                loadImage(selectedImage);
+                List<Bitmap> bitmaps = new ArrayList<>();
+                ClipData clipData = data.getClipData();
+                if (clipData != null) {
+                    if (clipData.getItemCount() > 4) {
+                        Toast.makeText(context, "Only select up to four images", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        Uri photoUri = clipData.getItemAt(i).getUri();
+                        Bitmap selectedImage = CameraUtils.loadFromUri(context, photoUri);
+                        bitmaps.add(selectedImage);
+                        File newPhotoFIle = getPhotoFileUri(CameraUtils.getFileName(i+1));
+                        try {
+                            CameraUtils.compressBitmap(selectedImage, newPhotoFIle);
+                            photoFiles.add(newPhotoFIle);
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error compressing image", e);
+                        }
+                    }
+                    adapter.clear();
+                    adapter.addAll(bitmaps);
+                    viewPager.getLayoutParams().height = ((View) viewPager.getParent()).getWidth();
+                    photoStored = true;
+                }
             }
         } else { // Result was a failure
             Toast.makeText(context, "Image wasn't selected!", Toast.LENGTH_SHORT).show();
         }
     }
 
-
-
     private void loadImage(Bitmap bitmap) {
         try {
-            CameraUtils.compressBitmap(bitmap, photoFile);
+            CameraUtils.compressBitmap(bitmap, photoFiles.get(0));
         } catch (IOException e) {
             Log.e(TAG, "Error compressing image", e);
         }
-        // Load into ImageView
-        ivPreview.setImageBitmap(bitmap);
-        ivPreview.setScaleType(ImageView.ScaleType.CENTER);
-        ivPreview.getLayoutParams().height = ((View) ivPreview.getParent()).getWidth();
+        adapter.clear();
+        adapter.add(bitmap);
+        viewPager.getLayoutParams().height = ((View) viewPager.getParent()).getWidth();
         photoStored = true;
     }
 
@@ -336,10 +365,14 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         } else {
             post.setCoordinates(new ParseGeoPoint(0,0));
         }
-        post.setImage(new ParseFile(photoFile));
+
+        List<ParseFile> parseFiles = new ArrayList<>(4);
+        for (File file : photoFiles) {
+            parseFiles.add(new ParseFile(file));
+        }
+        post.setImages(parseFiles);
         post.setUser(ParseUser.getCurrentUser());
         etTitle.setText("");
-        ivPreview.setImageResource(0);
         etNotes.setText("");
         rbCondition.setRating(0);
         rbDifficulty.setRating(0);

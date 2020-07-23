@@ -58,12 +58,15 @@
 
                 </LinearLayout>
 
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/viewPager"
+                <ImageView
+                    android:id="@+id/ivPreview"
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
                     android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="16dp"
+                    android:contentDescription="@string/preview"
+                    tools:srcCompat="@drawable/ic_image" />
+
 
                 <EditText
                     android:id="@+id/etNotes"

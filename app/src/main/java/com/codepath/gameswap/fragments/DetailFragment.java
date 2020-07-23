@@ -118,10 +118,10 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
             tvNotesContent.setText(notes);
         }
 
-        ParseFile image = post.getImage();
+        ParseFile image = post.getImageOne();
         if (image != null) {
             Glide.with(context)
-                    .load(post.getImage().getUrl())
+                    .load(image.getUrl())
                     .placeholder(R.drawable.ic_image)
                     .listener(new RequestListener<Drawable>() {
                         @Override

@@ -95,7 +95,7 @@ public class EditFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_compose, container, false);
+        return inflater.inflate(R.layout.fragment_edit, container, false);
     }
 
     @Override
@@ -138,10 +138,10 @@ public class EditFragment extends Fragment implements View.OnClickListener {
         int spinnerPosition = adapter.getPosition(ageRating);
         spAgeRating.setSelection(spinnerPosition);
         etNotes.setText(post.getNotes());
-        ParseFile image = post.getImage();
+        ParseFile image = post.getImageOne();
         if (image != null) {
             Glide.with(context)
-                    .load(post.getImage().getUrl())
+                    .load(post.getImageOne().getUrl())
                     .placeholder(R.drawable.ic_image)
                     .listener(new RequestListener<Drawable>() {
                         @Override
@@ -213,7 +213,7 @@ public class EditFragment extends Fragment implements View.OnClickListener {
     }
 
     public void getPhoto(ImageLocation imageLocation) {
-        photoFile = getPhotoFileUri(CameraUtils.PHOTO_FILE_NAME);
+        photoFile = getPhotoFileUri(CameraUtils.getFileName());
         Intent intent = null;
         int requestCode = -1;
         if (imageLocation == ImageLocation.CAMERA) {
@@ -346,7 +346,7 @@ public class EditFragment extends Fragment implements View.OnClickListener {
             post.setCoordinates(new ParseGeoPoint(0,0));
         }
         if (photoFile != null) {
-            post.setImage(new ParseFile(photoFile));
+            post.setImageOne(new ParseFile(photoFile));
         }
         post.setUser(ParseUser.getCurrentUser());
         etTitle.setText("");
