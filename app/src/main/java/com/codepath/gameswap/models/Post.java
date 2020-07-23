@@ -47,7 +47,7 @@ public class Post extends ParseObject {
 
     public void setDifficulty(int difficulty) { put(KEY_DIFFICULTY, difficulty); }
 
-    public int getAgeRating() { return getInt(KEY_AGE_RATING); }
+    public String getAgeRating() { return getString(KEY_AGE_RATING); }
 
-    public void setAgeRating(int ageRating) { put(KEY_AGE_RATING, ageRating); }
+    public void setAgeRating(String ageRating) { put(KEY_AGE_RATING, ageRating); }
 }

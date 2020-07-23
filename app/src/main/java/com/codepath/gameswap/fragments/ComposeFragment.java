@@ -330,7 +330,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*10));
         post.setDifficulty((int)(rbDifficulty.getRating()*10));
-        post.setAgeRating(Integer.parseInt((String)spAgeRating.getSelectedItem()));
+        post.setAgeRating((String) spAgeRating.getSelectedItem());
         if (currentLocation != null) {
             post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));
         } else {

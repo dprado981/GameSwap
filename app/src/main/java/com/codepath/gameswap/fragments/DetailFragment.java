@@ -99,14 +99,17 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+            btnMessage.setVisibility(View.INVISIBLE);
+        }
         tvTitle.setText(post.getTitle());
         rbCondition.setRating((float) post.getCondition() / 10);
         rbDifficulty.setRating((float) post.getDifficulty() / 10);
-        int ageRating = post.getAgeRating();
-        if (ageRating == 0) {
+        String ageRating = post.getAgeRating();
+        if (ageRating == null || ageRating.isEmpty()) {
             tvAgeRatingValue.setText(R.string.not_specified);
         } else {
-            tvAgeRatingValue.setText(post.getAgeRating() +  "+");
+            tvAgeRatingValue.setText(post.getAgeRating());
         }
         String notes = post.getNotes();
         if (notes.isEmpty()) {

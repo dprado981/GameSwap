@@ -134,8 +134,8 @@ public class EditFragment extends Fragment implements View.OnClickListener {
         etTitle.setText(post.getTitle());
         rbCondition.setRating((float) post.getCondition() / 10);
         rbDifficulty.setRating((float) post.getDifficulty() / 10);
-        int ageRating = post.getAgeRating();
-        int spinnerPosition = adapter.getPosition(Integer.toString(ageRating));
+        String ageRating = post.getAgeRating();
+        int spinnerPosition = adapter.getPosition(ageRating);
         spAgeRating.setSelection(spinnerPosition);
         etNotes.setText(post.getNotes());
         ParseFile image = post.getImage();
@@ -339,7 +339,7 @@ public class EditFragment extends Fragment implements View.OnClickListener {
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*10));
         post.setDifficulty((int)(rbDifficulty.getRating()*10));
-        post.setAgeRating(Integer.parseInt((String)spAgeRating.getSelectedItem()));
+        post.setAgeRating((String)spAgeRating.getSelectedItem());
         if (currentLocation != null) {
             post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));
         } else {

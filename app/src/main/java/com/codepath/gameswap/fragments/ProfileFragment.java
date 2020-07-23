@@ -112,9 +112,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         Bundle bundle = getArguments();
         if (bundle == null) {
             user = ParseUser.getCurrentUser();
-            btnMessage.setVisibility(View.GONE);
         } else {
             user = bundle.getParcelable(Post.KEY_USER);
+        }
+        if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+            btnMessage.setVisibility(View.GONE);
+        } else {
             btnLogout.setVisibility(View.GONE);
         }
         tvUsername.setText(user.getUsername());

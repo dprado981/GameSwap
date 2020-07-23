@@ -270,12 +270,12 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
 
         // Get age rating of game ("minage")
         NodeList ageNodes = doc.getElementsByTagName("minage");
-        String ageRating = "2";
+        String ageRating = "2+";
         for (int i = 0; i < ageNodes.getLength(); i++) {
             Node ageNode = ageNodes.item(i);
             if (ageNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element ageElement = (Element) ageNode;
-                ageRating = ageElement.getAttribute("value");
+                ageRating = ageElement.getAttribute("value") + "+";
                 break;
             }
         }
