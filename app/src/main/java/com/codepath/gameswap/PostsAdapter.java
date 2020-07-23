@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailFragment;
@@ -23,6 +25,7 @@ import com.codepath.gameswap.models.Post;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
@@ -72,10 +75,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private TextView tvUsername;
         private LinearLayout llContent;
         private TextView tvTitle;
-        private ImageView ivImage;
+        private ViewPager viewPager;
         private RatingBar rbCondition;
 
         private Post post;
+        private List<ParseFile> images;
+        private ImagePagerAdapter<ParseFile> adapter;
 
         public ViewHolder(@NonNull View view) {
             super(view);
@@ -85,26 +90,40 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvUsername = view.findViewById(R.id.tvUsername);
             llContent = view.findViewById(R.id.llContent);
             tvTitle = view.findViewById(R.id.tvTitle);
-            ivImage = view.findViewById(R.id.ivImage);
+            viewPager = view.findViewById(R.id.viewPager);
             rbCondition = view.findViewById(R.id.rbCondition);
+
+            images = new ArrayList<>();
+            adapter = new ImagePagerAdapter<>(context, images);
+            viewPager.setAdapter(adapter);
+            ViewTreeObserver viewTreeObserver = viewPager.getViewTreeObserver();
+            if (viewTreeObserver.isAlive()) {
+                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        viewPager.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                        ViewGroup.LayoutParams params = viewPager.getLayoutParams();
+                        params.height = ((View) viewPager.getParent()).getHeight();
+                        viewPager.setLayoutParams(params);
+                    }
+                });
+            }
 
             llHeader.setOnClickListener(this);
             llContent.setOnClickListener(this);
         }
 
         public void bind(Post post) {
+            // Set dimensions of viewPager
+
             this.post = post;
             ParseUser user = post.getUser();
             tvUsername.setText(user.getUsername());
             tvTitle.setText(post.getTitle());
             rbCondition.setRating((float) post.getCondition() / 10);
-            ParseFile image = post.getImageOne();
-            if (image != null) {
-                Glide.with(context)
-                        .load(image.getUrl())
-                        .placeholder(R.drawable.ic_image)
-                        .into(ivImage);
-            }
+            adapter.setPost(post);
+            adapter.clear();
+            adapter.addAll(post.getImages());
             ParseFile profileImage = (ParseFile) user.get("image");
             if (profileImage != null) {
                 Glide.with(context)

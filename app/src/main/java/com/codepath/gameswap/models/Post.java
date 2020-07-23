@@ -6,6 +6,7 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ParseClassName("Post")
@@ -68,6 +69,17 @@ public class Post extends ParseObject {
     public ParseFile getImageFour() { return getParseFile(KEY_IMAGE_FOUR); }
 
     public void setImageFour(ParseFile parseFile) { put(KEY_IMAGE_FOUR, parseFile); }
+
+    public List<ParseFile> getImages() {
+        List<ParseFile> parseFiles = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            ParseFile file = getParseFile(KEY_IMAGE_BASE + (i+1));
+            if (file != null) {
+                parseFiles.add(file);
+            }
+        }
+        return parseFiles;
+    }
 
     public void setImages(List<ParseFile> parseFiles) {
         int limit = Math.min(parseFiles.size(), 4);

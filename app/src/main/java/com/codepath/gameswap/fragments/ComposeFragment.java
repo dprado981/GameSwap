@@ -77,7 +77,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
     private Context context;
     private LatLng currentLocation;
     private List<Bitmap> bitmaps;
-    private ImagePagerAdapter adapter;
+    private ImagePagerAdapter<Bitmap> adapter;
 
     private EditText etTitle;
     private Button btnCamera;
@@ -121,7 +121,7 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         photoFiles = new ArrayList<>(4);
         viewPager = view.findViewById(R.id.viewPager);
         bitmaps = new ArrayList<>();
-        adapter = new ImagePagerAdapter(context, bitmaps);
+        adapter = new ImagePagerAdapter<>(context, bitmaps);
         viewPager.setAdapter(adapter);
 
         btnCamera.setOnClickListener(this);

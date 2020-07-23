@@ -55,13 +55,12 @@
             android:textSize="30sp"
             tools:text="Title" />
 
-        <ImageView
-            android:id="@+id/ivImage"
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:contentDescription="@string/post_image"
-            android:scaleType="center"
-            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
 
         <RatingBar
             android:id="@+id/rbCondition"

@@ -9,11 +9,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -24,6 +26,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.codepath.gameswap.ImagePagerAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
@@ -50,11 +53,13 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
     private Post post;
     private ParseUser user;
     private Conversation targetConversation;
+    private List<ParseFile> images;
+    private ImagePagerAdapter<ParseFile> adapter;
 
     private ImageView ivProfile;
     private TextView tvUsername;
     private TextView tvTitle;
-    private ImageView ivImage;
+    private ViewPager viewPager;
     private TextView tvNotesContent;
     private RatingBar rbCondition;
     private RatingBar rbDifficulty;
@@ -81,7 +86,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
         tvTitle = view.findViewById(R.id.tvTitle);
-        ivImage = view.findViewById(R.id.ivImage);
+        viewPager = view.findViewById(R.id.viewPager);
         tvNotesContent = view.findViewById(R.id.tvNotesContent);
         rbCondition = view.findViewById(R.id.rbCondition);
         rbDifficulty = view.findViewById(R.id.rbDifficulty);
@@ -118,34 +123,31 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
             tvNotesContent.setText(notes);
         }
 
-        ParseFile image = post.getImageOne();
-        if (image != null) {
+        images = new ArrayList<>();
+        adapter = new ImagePagerAdapter<>(context, images);
+        viewPager.setAdapter(adapter);
+        adapter.setPost(post);
+        adapter.clear();
+        adapter.addAll(post.getImages());
+        ViewTreeObserver viewTreeObserver = viewPager.getViewTreeObserver();
+        if (viewTreeObserver.isAlive()) {
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    viewPager.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    ViewGroup.LayoutParams params = viewPager.getLayoutParams();
+                    params.height = ((View) viewPager.getParent()).getHeight();
+                    viewPager.setLayoutParams(params);
+                }
+            });
+        }
+
+        ParseFile profileImage = (ParseFile) post.getUser().get("image");
+        if (profileImage != null) {
             Glide.with(context)
-                    .load(image.getUrl())
-                    .placeholder(R.drawable.ic_image)
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            Log.e(TAG, "Glide failed to load image");
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            // Make all images square
-                            ivImage.getLayoutParams().height = ((View) ivImage.getParent()).getWidth();
-                            return false;
-                        }
-                    })
-                    .into(ivImage);
-
-            ParseFile profileImage = (ParseFile) post.getUser().get("image");
-            if (profileImage != null) {
-                Glide.with(context)
-                        .load(profileImage.getUrl())
-                        .placeholder(R.drawable.ic_profile)
-                        .into(ivProfile);
-            }
+                    .load(profileImage.getUrl())
+                    .placeholder(R.drawable.ic_profile)
+                    .into(ivProfile);
         }
 
         ivProfile.setOnClickListener(this);
