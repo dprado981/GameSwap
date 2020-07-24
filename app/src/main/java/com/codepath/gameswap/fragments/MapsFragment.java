@@ -151,10 +151,19 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
+                Post post = (Post) marker.getTag();
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                Fragment fragment = new DetailFragment();
+                Fragment fragment;
+                if (post.getType().equals(Post.GAME)) {
+                    fragment = new DetailGameFragment();
+                } else if (post.getType().equals(Post.PUZZLE)) {
+                        fragment = new DetailPuzzleFragment();
+                } else {
+                    Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Bundle bundle = new Bundle();
-                bundle.putParcelable(Post.TAG, (Post) marker.getTag());
+                bundle.putParcelable(Post.TAG, post);
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
             }

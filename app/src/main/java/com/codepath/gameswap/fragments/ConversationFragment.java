@@ -124,7 +124,15 @@ public class ConversationFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                    Fragment fragment = new DetailFragment();
+                    Fragment fragment;
+                    if (fromPost.getType().equals(Post.GAME)) {
+                        fragment = new DetailGameFragment();
+                    } else if (fromPost.getType().equals(Post.PUZZLE)) {
+                        fragment = new DetailPuzzleFragment();
+                    } else {
+                        Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Bundle bundle = new Bundle();
                     bundle.putParcelable(Post.TAG, fromPost);
                     fragment.setArguments(bundle);

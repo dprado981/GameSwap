@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -20,6 +21,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailFragment;
+import com.codepath.gameswap.fragments.DetailGameFragment;
+import com.codepath.gameswap.fragments.DetailPuzzleFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
 import com.parse.ParseFile;
@@ -144,7 +147,15 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
             } else if (view == llContent) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                Fragment fragment = new DetailFragment();
+                Fragment fragment;
+                if (post.getType().equals(Post.GAME)) {
+                    fragment = new DetailGameFragment();
+                } else if (post.getType().equals(Post.PUZZLE)) {
+                    fragment = new DetailPuzzleFragment();
+                } else {
+                    Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Post.TAG, post);
                 fragment.setArguments(bundle);

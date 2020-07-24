@@ -1,7 +1,6 @@
 package com.codepath.gameswap.fragments;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,10 +21,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.codepath.gameswap.ImagePagerAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
@@ -44,13 +39,13 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class DetailFragment extends Fragment implements View.OnClickListener {
+public abstract class DetailFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = DetailFragment.class.getSimpleName();
 
-    private Context context;
+    protected Context context;
 
-    private Post post;
+    protected Post post;
     private ParseUser user;
     private Conversation targetConversation;
     private List<ParseFile> images;
@@ -74,7 +69,7 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_detail, container, false);
+        return inflater.inflate(R.layout.fragment_detail_game, container, false);
     }
 
     @Override
@@ -85,13 +80,13 @@ public class DetailFragment extends Fragment implements View.OnClickListener {
 
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
+        btnMessage = view.findViewById(R.id.btnMessage);
         tvTitle = view.findViewById(R.id.tvTitle);
         viewPager = view.findViewById(R.id.viewPager);
         tvNotesContent = view.findViewById(R.id.tvNotesContent);
         rbCondition = view.findViewById(R.id.rbCondition);
         rbDifficulty = view.findViewById(R.id.rbDifficulty);
         tvAgeRatingValue = view.findViewById(R.id.tvAgeRatingValue);
-        btnMessage = view.findViewById(R.id.btnMessage);
 
         Bundle bundle = getArguments();
         if (bundle == null) {

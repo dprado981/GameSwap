@@ -25,6 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailFragment;
+import com.codepath.gameswap.fragments.DetailGameFragment;
+import com.codepath.gameswap.fragments.DetailPuzzleFragment;
 import com.codepath.gameswap.fragments.EditFragment;
 import com.codepath.gameswap.models.Post;
 import com.parse.DeleteCallback;
@@ -119,8 +121,15 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
         public void onClick(View view) {
             if (view == llContent) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                Fragment fragment = new DetailFragment();
-                Bundle bundle = new Bundle();
+                Fragment fragment;
+                if (post.getType().equals(Post.GAME)) {
+                    fragment = new DetailGameFragment();
+                } else if (post.getType().equals(Post.PUZZLE)) {
+                fragment = new DetailPuzzleFragment();
+                } else {
+                    Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+                    return;
+                }Bundle bundle = new Bundle();
                 bundle.putParcelable(Post.TAG, post);
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();

@@ -90,6 +90,7 @@ public class ComposePuzzleFragment extends ComposeFragment {
         }
         post.setImages(parseFiles);
         post.setUser(ParseUser.getCurrentUser());
+        post.setType(Post.PUZZLE);
         etTitle.setText("");
         etNotes.setText("");
         rbCondition.setRating(0);

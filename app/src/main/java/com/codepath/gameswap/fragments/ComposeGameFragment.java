@@ -116,6 +116,7 @@ public class ComposeGameFragment extends ComposeFragment {
         }
         post.setImages(parseFiles);
         post.setUser(ParseUser.getCurrentUser());
+        post.setType(Post.GAME);
         etTitle.setText("");
         etNotes.setText("");
         rbCondition.setRating(0);

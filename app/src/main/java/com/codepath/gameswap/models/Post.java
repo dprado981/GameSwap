@@ -13,6 +13,8 @@ import java.util.List;
 public class Post extends ParseObject {
 
     public static final String TAG = Post.class.getSimpleName();
+    public static final String GAME = "game";
+    public static final String PUZZLE = "puzzle";
     public static final String KEY_TITLE = "title";
     public static final String KEY_CONDITION = "condition";
     public static final String KEY_NOTES = "notes";
@@ -32,6 +34,7 @@ public class Post extends ParseObject {
     public static final String KEY_IMAGE_TWO = "image2";
     public static final String KEY_IMAGE_THREE = "image3";
     public static final String KEY_IMAGE_FOUR = "image4";
+    public static final String KEY_TYPE = "type";
 
     public String getTitle() { return getString(KEY_TITLE); }
 
@@ -63,31 +66,35 @@ public class Post extends ParseObject {
 
     public void setMinPlayers(int minPlayers) { put(KEY_MIN_PLAYERS, minPlayers); }
 
-    public int getMinPlayers() { return (int) getNumber(KEY_MIN_PLAYERS); }
+    public int getMinPlayers() { return getInt(KEY_MIN_PLAYERS); }
 
     public void setMaxPlayers(int maxPlayers) { put(KEY_MAX_PLAYERS, maxPlayers); }
 
-    public int getMaxPlayers() { return (int) getNumber(KEY_MAX_PLAYERS); }
+    public int getMaxPlayers() { return getInt(KEY_MAX_PLAYERS); }
 
     public void setMinPlaytime(int minPlaytime) { put(KEY_MIN_PLAYTIME, minPlaytime); }
 
-    public int getMinPlaytime() { return (int) getNumber(KEY_MIN_PLAYTIME); }
+    public int getMinPlaytime() { return getInt(KEY_MIN_PLAYTIME); }
 
     public void setMaxPlaytime(int maxPlaytime) { put(KEY_MAX_PLAYTIME, maxPlaytime); }
 
-    public int getMaxPlaytime() { return (int) getNumber(KEY_MAX_PLAYTIME); }
+    public int getMaxPlaytime() { return getInt(KEY_MAX_PLAYTIME); }
 
     public void setPieces(int pieces) { put(KEY_PIECES, pieces); }
 
-    public int getPieces() { return (int) getNumber(KEY_PIECES); }
+    public int getPieces() {
+        int test = getInt(KEY_PIECES);
+        System.out.println(test);
+        return getInt(KEY_PIECES);
+    }
 
     public void setWidth(float width) { put(KEY_WIDTH, (int) width*100); }
 
-    public float getWidth() { return (float) (((int) getNumber(KEY_WIDTH))/100.0); }
+    public float getWidth() { return (getInt(KEY_WIDTH)/100.0f); }
 
     public void setHeight(float height) { put(KEY_HEIGHT, (int) height*100); }
 
-    public float getHeight() { return (float) (((int) getNumber(KEY_HEIGHT))/100.0); }
+    public float getHeight() { return (getInt(KEY_HEIGHT)/100.0f); }
 
     public ParseFile getImageOne() { return getParseFile(KEY_IMAGE_ONE); }
 
@@ -123,5 +130,9 @@ public class Post extends ParseObject {
             put(KEY_IMAGE_BASE + (i+1), file);
         }
     }
+
+    public String getType() { return getString(KEY_TYPE); }
+
+    public void setType(String type) { put(KEY_TYPE, type); }
 
 }

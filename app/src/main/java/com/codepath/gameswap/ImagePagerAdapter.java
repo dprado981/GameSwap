@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Adapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -19,7 +20,10 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailFragment;
+import com.codepath.gameswap.fragments.DetailGameFragment;
+import com.codepath.gameswap.fragments.DetailPuzzleFragment;
 import com.codepath.gameswap.models.Post;
+import com.codepath.gameswap.models.Puzzle;
 import com.parse.ParseFile;
 
 import org.jetbrains.annotations.NotNull;
@@ -102,7 +106,15 @@ public class ImagePagerAdapter<T> extends PagerAdapter implements View.OnClickLi
         // Restrict onClick so doesn't work in detail Fragment
         if (post != null) {
             FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-            Fragment fragment = new DetailFragment();
+            Fragment fragment;
+            if (post.getType().equals(Post.GAME)) {
+                fragment = new DetailGameFragment();
+            } else if (post.getType().equals(Post.PUZZLE)) {
+                fragment = new DetailPuzzleFragment();
+            } else {
+                Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Bundle bundle = new Bundle();
             bundle.putParcelable(Post.TAG, post);
             fragment.setArguments(bundle);

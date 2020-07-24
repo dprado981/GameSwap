@@ -145,7 +145,7 @@
                         android:spinnerMode="dialog" />
 
                     <TextView
-                        android:id="@+id/tvMinPlayers"
+                        android:id="@+id/tvPlayers"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -175,7 +175,7 @@
                         android:inputType="number" />
 
                     <TextView
-                        android:id="@+id/tvMaxPlayers"
+                        android:id="@+id/tvPlaytime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"

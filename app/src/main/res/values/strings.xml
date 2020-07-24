@@ -39,4 +39,8 @@
     <string name="width">Width:</string>
     <string name="num_pieces">Num Pieces:</string>
     <string name="choose_type">Choose a type of post to create</string>
+    <string name="players">Players:</string>
+    <string name="playtime">Playtime:</string>
+    <string name="dimensions">Dimensions:</string>
+    <string name="pieces">Pieces:</string>
 </resources>
