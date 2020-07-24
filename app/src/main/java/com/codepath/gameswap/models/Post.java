@@ -20,6 +20,13 @@ public class Post extends ParseObject {
     public static final String KEY_COORDINATES = "coordinates";
     public static final String KEY_DIFFICULTY = "difficulty";
     public static final String KEY_AGE_RATING = "ageRating";
+    public static final String KEY_MIN_PLAYERS = "minPlayers";
+    public static final String KEY_MAX_PLAYERS = "maxPlayers";
+    public static final String KEY_MIN_PLAYTIME = "minPlaytime";
+    public static final String KEY_MAX_PLAYTIME = "maxPlaytime";
+    public static final String KEY_PIECES = "pieces";
+    public static final String KEY_WIDTH = "width";
+    public static final String KEY_HEIGHT = "height";
     public static final String KEY_IMAGE_BASE = "image";
     public static final String KEY_IMAGE_ONE = "image1";
     public static final String KEY_IMAGE_TWO = "image2";
@@ -53,6 +60,34 @@ public class Post extends ParseObject {
     public String getAgeRating() { return getString(KEY_AGE_RATING); }
 
     public void setAgeRating(String ageRating) { put(KEY_AGE_RATING, ageRating); }
+
+    public void setMinPlayers(int minPlayers) { put(KEY_MIN_PLAYERS, minPlayers); }
+
+    public int getMinPlayers() { return (int) getNumber(KEY_MIN_PLAYERS); }
+
+    public void setMaxPlayers(int maxPlayers) { put(KEY_MAX_PLAYERS, maxPlayers); }
+
+    public int getMaxPlayers() { return (int) getNumber(KEY_MAX_PLAYERS); }
+
+    public void setMinPlaytime(int minPlaytime) { put(KEY_MIN_PLAYTIME, minPlaytime); }
+
+    public int getMinPlaytime() { return (int) getNumber(KEY_MIN_PLAYTIME); }
+
+    public void setMaxPlaytime(int maxPlaytime) { put(KEY_MAX_PLAYTIME, maxPlaytime); }
+
+    public int getMaxPlaytime() { return (int) getNumber(KEY_MAX_PLAYTIME); }
+
+    public void setPieces(int pieces) { put(KEY_PIECES, pieces); }
+
+    public int getPieces() { return (int) getNumber(KEY_PIECES); }
+
+    public void setWidth(float width) { put(KEY_WIDTH, (int) width*100); }
+
+    public float getWidth() { return (float) (((int) getNumber(KEY_WIDTH))/100.0); }
+
+    public void setHeight(float height) { put(KEY_HEIGHT, (int) height*100); }
+
+    public float getHeight() { return (float) (((int) getNumber(KEY_HEIGHT))/100.0); }
 
     public ParseFile getImageOne() { return getParseFile(KEY_IMAGE_ONE); }
 
@@ -88,4 +123,5 @@ public class Post extends ParseObject {
             put(KEY_IMAGE_BASE + (i+1), file);
         }
     }
+
 }

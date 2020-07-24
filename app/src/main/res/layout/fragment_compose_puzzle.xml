@@ -145,11 +145,13 @@
                         android:spinnerMode="dialog" />
 
                     <TextView
-                        android:id="@+id/tvMinPlayers"
+                        android:id="@+id/tvPieces"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_row="3"
+                        android:layout_column="0"
                         android:layout_gravity="center_vertical"
-                        android:text="@string/min_players"
+                        android:text="@string/num_pieces"
                         android:textSize="18sp" />
 
                     <RatingBar
@@ -161,29 +163,6 @@
                         android:secondaryProgressTint="#00000000"
                         android:stepSize="0.1"
                         android:visibility="invisible" />
-
-                    <EditText
-                        android:id="@+id/etMinPlayers"
-                        android:layout_width="120dp"
-                        android:layout_height="wrap_content"
-                        android:layout_row="3"
-                        android:layout_column="1"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="8dp"
-                        android:hint="@string/of_players"
-                        android:importantForAutofill="no"
-                        android:inputType="number" />
-
-                    <TextView
-                        android:id="@+id/tvPieces"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_row="3"
-                        android:layout_column="0"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/min_players"
-                        android:textSize="18sp"
-                        android:visibility="gone" />
 
                     <EditText
                         android:id="@+id/etPieces"
@@ -195,37 +174,6 @@
                         android:layout_marginStart="8dp"
                         android:hint="@string/of_pieces"
                         android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/tvMaxPlayers"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/max_players"
-                        android:textSize="18sp" />
-
-                    <RatingBar
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:isIndicator="true"
-                        android:numStars="5"
-                        android:secondaryProgressTint="#00000000"
-                        android:stepSize="0.1"
-                        android:visibility="invisible" />
-
-                    <EditText
-                        android:id="@+id/etMaxPlayers"
-                        android:layout_width="120dp"
-                        android:layout_height="wrap_content"
-                        android:layout_row="4"
-                        android:layout_column="1"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="8dp"
-                        android:hint="@string/of_players"
-                        android:importantForAutofill="no"
                         android:inputType="number" />
 
                     <TextView
@@ -235,29 +183,7 @@
                         android:layout_row="4"
                         android:layout_column="0"
                         android:layout_gravity="center_vertical"
-                        android:text="@string/min_players"
-                        android:textSize="18sp"
-                        android:visibility="gone" />
-
-                    <EditText
-                        android:id="@+id/etWidth"
-                        android:layout_width="120dp"
-                        android:layout_height="wrap_content"
-                        android:layout_row="4"
-                        android:layout_column="1"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="8dp"
-                        android:hint="@string/width_in_inches"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/tvMinPlaytime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/min_playtime"
+                        android:text="@string/width"
                         android:textSize="18sp" />
 
                     <RatingBar
@@ -271,16 +197,16 @@
                         android:visibility="invisible" />
 
                     <EditText
-                        android:id="@+id/etMinPlaytime"
-                        android:layout_width="120dp"
+                        android:id="@+id/etWidth"
+                        android:layout_width="140dp"
                         android:layout_height="wrap_content"
-                        android:layout_row="5"
+                        android:layout_row="4"
                         android:layout_column="1"
                         android:layout_gravity="center_vertical"
                         android:layout_marginStart="8dp"
-                        android:hint="@string/of_minutes"
-                        android:inputType="number"
-                        android:importantForAutofill="no" />
+                        android:hint="@string/width_in_inches"
+                        android:importantForAutofill="no"
+                        android:inputType="number" />
 
                     <TextView
                         android:id="@+id/tvHeight"
@@ -289,29 +215,7 @@
                         android:layout_row="5"
                         android:layout_column="0"
                         android:layout_gravity="center_vertical"
-                        android:text="@string/min_players"
-                        android:textSize="18sp"
-                        android:visibility="gone" />
-
-                    <EditText
-                        android:id="@+id/etHeight"
-                        android:layout_width="120dp"
-                        android:layout_height="wrap_content"
-                        android:layout_row="5"
-                        android:layout_column="1"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="8dp"
-                        android:hint="@string/hieght_in_inches"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/tvMaxPlaytime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/max_playtime"
+                        android:text="@string/height"
                         android:textSize="18sp" />
 
                     <RatingBar
@@ -325,14 +229,14 @@
                         android:visibility="invisible" />
 
                     <EditText
-                        android:id="@+id/etMaxPlaytime"
-                        android:layout_width="120dp"
+                        android:id="@+id/etHeight"
+                        android:layout_width="140dp"
                         android:layout_height="wrap_content"
-                        android:layout_row="6"
+                        android:layout_row="5"
                         android:layout_column="1"
                         android:layout_gravity="center_vertical"
                         android:layout_marginStart="8dp"
-                        android:hint="@string/of_minutes"
+                        android:hint="@string/hieght_in_inches"
                         android:importantForAutofill="no"
                         android:inputType="number" />
 

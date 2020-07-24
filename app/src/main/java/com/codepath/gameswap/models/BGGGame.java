@@ -6,6 +6,7 @@ import android.os.Parcelable;
 public class BGGGame extends Thing implements Parcelable {
 
     public static final String TAG = BGGGame.class.getSimpleName();
+    public static final int TYPE = 1;
     private int minPlayers;
     private int maxPlayers;
     private int minPlaytime;
@@ -36,17 +37,12 @@ public class BGGGame extends Thing implements Parcelable {
         parcel.writeInt(maxPlaytime);
     }
 
-    public String getPlayers() {
-        if (maxPlayers <= minPlayers) {
-            return Integer.toString(minPlayers);
-        }
-        return minPlayers + "-" + maxPlayers;
-    }
+    public int getMinPlayers() { return minPlayers; }
 
-    public String getPlaytime() {
-        if (maxPlaytime <= minPlaytime) {
-            return Integer.toString(minPlaytime);
-        }
-        return minPlaytime + "-" + maxPlaytime; }
+    public int getMaxPlayers() { return maxPlayers; }
+
+    public int getMinPlaytime() { return minPlaytime; }
+
+    public int getMaxPlaytime() { return maxPlaytime; }
 
 }

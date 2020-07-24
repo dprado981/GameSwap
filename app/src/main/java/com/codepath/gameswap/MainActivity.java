@@ -1,32 +1,30 @@
 package com.codepath.gameswap;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.codepath.gameswap.fragments.ChatsFragment;
-import com.codepath.gameswap.fragments.ComposeFragment;
+import com.codepath.gameswap.fragments.ComposeGameFragment;
+import com.codepath.gameswap.fragments.ComposePuzzleFragment;
 import com.codepath.gameswap.fragments.MapsFragment;
 import com.codepath.gameswap.fragments.PostsFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
-import com.codepath.gameswap.models.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseQuery;
 
-import java.util.Date;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ComposeTypeDialog.ComposeTypeDialogListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+
+    private Context context;
 
     private BottomNavigationView bottomNavigation;
 
@@ -36,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        context = this;
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
@@ -51,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new MapsFragment();
                         break;
                     case R.id.actionCompose:
-                        fragment = new ComposeFragment();
-                        break;
+                        DialogFragment newFragment = new ComposeTypeDialog();
+                        newFragment.show(getSupportFragmentManager(), "type");
+                        return true;
                     case R.id.actionChat:
                         fragment = new ChatsFragment();
                         break;
@@ -68,6 +69,20 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigation.setSelectedItemId(R.id.actionHome);
         Fragment fragment = new PostsFragment();
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int pos) {
+        Fragment fragment;
+        if (pos == 0) {
+            fragment = new ComposePuzzleFragment();
+        } else if (pos == 1) {
+            fragment = new ComposeGameFragment();
+        } else {
+            Log.e(TAG, "Not implemented");
+            return;
+        }
         fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 }

@@ -13,4 +13,8 @@
         <item>18+</item>
         <item>21+</item>
     </string-array>
+    <string-array name="type_array">
+        <item>Puzzle</item>
+        <item>Game</item>
+    </string-array>
 </resources>

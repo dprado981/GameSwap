@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.BGGSearchFragment;
 import com.codepath.gameswap.fragments.ComposeFragment;
+import com.codepath.gameswap.fragments.ComposeGameFragment;
 import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.BGGGame;
@@ -97,7 +98,7 @@ public class BGGGameAdapter extends RecyclerView.Adapter<BGGGameAdapter.ViewHold
         @Override
         public void onClick(View view) {
             FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
-            ComposeFragment fragment = new ComposeFragment();
+            ComposeFragment fragment = new ComposeGameFragment();
             Bundle bundle = new Bundle();
             bundle.putParcelable(BGGGame.TAG, game);
             fragment.setArguments(bundle);

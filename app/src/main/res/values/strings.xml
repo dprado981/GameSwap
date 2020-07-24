@@ -26,4 +26,17 @@
     <string name="edit">Edit</string>
     <string name="save">Save</string>
     <string name="image">Image</string>
+    <string name="max_playtime">Max Playtime:</string>
+    <string name="min_playtime">Min Playtime:</string>
+    <string name="max_players">Max Players:</string>
+    <string name="min_players">Min Players:</string>
+    <string name="of_players"># of players</string>
+    <string name="of_minutes"># of minutes</string>
+    <string name="of_pieces"># of pieces</string>
+    <string name="width_in_inches">width in inches</string>
+    <string name="hieght_in_inches">height in inches</string>
+    <string name="height">Height:</string>
+    <string name="width">Width:</string>
+    <string name="num_pieces">Num Pieces:</string>
+    <string name="choose_type">Choose a type of post to create</string>
 </resources>

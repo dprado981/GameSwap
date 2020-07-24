@@ -6,6 +6,7 @@ import android.os.Parcelable;
 public class Thing implements Parcelable {
 
     public static final String TAG = Thing.class.getSimpleName();
+    public static final String TYPE = "type";
 
     private String id;
     private String title;

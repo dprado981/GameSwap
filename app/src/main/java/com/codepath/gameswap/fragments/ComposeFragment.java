@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.Spinner;
@@ -30,27 +29,16 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.codepath.gameswap.ImagePagerAdapter;
 import com.codepath.gameswap.R;
-import com.codepath.gameswap.models.BGGGame;
-import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.utils.CameraUtils;
 import com.codepath.gameswap.utils.MapUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,35 +48,35 @@ import java.util.List;
 import static android.app.Activity.RESULT_OK;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
-// TODO: GET MORE INFORMATION FROM BGG API
 
 /**
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class ComposeFragment extends Fragment implements View.OnClickListener {
+
+public abstract class ComposeFragment extends Fragment implements View.OnClickListener {
 
     public final String TAG = ComposeFragment.class.getSimpleName();
-
     public enum ImageLocation { CAMERA, GALLERY }
-    private List<File> photoFiles;
-    private boolean photoStored;
 
-    private Context context;
-    private LatLng currentLocation;
-    private List<Bitmap> bitmaps;
-    private ImagePagerAdapter<Bitmap> adapter;
 
-    private EditText etTitle;
-    private Button btnCamera;
-    private Button btnGallery;
-    private ViewPager viewPager;
-    private EditText etNotes;
-    private RatingBar rbCondition;
-    private RatingBar rbDifficulty;
-    private Spinner spAgeRating;
-    private Button btnPost;
-    private ProgressBar pbLoading;
+    protected Context context;
+    protected LatLng currentLocation;
+    protected ImagePagerAdapter<Bitmap> adapter;
+    protected List<File> photoFiles;
+
+    protected EditText etTitle;
+    protected Button btnCamera;
+    protected Button btnGallery;
+    protected ViewPager viewPager;
+    protected EditText etNotes;
+    protected RatingBar rbCondition;
+    protected RatingBar rbDifficulty;
+    protected Spinner spAgeRating;
+    protected Button btnPost;
+    protected ProgressBar pbLoading;
+
+    protected ArrayAdapter<CharSequence> spAdapter;
 
     public ComposeFragment() {
         // Required empty public constructor
@@ -106,11 +94,10 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
 
-        photoStored = false;
-
         etTitle = view.findViewById(R.id.etTitle);
         btnCamera = view.findViewById(R.id.btnCapture);
         btnGallery = view.findViewById(R.id.btnGallery);
+        viewPager = view.findViewById(R.id.viewPager);
         etNotes = view.findViewById(R.id.etNotes);
         rbCondition = view.findViewById(R.id.rbCondition);
         rbDifficulty = view.findViewById(R.id.rbDifficulty);
@@ -118,46 +105,42 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         btnPost = view.findViewById(R.id.btnPost);
         pbLoading = view.findViewById(R.id.pbLoading);
 
+        // Set up ViewPager for Images
         photoFiles = new ArrayList<>(4);
-        viewPager = view.findViewById(R.id.viewPager);
-        bitmaps = new ArrayList<>();
+        List<Bitmap> bitmaps = new ArrayList<>();
         adapter = new ImagePagerAdapter<>(context, bitmaps);
         viewPager.setAdapter(adapter);
+
+        // Set up Age Rating Spinner
+        spAdapter = ArrayAdapter.createFromResource(context,
+                R.array.age_ratings_array, android.R.layout.simple_spinner_item);
+        spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spAgeRating.setAdapter(spAdapter);
+        spAgeRating.setSelection(0);
 
         btnCamera.setOnClickListener(this);
         btnGallery.setOnClickListener(this);
         btnPost.setOnClickListener(this);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
-                R.array.age_ratings_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spAgeRating.setAdapter(adapter);
-        spAgeRating.setSelection(0);
-
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            Log.d(TAG, "bundle is not null");
-            BGGGame game = bundle.getParcelable(BGGGame.TAG);
-            etTitle.setText(game.getTitle());
-            rbDifficulty.setRating(game.getDifficulty());
-            spAgeRating.setSelection(adapter.getPosition(game.getAgeRating()));
-        }
-
         setCurrentLocation();
-        Snackbar.make(view, "Autofill with BoardGameGeek?", Snackbar.LENGTH_INDEFINITE)
-                .setAction("Go", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.flContainer, new BGGSearchFragment())
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                }).show();
-
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view == btnCamera) {
+            getPhoto(ImageLocation.CAMERA);
+        } else if (view == btnGallery) {
+            getPhoto(ImageLocation.GALLERY);
+        } else if (view == btnPost) {
+            if (allFieldsFilled()) {
+                savePost();
+            }
+        }
+    }
+
+    /**
+     * If has permission, it stores the users current location, otherwise it asks for permission
+     */
     private void setCurrentLocation() {
         FusedLocationProviderClient locationClient = getFusedLocationProviderClient(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -187,6 +170,10 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * Displays a Toast showing the users permission decision
+     * Sets the current location if the user provides permission
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -208,6 +195,9 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * Starts either the Camera or the Gallery to retreive the image(s) and prepares for the result
+     */
     public void getPhoto(ImageLocation imageLocation) {
         Intent intent = null;
         int requestCode = -1;
@@ -258,143 +248,78 @@ public class ComposeFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                // Get image from path into bitmap
-                Bitmap takenImage = BitmapFactory.decodeFile(photoFiles.get(0).getAbsolutePath());
-                Bitmap adjustedImage;
-                try {
-                    adjustedImage = CameraUtils.adjustRotation(takenImage, photoFiles.get(0));
-                } catch (IOException e) {
-                    adjustedImage = takenImage;
-                }
-                loadImage(adjustedImage);
-            } else { // Result was a failure
-                Toast.makeText(context, "Image wasn't captured!", Toast.LENGTH_SHORT).show();
+        if (requestCode == CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE
+                && resultCode == RESULT_OK) {
+            File photoFile = photoFiles.get(0);
+            // Get image from path into bitmap
+            Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+            // Load correctly oriented bitmap into ViewPager
+            adapter.clear();
+            try {
+                loadBitmap(CameraUtils.adjustRotation(takenImage, photoFile), photoFile);
+            } catch (IOException e) {
+                loadBitmap(takenImage, photoFile);
             }
-        } else if (data != null && requestCode == CameraUtils.PICK_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                List<Bitmap> bitmaps = new ArrayList<>();
-                ClipData clipData = data.getClipData();
-                if (clipData != null) {
-                    if (clipData.getItemCount() > 4) {
-                        Toast.makeText(context, "Only select up to four images", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    for (int i = 0; i < clipData.getItemCount(); i++) {
-                        Uri photoUri = clipData.getItemAt(i).getUri();
-                        Bitmap selectedImage = CameraUtils.loadFromUri(context, photoUri);
-                        bitmaps.add(selectedImage);
-                        File newPhotoFIle = getPhotoFileUri(CameraUtils.getFileName(i+1));
-                        try {
-                            CameraUtils.compressBitmap(selectedImage, newPhotoFIle);
-                            photoFiles.add(newPhotoFIle);
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error compressing image", e);
-                        }
-                    }
-                    adapter.clear();
-                    adapter.addAll(bitmaps);
-                    viewPager.getLayoutParams().height = ((View) viewPager.getParent()).getWidth();
-                    photoStored = true;
+        } else if (data != null && requestCode == CameraUtils.PICK_IMAGE_ACTIVITY_REQUEST_CODE
+                && resultCode == RESULT_OK) {
+            ClipData clipData = data.getClipData();
+            if (clipData != null) {
+                // Ensure that only up to 4 photos are selected
+                if (clipData.getItemCount() > 4) {
+                    Toast.makeText(context, "Only select up to four images", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                adapter.clear();
+                for (int i = 0; i < clipData.getItemCount(); i++) {
+                    Uri photoUri = clipData.getItemAt(i).getUri();
+                    Bitmap selectedImage = CameraUtils.loadFromUri(context, photoUri);
+                    File newPhotoFile = getPhotoFileUri(CameraUtils.getFileName(i+1));
+                    loadBitmap(selectedImage, newPhotoFile);
                 }
             }
-        } else { // Result was a failure
+        } else {
             Toast.makeText(context, "Image wasn't selected!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void loadImage(Bitmap bitmap) {
+    /**
+     * Compress specified bitmap into the specified file, then bind to the adapter
+     */
+    private void loadBitmap(Bitmap bitmap, File file) {
         try {
-            CameraUtils.compressBitmap(bitmap, photoFiles.get(0));
+            CameraUtils.compressBitmap(bitmap, file);
         } catch (IOException e) {
             Log.e(TAG, "Error compressing image", e);
         }
-        adapter.clear();
         adapter.add(bitmap);
+        photoFiles.add(file);
         viewPager.getLayoutParams().height = ((View) viewPager.getParent()).getWidth();
-        photoStored = true;
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view == btnCamera) {
-            getPhoto(ImageLocation.CAMERA);
-        } else if (view == btnGallery) {
-            getPhoto(ImageLocation.GALLERY);
-        } else if (view == btnPost) {
-            if (allFieldsFilled()) {
-                savePost();
-            }
-        }
-    }
-
+    /**
+     * Returns true if all required fields are filled out (title, photo, notes, condition, difficulty)
+     * Returns false and displays a Toast if one of the fields is not filled out
+     */
     private boolean allFieldsFilled() {
         if (etTitle.getText().toString().isEmpty()) {
-            Toast.makeText(context, "Game must have a title", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Must include a title", Toast.LENGTH_SHORT).show();
             return false;
-        } if (!photoStored) {
-            Toast.makeText(context, "Post must include a photo", Toast.LENGTH_SHORT).show();
+        } else if (photoFiles.isEmpty()) {
+            Toast.makeText(context, "Must include a photo", Toast.LENGTH_SHORT).show();
             return false;
-        } if (etNotes.getText().toString().isEmpty()) {
-            Toast.makeText(context, "Game must have a title", Toast.LENGTH_SHORT).show();
+        } else if (etNotes.getText().toString().isEmpty()) {
+            Toast.makeText(context, "Must include a note", Toast.LENGTH_SHORT).show();
             return false;
-        } if (etNotes.getText().toString().isEmpty()) {
-            Toast.makeText(context, "Game must have a title", Toast.LENGTH_SHORT).show();
+        } else if (rbCondition.getRating() == 0) {
+            Toast.makeText(context, "Must include a condition", Toast.LENGTH_SHORT).show();
             return false;
-        } if (rbCondition.getRating() == 0) {
-            Toast.makeText(context, "Game must have a condition", Toast.LENGTH_SHORT).show();
-            return false;
-        } if (rbDifficulty.getRating() == 0) {
-            Toast.makeText(context, "Game must have a difficulty", Toast.LENGTH_SHORT).show();
+        } else if (rbDifficulty.getRating() == 0) {
+            Toast.makeText(context, "Must include a difficulty", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
     }
 
-    private void savePost() {
-        pbLoading.setVisibility(View.VISIBLE);
-        final Post post = new Post();
-        post.setTitle(etTitle.getText().toString());
-        post.setNotes(etNotes.getText().toString());
-        post.setCondition((int)(rbCondition.getRating()*10));
-        post.setDifficulty((int)(rbDifficulty.getRating()*10));
-        post.setAgeRating((String) spAgeRating.getSelectedItem());
-        if (currentLocation != null) {
-            post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));
-        } else {
-            post.setCoordinates(new ParseGeoPoint(0,0));
-        }
-
-        List<ParseFile> parseFiles = new ArrayList<>(4);
-        for (File file : photoFiles) {
-            parseFiles.add(new ParseFile(file));
-        }
-        post.setImages(parseFiles);
-        post.setUser(ParseUser.getCurrentUser());
-        etTitle.setText("");
-        etNotes.setText("");
-        rbCondition.setRating(0);
-        rbDifficulty.setRating(0);
-        post.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Error while saving", e);
-                    Toast.makeText(context, "Error while saving", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                pbLoading.setVisibility(View.INVISIBLE);
-                FragmentActivity activity = (FragmentActivity) context;
-                // Ensure that correct menu item is selected
-                ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionHome);
-                // Go to home fragment
-                FragmentManager fragmentManager = activity.getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.flContainer, new PostsFragment()).commit();
-            }
-        });
-
-
-    }
+    protected abstract void savePost();
 
 }
