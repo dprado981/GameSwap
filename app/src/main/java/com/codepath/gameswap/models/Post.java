@@ -35,6 +35,7 @@ public class Post extends ParseObject {
     public static final String KEY_IMAGE_THREE = "image3";
     public static final String KEY_IMAGE_FOUR = "image4";
     public static final String KEY_TYPE = "type";
+    public static final String KEY_REPORTED_BY = "reportedBy";
 
     public String getTitle() { return getString(KEY_TITLE); }
 
@@ -131,4 +132,14 @@ public class Post extends ParseObject {
 
     public void setType(String type) { put(KEY_TYPE, type); }
 
+    public void addReportBy(ParseUser currentUser) {
+        if (!getReports().contains(currentUser.getUsername())) {
+            add(KEY_REPORTED_BY, currentUser.getUsername());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getReports() {
+        return (List<String>) get(KEY_REPORTED_BY);
+    }
 }

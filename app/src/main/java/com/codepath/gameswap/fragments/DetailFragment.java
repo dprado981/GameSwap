@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -12,13 +13,17 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.ImagePagerAdapter;
@@ -39,7 +44,7 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public abstract class DetailFragment extends Fragment implements View.OnClickListener {
+public abstract class DetailFragment extends Fragment implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     public static final String TAG = DetailFragment.class.getSimpleName();
 
@@ -54,6 +59,7 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
     private ImageView ivProfile;
     private TextView tvUsername;
     private TextView tvTitle;
+    private ImageButton ibMore;
     private ViewPager viewPager;
     private TextView tvNotesContent;
     private RatingBar rbCondition;
@@ -82,6 +88,7 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         tvUsername = view.findViewById(R.id.tvUsername);
         btnMessage = view.findViewById(R.id.btnMessage);
         tvTitle = view.findViewById(R.id.tvTitle);
+        ibMore = view.findViewById(R.id.ibMore);
         viewPager = view.findViewById(R.id.viewPager);
         tvNotesContent = view.findViewById(R.id.tvNotesContent);
         rbCondition = view.findViewById(R.id.rbCondition);
@@ -147,6 +154,7 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         ivProfile.setOnClickListener(this);
         tvUsername.setOnClickListener(this);
         btnMessage.setOnClickListener(this);
+        ibMore.setOnClickListener(this);
 
     }
 
@@ -161,6 +169,16 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
             bundle.putParcelable(Post.KEY_USER, user);
             fragment.setArguments(bundle);
             fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+        } else if (view == ibMore) {
+            PopupMenu popup = new PopupMenu(context, view);
+            MenuInflater inflater = popup.getMenuInflater();
+            if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                inflater.inflate(R.menu.menu_profile_post_options, popup.getMenu());
+            } else {
+                inflater.inflate(R.menu.menu_stream_post_options, popup.getMenu());
+            }
+            popup.setOnMenuItemClickListener(this);
+            popup.show();
         }
     }
 
@@ -221,5 +239,23 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         bundle.putParcelable(Conversation.TAG, targetConversation);
         fragment.setArguments(bundle);
         fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.actionReport) {
+            post.addReportBy(ParseUser.getCurrentUser());
+            post.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e != null) {
+                        Log.e(TAG, "Error sending report", e);
+                        Toast.makeText(context, "Error sending report", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        return false;
     }
 }

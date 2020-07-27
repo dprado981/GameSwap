@@ -27,14 +27,12 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailGameFragment;
 import com.codepath.gameswap.fragments.DetailPuzzleFragment;
-import com.codepath.gameswap.fragments.EditGameFragment;
-import com.codepath.gameswap.fragments.EditPuzzleFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
-import com.parse.DeleteCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,10 +171,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             } else if (view == ibMore) {
                 PopupMenu popup = new PopupMenu(context, view);
                 MenuInflater inflater = popup.getMenuInflater();
-                if (llHeader.getVisibility() == View.VISIBLE) {
-                    //inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+                if (post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                    inflater.inflate(R.menu.menu_profile_post_options, popup.getMenu());
                 } else {
-                    inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+                    inflater.inflate(R.menu.menu_stream_post_options, popup.getMenu());
                 }
                 popup.setOnMenuItemClickListener(this);
                 popup.show();
@@ -186,7 +184,18 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             int id = item.getItemId();
-            // Add options for reporting post
+            if (id == R.id.actionReport) {
+                post.addReportBy(ParseUser.getCurrentUser());
+                post.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Error sending report", e);
+                            Toast.makeText(context, "Error sending report", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
             return false;
         }
     }
