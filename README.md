@@ -34,16 +34,14 @@ An platform for users to coordinate trades between board games/puzzles
 * Users can tap on specific posts to see details of that post
 * Users can go from detail view to start a chat with other users to coordinate a meet-up
 * Users have public profiles that list all of their posts
-* Users can delete their posts
+* Users can edit/delete their posts
 
 **Stretch Stories**
 
-* Users can post requests
 * Users can add more information about the game (description, players, genre)
 * Users can filter section in main Stream where can view by request
 * Users can favorite to view later
 * Users can get hints and autocompletion for title/information from BGG API
-* Users can set up public events to trade/play
 * Users can block/report users and posts
 * Users has a settings page to manage search range/blocklist/notifications
 

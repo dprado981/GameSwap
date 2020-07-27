@@ -59,7 +59,6 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
     public final String TAG = ComposeFragment.class.getSimpleName();
     public enum ImageLocation { CAMERA, GALLERY }
 
-
     protected Context context;
     protected LatLng currentLocation;
     protected ImagePagerAdapter<Bitmap> adapter;
@@ -285,7 +284,7 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
     /**
      * Compress specified bitmap into the specified file, then bind to the adapter
      */
-    private void loadBitmap(Bitmap bitmap, File file) {
+    protected void loadBitmap(Bitmap bitmap, File file) {
         try {
             CameraUtils.compressBitmap(bitmap, file);
         } catch (IOException e) {

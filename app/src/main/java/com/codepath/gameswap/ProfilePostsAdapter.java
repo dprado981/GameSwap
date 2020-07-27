@@ -1,7 +1,6 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,10 +23,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.fragments.DetailGameFragment;
 import com.codepath.gameswap.fragments.DetailPuzzleFragment;
-import com.codepath.gameswap.fragments.EditFragment;
+import com.codepath.gameswap.fragments.EditGameFragment;
+import com.codepath.gameswap.fragments.EditPuzzleFragment;
 import com.codepath.gameswap.models.Post;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;
@@ -161,8 +160,16 @@ public class ProfilePostsAdapter extends RecyclerView.Adapter<ProfilePostsAdapte
                 });
                 return true;
             } else if (id == R.id.actionEdit) {
+
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                Fragment fragment = new EditFragment();
+                Fragment fragment;
+                if (post.getType().equals(Post.GAME)) {
+                    fragment = new EditGameFragment();
+                } else if (post.getType().equals(Post.PUZZLE)) {
+                    fragment = new EditPuzzleFragment();
+                } else {
+                    return false;
+                }
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Post.TAG, post);
                 fragment.setArguments(bundle);

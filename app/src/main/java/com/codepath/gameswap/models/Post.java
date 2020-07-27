@@ -82,11 +82,7 @@ public class Post extends ParseObject {
 
     public void setPieces(int pieces) { put(KEY_PIECES, pieces); }
 
-    public int getPieces() {
-        int test = getInt(KEY_PIECES);
-        System.out.println(test);
-        return getInt(KEY_PIECES);
-    }
+    public int getPieces() { return getInt(KEY_PIECES); }
 
     public void setWidth(float width) { put(KEY_WIDTH, (int) width*100); }
 
