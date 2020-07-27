@@ -1,83 +1,73 @@
 package com.codepath.gameswap.fragments;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+        import android.app.Activity;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.graphics.Bitmap;
+        import android.graphics.BitmapFactory;
+        import android.net.Uri;
+        import android.os.Bundle;
+        import android.provider.MediaStore;
+        import android.util.Log;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.Button;
+        import android.widget.ImageView;
+        import android.widget.TextView;
+        import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+        import androidx.annotation.NonNull;
+        import androidx.annotation.Nullable;
+        import androidx.core.content.FileProvider;
+        import androidx.fragment.app.Fragment;
+        import androidx.fragment.app.FragmentActivity;
+        import androidx.fragment.app.FragmentManager;
+        import androidx.recyclerview.widget.LinearLayoutManager;
+        import androidx.recyclerview.widget.RecyclerView;
+        import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
-import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
-import com.codepath.gameswap.LoginActivity;
-import com.codepath.gameswap.ProfilePostsAdapter;
-import com.codepath.gameswap.R;
-import com.codepath.gameswap.models.Conversation;
-import com.codepath.gameswap.models.Post;
-import com.codepath.gameswap.utils.CameraUtils;
-import com.parse.FindCallback;
-import com.parse.LogOutCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
+        import com.bumptech.glide.Glide;
+        import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
+        import com.codepath.gameswap.LoginActivity;
+        import com.codepath.gameswap.PostsAdapter;
+        import com.codepath.gameswap.ProfilePostsAdapter;
+        import com.codepath.gameswap.R;
+        import com.codepath.gameswap.models.Conversation;
+        import com.codepath.gameswap.models.Post;
+        import com.codepath.gameswap.utils.CameraUtils;
+        import com.parse.FindCallback;
+        import com.parse.LogOutCallback;
+        import com.parse.ParseException;
+        import com.parse.ParseFile;
+        import com.parse.ParseQuery;
+        import com.parse.ParseUser;
+        import com.parse.SaveCallback;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+        import java.io.ByteArrayOutputStream;
+        import java.io.File;
+        import java.util.ArrayList;
+        import java.util.Date;
+        import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
+        import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment implements View.OnClickListener {
+public class ProfileFragment extends PostsFragment implements View.OnClickListener {
 
     public static final String TAG = ProfileFragment.class.getSimpleName();
-    private String photoFileName = "profile_photo.jpg";
 
-    private Context context;
+    private ParseUser user;
+    private File profileImageFile;
+    private Conversation targetConversation;
 
     private ImageView ivProfile;
     private TextView tvUsername;
     private Button btnLogout;
     private Button btnMessage;
-    private RecyclerView rvPosts;
-    private SwipeRefreshLayout swipeContainer;
-    private EndlessRecyclerViewScrollListener scrollListener;
-
-    private List<Post> allPosts;
-    private LinearLayoutManager layoutManager;
-    private ProfilePostsAdapter adapter;
-
-    private ParseUser user;
-    private File profileImageFile;
-    private Conversation targetConversation;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -92,7 +82,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
         context = getContext();
 
@@ -100,14 +89,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         tvUsername = view.findViewById(R.id.tvUsername);
         btnLogout = view.findViewById(R.id.btnLogout);
         btnMessage = view.findViewById(R.id.btnMessage);
-        rvPosts = view.findViewById(R.id.rvPosts);
-        swipeContainer = view.findViewById(R.id.swipeContainer);
-
-        layoutManager = new LinearLayoutManager(context);
-        allPosts = new ArrayList<>();
-        adapter = new ProfilePostsAdapter(context, allPosts);
-        rvPosts.setAdapter(adapter);
-        rvPosts.setLayoutManager(layoutManager);
 
         Bundle bundle = getArguments();
         if (bundle == null) {
@@ -130,39 +111,20 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     .into(ivProfile);
         }
 
-        queryPosts(false);
-
         btnLogout.setOnClickListener(this);
         btnMessage.setOnClickListener(this);
         ivProfile.setOnClickListener(this);
 
-        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to the bottom of the list
-                queryPosts(true);
-            }
-        };
-        // Adds the scroll listener to RecyclerView
-        rvPosts.addOnScrollListener(scrollListener);
-
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                queryPosts(false);
-            }
-        });
-        // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(
-                android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+        super.onViewCreated(view, savedInstanceState);
     }
 
-    private void queryPosts(final boolean loadNext) {
+    @Override
+    protected void setAdapter() {
+        adapter = new ProfilePostsAdapter(context, allPosts);
+    }
+
+    @Override
+    protected void queryPosts(final boolean loadNext) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
@@ -206,11 +168,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     /**
      * Starts the camera and sets the URI where the photo will be stored
      */
-    public void launchCamera() {
+    private void launchCamera() {
         // Create Intent to take a picture and return control to the calling application
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Create a File reference for future access
-        profileImageFile = getPhotoFileUri(photoFileName);
+        profileImageFile = CameraUtils.getPhotoFileUri(context, CameraUtils.getProfileFileName(), TAG);
         // Wrap File object into a content provider (required for API >= 24)
         Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", profileImageFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
@@ -220,24 +182,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             // Start the image capture intent to take photo
             startActivityForResult(intent, CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
         }
-    }
-
-    /**
-     * Returns the File for a photo stored on disk given the fileName
-     */
-    public File getPhotoFileUri(String fileName) {
-        // Get safe storage directory for photos
-        // Use `getExternalFilesDir` on Context to access package-specific directories.
-        // This way, we don't need to request external read/write runtime permissions.
-        File mediaStorageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            Log.e(TAG, "failed to create directory");
-        }
-
-        // Return the file target for the photo based on filename
-        return new File(mediaStorageDir.getPath() + File.separator + fileName);
     }
 
     /**
@@ -252,7 +196,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 takenImage.compress(Bitmap.CompressFormat.JPEG, 10, stream);
                 byte[] bitmapBytes = stream.toByteArray();
-                ParseFile image = new ParseFile(photoFileName, bitmapBytes);
+                ParseFile image = new ParseFile(CameraUtils.getProfileFileName(), bitmapBytes);
                 user.put("image", image);
                 user.saveInBackground(new SaveCallback() {
                     @Override

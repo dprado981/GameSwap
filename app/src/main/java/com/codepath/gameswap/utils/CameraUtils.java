@@ -8,11 +8,14 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Locale;
 
 public class CameraUtils {
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 101;
@@ -20,6 +23,7 @@ public class CameraUtils {
     public static final int JPEG_COMPRESSION_FACTOR = 20;
     public static final String PHOTO_FILE_NAME = "photo.jpg";
     public static final String PHOTO_FILE_NAME_FORMAT = "photo%d.jpg";
+    public static final String PROFILE_PHOTO_FILE_NAME = "profile_photo.jpg";
 
     public static Bitmap adjustRotation(Bitmap bitmap, File photoFile) throws IOException {
         ExifInterface ei = new ExifInterface(photoFile.getAbsolutePath());
@@ -53,6 +57,25 @@ public class CameraUtils {
         fileOutputStream.close();
     }
 
+    /**
+     * Returns the File for a photo stored on disk given the fileName
+     */
+    public static File getPhotoFileUri(Context context, String fileName, String TAG) {
+        // Get safe storage directory for photos
+        // Use `getExternalFilesDir` on Context to access package-specific directories.
+        // This way, we don't need to request external read/write runtime permissions.
+        File mediaStorageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+            Log.e(TAG, "failed to create directory");
+        }
+
+        // Return the file target for the photo based on filename
+        return new File(mediaStorageDir.getPath() + File.separator + fileName);
+    }
+
+
     public static Bitmap loadFromUri(Context context, Uri photoUri) {
         Bitmap image = null;
         try {
@@ -71,13 +94,16 @@ public class CameraUtils {
         return image;
     }
 
-    @SuppressLint("DefaultLocale")
+
     public static String getFileName(int i) {
-        return String.format(PHOTO_FILE_NAME_FORMAT, i);
+        return String.format(Locale.getDefault(), PHOTO_FILE_NAME_FORMAT, i);
     }
 
-    @SuppressLint("DefaultLocale")
     public static String getFileName() {
-        return String.format(PHOTO_FILE_NAME_FORMAT, 1);
+        return String.format(Locale.getDefault(), PHOTO_FILE_NAME_FORMAT, 1);
+    }
+
+    public static String getProfileFileName() {
+        return PROFILE_PHOTO_FILE_NAME;
     }
 }

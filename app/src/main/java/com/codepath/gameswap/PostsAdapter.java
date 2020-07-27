@@ -2,10 +2,14 @@ package com.codepath.gameswap;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -13,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -20,23 +25,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
-import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.fragments.DetailGameFragment;
 import com.codepath.gameswap.fragments.DetailPuzzleFragment;
+import com.codepath.gameswap.fragments.EditGameFragment;
+import com.codepath.gameswap.fragments.EditPuzzleFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
+import com.parse.DeleteCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
+public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
 
     public static final String TAG = PostsAdapter.class.getSimpleName();
 
-    private final Context context;
-    private final List<Post> posts;
+    protected final Context context;
+    protected final List<Post> posts;
 
     public PostsAdapter(Context context, List<Post> posts) {
         this.context = context;
@@ -71,19 +79,21 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
-        private LinearLayout llHeader;
-        private ImageView ivProfile;
-        private TextView tvUsername;
-        private LinearLayout llContent;
-        private TextView tvTitle;
-        private ViewPager viewPager;
-        private RatingBar rbCondition;
+        protected LinearLayout llHeader;
+        protected ImageView ivProfile;
+        protected TextView tvUsername;
+        protected ImageButton ibMore;
+        protected LinearLayout llContent;
+        protected TextView tvTitle;
+        protected ViewPager viewPager;
+        protected RatingBar rbCondition;
 
-        private Post post;
-        private List<ParseFile> images;
-        private ImagePagerAdapter<ParseFile> adapter;
+        protected Post post;
+        protected List<ParseFile> images;
+        protected ImagePagerAdapter<ParseFile> adapter;
 
         public ViewHolder(@NonNull View view) {
             super(view);
@@ -91,6 +101,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             llHeader = view.findViewById(R.id.llHeader);
             ivProfile = view.findViewById(R.id.ivProfile);
             tvUsername = view.findViewById(R.id.tvUsername);
+            ibMore = view.findViewById(R.id.ibMore);
             llContent = view.findViewById(R.id.llContent);
             tvTitle = view.findViewById(R.id.tvTitle);
             viewPager = view.findViewById(R.id.viewPager);
@@ -111,14 +122,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                     }
                 });
             }
-
             llHeader.setOnClickListener(this);
             llContent.setOnClickListener(this);
+            ibMore.setOnClickListener(this);
         }
 
         public void bind(Post post) {
             // Set dimensions of viewPager
-
             this.post = post;
             ParseUser user = post.getUser();
             tvUsername.setText(user.getUsername());
@@ -160,7 +170,24 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 bundle.putParcelable(Post.TAG, post);
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+            } else if (view == ibMore) {
+                PopupMenu popup = new PopupMenu(context, view);
+                MenuInflater inflater = popup.getMenuInflater();
+                if (llHeader.getVisibility() == View.VISIBLE) {
+                    //inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+                } else {
+                    inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+                }
+                popup.setOnMenuItemClickListener(this);
+                popup.show();
             }
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            int id = item.getItemId();
+            // Add options for reporting post
+            return false;
         }
     }
 }

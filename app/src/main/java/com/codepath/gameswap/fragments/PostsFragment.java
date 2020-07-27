@@ -39,14 +39,14 @@ public class PostsFragment extends Fragment {
 
     public static final String TAG = PostsFragment.class.getSimpleName();
 
-    private Context context;
+    protected Context context;
 
-    private List<Post> allPosts;
-    private LinearLayoutManager layoutManager;
-    private PostsAdapter adapter;
-    private RecyclerView rvPosts;
-    private SwipeRefreshLayout swipeContainer;
-    private EndlessRecyclerViewScrollListener scrollListener;
+    protected List<Post> allPosts;
+    protected LinearLayoutManager layoutManager;
+    protected PostsAdapter adapter;
+    protected RecyclerView rvPosts;
+    protected SwipeRefreshLayout swipeContainer;
+    protected EndlessRecyclerViewScrollListener scrollListener;
 
     public PostsFragment() {
         // Required empty public constructor
@@ -70,15 +70,22 @@ public class PostsFragment extends Fragment {
 
         layoutManager = new LinearLayoutManager(context);
         allPosts = new ArrayList<>();
-
-        adapter = new PostsAdapter(context, allPosts);
-
+        setAdapter();
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(layoutManager);
 
+        adapter.clear();
         queryPosts(false);
         setHasOptionsMenu(true);
 
+        setScrollAndRefreshListeners();
+    }
+
+    protected void setAdapter() {
+        adapter = new PostsAdapter(context, allPosts);
+    }
+
+    protected void setScrollAndRefreshListeners() {
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -105,7 +112,8 @@ public class PostsFragment extends Fragment {
                 android.R.color.holo_red_light);
     }
 
-    private void queryPosts(final boolean loadNext) {
+
+    protected void queryPosts(final boolean loadNext) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts

@@ -203,7 +203,7 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
         if (imageLocation == ImageLocation.CAMERA) {
             // Open the camera
             intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File photoFile = getPhotoFileUri(CameraUtils.getFileName());
+            File photoFile = CameraUtils.getPhotoFileUri(context, CameraUtils.getFileName(), TAG);
             photoFiles.add(photoFile);
             // Set URI for new photo
             Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", photoFile);
@@ -221,24 +221,6 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
             // Start the image capture intent to take photo
             startActivityForResult(intent, requestCode);
         }
-    }
-
-    /**
-     * Returns the File for a photo stored on disk given the fileName
-     */
-    public File getPhotoFileUri(String fileName) {
-        // Get safe storage directory for photos
-        // Use `getExternalFilesDir` on Context to access package-specific directories.
-        // This way, we don't need to request external read/write runtime permissions.
-        File mediaStorageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            Log.e(TAG, "failed to create directory");
-        }
-
-        // Return the file target for the photo based on filename
-        return new File(mediaStorageDir.getPath() + File.separator + fileName);
     }
 
     /**
@@ -272,7 +254,7 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
                 for (int i = 0; i < clipData.getItemCount(); i++) {
                     Uri photoUri = clipData.getItemAt(i).getUri();
                     Bitmap selectedImage = CameraUtils.loadFromUri(context, photoUri);
-                    File newPhotoFile = getPhotoFileUri(CameraUtils.getFileName(i+1));
+                    File newPhotoFile = CameraUtils.getPhotoFileUri(context, CameraUtils.getFileName(i+1), TAG);
                     loadBitmap(selectedImage, newPhotoFile);
                 }
             }

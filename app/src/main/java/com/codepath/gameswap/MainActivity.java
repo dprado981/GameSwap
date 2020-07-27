@@ -39,6 +39,10 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
+        bottomNavigation.setSelectedItemId(R.id.actionHome);
+        Fragment fragment = new PostsFragment();
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -66,10 +70,6 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
                 return true;
             }
         });
-
-        bottomNavigation.setSelectedItemId(R.id.actionHome);
-        Fragment fragment = new PostsFragment();
-        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 
     @Override

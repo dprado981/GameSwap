@@ -102,7 +102,7 @@ public class EditGameFragment extends ComposeGameFragment implements View.OnClic
             Log.e(TAG, "Could not retrieve image from parseFile", e);
         } else {
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            File newFile = getPhotoFileUri(CameraUtils.getFileName(++numPics));
+            File newFile = CameraUtils.getPhotoFileUri(context, CameraUtils.getFileName(++numPics), TAG);
             loadBitmap(bitmap, newFile);
         }
     }
