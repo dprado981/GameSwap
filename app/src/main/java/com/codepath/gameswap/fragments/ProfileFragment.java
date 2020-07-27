@@ -1,56 +1,50 @@
 package com.codepath.gameswap.fragments;
 
-        import android.app.Activity;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.graphics.Bitmap;
-        import android.graphics.BitmapFactory;
-        import android.net.Uri;
-        import android.os.Bundle;
-        import android.provider.MediaStore;
-        import android.util.Log;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.Button;
-        import android.widget.ImageView;
-        import android.widget.TextView;
-        import android.widget.Toast;
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-        import androidx.annotation.NonNull;
-        import androidx.annotation.Nullable;
-        import androidx.core.content.FileProvider;
-        import androidx.fragment.app.Fragment;
-        import androidx.fragment.app.FragmentActivity;
-        import androidx.fragment.app.FragmentManager;
-        import androidx.recyclerview.widget.LinearLayoutManager;
-        import androidx.recyclerview.widget.RecyclerView;
-        import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
-        import com.bumptech.glide.Glide;
-        import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
-        import com.codepath.gameswap.LoginActivity;
-        import com.codepath.gameswap.PostsAdapter;
-        import com.codepath.gameswap.ProfilePostsAdapter;
-        import com.codepath.gameswap.R;
-        import com.codepath.gameswap.models.Conversation;
-        import com.codepath.gameswap.models.Post;
-        import com.codepath.gameswap.utils.CameraUtils;
-        import com.parse.FindCallback;
-        import com.parse.LogOutCallback;
-        import com.parse.ParseException;
-        import com.parse.ParseFile;
-        import com.parse.ParseQuery;
-        import com.parse.ParseUser;
-        import com.parse.SaveCallback;
+import com.bumptech.glide.Glide;
+import com.codepath.gameswap.LoginActivity;
+import com.codepath.gameswap.ProfilePostsAdapter;
+import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Conversation;
+import com.codepath.gameswap.models.Post;
+import com.codepath.gameswap.utils.CameraUtils;
+import com.parse.FindCallback;
+import com.parse.LogOutCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
-        import java.io.ByteArrayOutputStream;
-        import java.io.File;
-        import java.util.ArrayList;
-        import java.util.Date;
-        import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-        import static android.app.Activity.RESULT_OK;
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -133,7 +127,7 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
         query.whereEqualTo(Post.KEY_USER, user);
         query.addDescendingOrder(Post.KEY_CREATED_AT);
         if (loadNext) {
-            Date olderThanDate = allPosts.get(allPosts.size()-1).getCreatedAt();
+            Date olderThanDate = allPosts.get(allPosts.size() - 1).getCreatedAt();
             query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
         }
         query.findInBackground(new FindCallback<Post>() {
@@ -150,6 +144,10 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
                 }
                 adapter.addAll(posts);
                 adapter.notifyDataSetChanged();
+                if (lastPosition >= 0) {
+                    rvPosts.scrollToPosition(lastPosition);
+                    lastPosition = -1;
+                }
             }
         });
     }
@@ -227,7 +225,7 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
                 Intent intent = new Intent(context, LoginActivity.class);
                 startActivity(intent);
                 Activity activity = getActivity();
-                if (activity != null ){
+                if (activity != null) {
                     activity.finishAffinity();
                 }
             }

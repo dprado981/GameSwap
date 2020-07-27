@@ -30,6 +30,7 @@ import com.codepath.gameswap.ImagePagerAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -164,7 +165,13 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         if (view == btnMessage) {
             setTargetConversation();
         } else if (view == ivProfile || view == tvUsername) {
-            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+            FragmentActivity activity = (FragmentActivity) context;
+            // Ensure that correct menu item is selected
+            if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionProfile);
+            }
+            // Go to home fragment
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
             Fragment fragment = new ProfileFragment();
             Bundle bundle = new Bundle();
             bundle.putParcelable(Post.KEY_USER, user);
@@ -205,6 +212,7 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         query.include(Conversation.KEY_USER_ONE);
         query.include(Conversation.KEY_USER_TWO);
         query.include(Conversation.KEY_LAST_MESSAGE);
+        query.include(Conversation.KEY_FROM_POST);
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
 
         query.findInBackground(new FindCallback<Conversation>() {
@@ -234,12 +242,17 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
     }
 
     private void goToConversationFragment(Conversation targetConversation) {
-        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        FragmentActivity activity = (FragmentActivity) context;
+        // Ensure that correct menu item is selected
+        ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionChat);
+        // Go to home fragment
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
         Fragment fragment = new ConversationFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable(Conversation.TAG, targetConversation);
         fragment.setArguments(bundle);
         fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+
     }
 
     @Override
@@ -259,4 +272,5 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         }
         return false;
     }
+
 }

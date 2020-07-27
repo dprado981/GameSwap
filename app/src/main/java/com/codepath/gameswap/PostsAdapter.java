@@ -27,8 +27,12 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailGameFragment;
 import com.codepath.gameswap.fragments.DetailPuzzleFragment;
+import com.codepath.gameswap.fragments.EditGameFragment;
+import com.codepath.gameswap.fragments.EditPuzzleFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.DeleteCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -147,7 +151,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         @Override
         public void onClick(View view) {
             if (view == llHeader) {
-                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                FragmentActivity activity = (FragmentActivity) context;
+                if (post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                    ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionProfile);
+                }
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
                 Fragment fragment = new ProfileFragment();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Post.KEY_USER, post.getUser());
@@ -195,6 +203,39 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                         }
                     }
                 });
+            } else if (id == R.id.actionDelete) {
+                post.deleteInBackground(new DeleteCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Issue with deleting post", e);
+                            return;
+                        }
+                        Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
+                        int index = posts.indexOf(post);
+                        posts.remove(index);
+                        notifyItemRemoved(index);
+                    }
+                });
+                return true;
+            } else if (id == R.id.actionEdit) {
+
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                Fragment fragment;
+                if (post.getType().equals(Post.GAME)) {
+                    fragment = new EditGameFragment();
+                } else if (post.getType().equals(Post.PUZZLE)) {
+                    fragment = new EditPuzzleFragment();
+                } else {
+                    return false;
+                }
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(Post.TAG, post);
+                fragment.setArguments(bundle);
+                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+                return true;
+            } else {
+                return false;
             }
             return false;
         }

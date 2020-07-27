@@ -186,7 +186,6 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
             if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element item = (Element) itemNode;
                 String id = item.getAttribute("id");
-                Log.d(TAG, "Getting details of: " + id);
                 queryDetails(id);
             }
         }

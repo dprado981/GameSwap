@@ -40,6 +40,7 @@ public class PostsFragment extends Fragment {
     public static final String TAG = PostsFragment.class.getSimpleName();
 
     protected Context context;
+    protected int lastPosition;
 
     protected List<Post> allPosts;
     protected LinearLayoutManager layoutManager;
@@ -138,6 +139,10 @@ public class PostsFragment extends Fragment {
                 }
                 adapter.addAll(posts);
                 adapter.notifyDataSetChanged();
+                if (lastPosition >= 0) {
+                    rvPosts.scrollToPosition(lastPosition);
+                    lastPosition = -1;
+                }
             }
         });
     }
@@ -192,4 +197,9 @@ public class PostsFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        lastPosition = layoutManager.findFirstVisibleItemPosition();
+    }
 }
