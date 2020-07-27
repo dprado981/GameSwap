@@ -30,7 +30,7 @@ An platform for users to coordinate trades between board games/puzzles
 * Users can create posts with the title, image, condition, and related notes of game/puzzle they are putting up for trade.
 * Users can see other users' posts in list view
 * Users can see other users' posts in map view (Google Map SDK)
-* Users can search for specific posts by title or location
+* Users can search for specific posts by title
 * Users can tap on specific posts to see details of that post
 * Users can go from detail view to start a chat with other users to coordinate a meet-up
 * Users have public profiles that list all of their posts
@@ -39,7 +39,7 @@ An platform for users to coordinate trades between board games/puzzles
 **Stretch Stories**
 
 * Users can add more information about the game (description, players, genre)
-* Users can filter section in main Stream where can view by request
+* Users can filter section in main Stream
 * Users can favorite to view later
 * Users can get hints and autocompletion for title/information from BGG API
 * Users can block/report users and posts

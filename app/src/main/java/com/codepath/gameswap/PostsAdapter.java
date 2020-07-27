@@ -115,7 +115,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                     public void onGlobalLayout() {
                         viewPager.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                         ViewGroup.LayoutParams params = viewPager.getLayoutParams();
-                        params.height = ((View) viewPager.getParent()).getHeight();
+                        params.height = viewPager.getWidth();
                         viewPager.setLayoutParams(params);
                     }
                 });

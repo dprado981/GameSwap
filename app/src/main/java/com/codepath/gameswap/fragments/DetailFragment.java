@@ -95,6 +95,22 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         rbDifficulty = view.findViewById(R.id.rbDifficulty);
         tvAgeRatingValue = view.findViewById(R.id.tvAgeRatingValue);
 
+        images = new ArrayList<>();
+        adapter = new ImagePagerAdapter<>(context, images);
+        viewPager.setAdapter(adapter);
+        ViewTreeObserver viewTreeObserver = viewPager.getViewTreeObserver();
+        if (viewTreeObserver.isAlive()) {
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    viewPager.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    ViewGroup.LayoutParams params = viewPager.getLayoutParams();
+                    params.height = viewPager.getWidth();
+                    viewPager.setLayoutParams(params);
+                }
+            });
+        }
+
         Bundle bundle = getArguments();
         if (bundle == null) {
             return;
@@ -125,23 +141,8 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
             tvNotesContent.setText(notes);
         }
 
-        images = new ArrayList<>();
-        adapter = new ImagePagerAdapter<>(context, images);
-        viewPager.setAdapter(adapter);
-        adapter.clear();
+        images.addAll(post.getImages());
         adapter.addAll(post.getImages());
-        ViewTreeObserver viewTreeObserver = viewPager.getViewTreeObserver();
-        if (viewTreeObserver.isAlive()) {
-            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    viewPager.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    ViewGroup.LayoutParams params = viewPager.getLayoutParams();
-                    params.height = ((View) viewPager.getParent()).getHeight();
-                    viewPager.setLayoutParams(params);
-                }
-            });
-        }
 
         ParseFile profileImage = (ParseFile) post.getUser().get("image");
         if (profileImage != null) {
