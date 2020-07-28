@@ -251,7 +251,11 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                     Log.e(TAG, "Issue with getting posts", e);
                     return;
                 }
+                for (Post post : posts) {
+                    Log.d(TAG, post.getTitle());
+                }
                 if (!posts.isEmpty()) {
+                    map.clear();
                     placeUnblockedMarkers(posts, true);
                 }
             }
@@ -286,7 +290,6 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                                 .strokeWidth(4)
                                 .fillColor(Color.argb(30, 255, 0, 0)));
                         map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
-                        bottomNavigation.setVisibility(View.VISIBLE);
                     }
                 }
                 if (isSearch) {
