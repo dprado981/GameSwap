@@ -18,7 +18,7 @@
     <FrameLayout
         android:id="@+id/listContainer"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="160dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true" />

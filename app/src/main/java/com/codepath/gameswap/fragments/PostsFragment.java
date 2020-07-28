@@ -10,7 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
@@ -72,6 +74,8 @@ public class PostsFragment extends Fragment {
         adapter = new PostsAdapter(context, allPosts);
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(layoutManager);
+        SnapHelper helper = new LinearSnapHelper();
+        helper.attachToRecyclerView(rvPosts);
 
         setScrollAndRefreshListeners();
     }

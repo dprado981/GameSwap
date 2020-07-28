@@ -1,94 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:id="@+id/cvContent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="12dp"
+    app:cardCornerRadius="40dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
 
-    <LinearLayout
-        android:id="@+id/llHeader"
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:id="@+id/rlContent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true">
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cvProfile"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:cardCornerRadius="40dp"
-            app:cardElevation="0dp">
-
-            <ImageView
-                android:id="@+id/ivProfile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:contentDescription="@string/profile_picture"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/ic_profile" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/tvUsername"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            android:ems="10"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            tools:text="Username" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llContent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/llHeader"
-        android:orientation="vertical">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_toStartOf="@id/ibMore"
-                android:textSize="30sp"
-                tools:text="Title" />
-
-            <ImageButton
-                android:id="@+id/ibMore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_gravity="end"
-                android:layout_marginEnd="0dp"
-                android:contentDescription="@string/overflow"
-                android:src="@drawable/ic_more_horizontal" />
-        </RelativeLayout>
+        android:layout_marginStart="-4dp"
+        android:background="#FFFFFF"
+        android:gravity="center_vertical">
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
 
-        <RatingBar
-            android:id="@+id/rbCondition"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="0dp"
-            android:isIndicator="true"
-            android:numStars="5"
-            android:secondaryProgressTint="#00000000"
-            android:stepSize="0.1" />
-    </LinearLayout>
+            android:layout_marginEnd="8dp"
+            android:layout_toEndOf="@id/viewPager"
+            android:orientation="vertical">
 
-</RelativeLayout>
+            <LinearLayout
+                android:id="@+id/llHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cvProfile"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:cardCornerRadius="40dp"
+                    app:cardElevation="0dp">
+
+                    <ImageView
+                        android:id="@+id/ivProfile"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:contentDescription="@string/profile_picture"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/ic_profile" />
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="4dp"
+                    android:ems="10"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:text="Username" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:maxLines="1"
+                android:textSize="30sp"
+                tools:text="Title" />
+
+            <RatingBar
+                android:id="@+id/rbCondition"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:secondaryProgressTint="#00000000"
+                android:stepSize="0.1" />
+
+        </LinearLayout>
+
+
+        <ImageButton
+            android:id="@+id/ibMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="0dp"
+            android:contentDescription="@string/overflow"
+            android:src="@drawable/ic_more_horizontal"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

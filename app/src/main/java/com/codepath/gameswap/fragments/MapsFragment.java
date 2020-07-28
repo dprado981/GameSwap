@@ -81,9 +81,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     public void onMapReady(final GoogleMap map) {
         this.map = map;
         callback.onMapReady();
-        map.getUiSettings().setZoomControlsEnabled(true);
         map.setInfoWindowAdapter(new CustomWindowAdapter(getLayoutInflater(), context));
-        map.setPadding(0,0,0, 650);
         map.setMyLocationEnabled(true);
         map.setOnMyLocationButtonClickListener(this);
         map.setOnMyLocationClickListener(this);

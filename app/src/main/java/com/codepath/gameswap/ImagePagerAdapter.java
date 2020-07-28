@@ -1,15 +1,10 @@
 package com.codepath.gameswap;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -19,11 +14,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
-import com.codepath.gameswap.fragments.DetailFragment;
 import com.codepath.gameswap.fragments.DetailGameFragment;
 import com.codepath.gameswap.fragments.DetailPuzzleFragment;
 import com.codepath.gameswap.models.Post;
-import com.codepath.gameswap.models.Puzzle;
 import com.parse.ParseFile;
 
 import org.jetbrains.annotations.NotNull;

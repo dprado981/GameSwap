@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -89,7 +90,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         protected ImageView ivProfile;
         protected TextView tvUsername;
         protected ImageButton ibMore;
-        protected LinearLayout llContent;
+        protected RelativeLayout rlContent;
         protected TextView tvTitle;
         protected ViewPager viewPager;
         protected RatingBar rbCondition;
@@ -105,7 +106,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             ivProfile = view.findViewById(R.id.ivProfile);
             tvUsername = view.findViewById(R.id.tvUsername);
             ibMore = view.findViewById(R.id.ibMore);
-            llContent = view.findViewById(R.id.llContent);
+            rlContent = view.findViewById(R.id.rlContent);
             tvTitle = view.findViewById(R.id.tvTitle);
             viewPager = view.findViewById(R.id.viewPager);
             rbCondition = view.findViewById(R.id.rbCondition);
@@ -126,7 +127,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 });
             }
             llHeader.setOnClickListener(this);
-            llContent.setOnClickListener(this);
+            rlContent.setOnClickListener(this);
             ibMore.setOnClickListener(this);
         }
 
@@ -162,7 +163,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 bundle.putParcelable(Post.KEY_USER, post.getUser());
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
-            } else if (view == llContent) {
+            } else if (view == rlContent) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
                 Fragment fragment;
                 if (post.getType().equals(Post.GAME)) {
