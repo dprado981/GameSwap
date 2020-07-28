@@ -146,7 +146,6 @@ public class PostsFragment extends Fragment {
                         for (Post post : posts) {
                             boolean blockedPost = false;
                             for (Block block : blocks) {
-                                Log.d(TAG, block.getBlocked().getUsername());
                                 if (block.getBlocked().getUsername().equals(post.getUser().getUsername())) {
                                     blockedPost = true;
                                     break;

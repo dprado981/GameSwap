@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.codepath.gameswap.CustomWindowAdapter;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.utils.MapUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -44,9 +45,12 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
@@ -95,21 +99,13 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         query.addDescendingOrder(Post.KEY_CREATED_AT);
         query.findInBackground(new FindCallback<Post>() {
             @Override
-            public void done(List<Post> posts, ParseException e) {
+            public void done(final List<Post> posts, ParseException e) {
                 if (e != null) {
                     Log.e(TAG, "Issue with getting posts", e);
                     return;
                 }
-                for (Post post : posts) {
-                    ParseGeoPoint geoPoint = post.getCoordinates();
-                    LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-                    map.addCircle(new CircleOptions()
-                            .center(point)
-                            .radius(3000)
-                            .strokeColor(Color.RED)
-                            .strokeWidth(4)
-                            .fillColor(Color.argb(30, 255, 0, 0)));
-                    map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
+                if (!posts.isEmpty()) {
+                    placeUnblockedMarkers(posts, false);
                 }
             }
         });
@@ -250,14 +246,37 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         query.addDescendingOrder(Post.KEY_CREATED_AT);
         query.findInBackground(new FindCallback<Post>() {
             @Override
-            public void done(List<Post> posts, ParseException e) {
+            public void done(final List<Post> posts, ParseException e) {
                 if (e != null) {
                     Log.e(TAG, "Issue with getting posts", e);
                     return;
                 }
                 if (!posts.isEmpty()) {
-                    map.clear();
-                    for (Post post : posts) {
+                    placeUnblockedMarkers(posts, true);
+                }
+            }
+        });
+    }
+
+    private void placeUnblockedMarkers(final List<Post> posts, final boolean isSearch) {
+        ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
+        ParseQuery<Block> blockQuery = blockRelation.getQuery();
+        blockQuery.include(Block.KEY_BLOCKING);
+        blockQuery.include(Block.KEY_BLOCKED);
+        blockQuery.findInBackground(new FindCallback<Block>() {
+            @Override
+            public void done(List<Block> blocks, ParseException e) {
+                List<Post> notBlocked = new ArrayList<>();
+                for (Post post : posts) {
+                    boolean blockedPost = false;
+                    for (Block block : blocks) {
+                        if (block.getBlocked().getUsername().equals(post.getUser().getUsername())) {
+                            blockedPost = true;
+                            break;
+                        }
+                    }
+                    if (!blockedPost) {
+                        notBlocked.add(post);
                         ParseGeoPoint geoPoint = post.getCoordinates();
                         LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
                         map.addCircle(new CircleOptions()
@@ -265,11 +284,13 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                                 .radius(3000)
                                 .strokeColor(Color.RED)
                                 .strokeWidth(4)
-                                .fillColor(Color.argb(50, 255, 0, 0)));
+                                .fillColor(Color.argb(30, 255, 0, 0)));
                         map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
                         bottomNavigation.setVisibility(View.VISIBLE);
                     }
-                    ParseGeoPoint newGeoPoint = posts.get(0).getCoordinates();
+                }
+                if (isSearch) {
+                    ParseGeoPoint newGeoPoint = notBlocked.get(0).getCoordinates();
                     LatLng newLatLng = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 14));
                 }
