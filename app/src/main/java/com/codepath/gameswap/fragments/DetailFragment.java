@@ -13,6 +13,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -129,12 +130,14 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         tvTitle.setText(post.getTitle());
         rbCondition.setRating((float) post.getCondition() / 10);
         rbDifficulty.setRating((float) post.getDifficulty() / 10);
+
         String ageRating = post.getAgeRating();
         if (ageRating == null || ageRating.isEmpty()) {
             tvAgeRatingValue.setText(R.string.not_specified);
         } else {
             tvAgeRatingValue.setText(post.getAgeRating());
         }
+
         String notes = post.getNotes();
         if (notes.isEmpty()) {
             tvNotesContent.setText(R.string.not_specified);
@@ -180,10 +183,13 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         } else if (view == ibMore) {
             PopupMenu popup = new PopupMenu(context, view);
             MenuInflater inflater = popup.getMenuInflater();
-            if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
-                inflater.inflate(R.menu.menu_profile_post_options, popup.getMenu());
+            inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+            Menu menu = popup.getMenu();
+            if (post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                menu.findItem(R.id.actionReport).setVisible(false);
             } else {
-                inflater.inflate(R.menu.menu_stream_post_options, popup.getMenu());
+                menu.findItem(R.id.actionEdit).setVisible(false);
+                menu.findItem(R.id.actionDelete).setVisible(false);
             }
             popup.setOnMenuItemClickListener(this);
             popup.show();

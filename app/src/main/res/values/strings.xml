@@ -44,4 +44,6 @@
     <string name="dimensions">Dimensions:</string>
     <string name="pieces">Pieces:</string>
     <string name="report">Report</string>
+    <string name="block">Block</string>
+    <string name="settings">Settings</string>
 </resources>

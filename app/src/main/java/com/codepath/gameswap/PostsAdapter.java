@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -179,10 +180,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             } else if (view == ibMore) {
                 PopupMenu popup = new PopupMenu(context, view);
                 MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu_post_options, popup.getMenu());
+                Menu menu = popup.getMenu();
                 if (post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
-                    inflater.inflate(R.menu.menu_profile_post_options, popup.getMenu());
+                    menu.findItem(R.id.actionReport).setVisible(false);
                 } else {
-                    inflater.inflate(R.menu.menu_stream_post_options, popup.getMenu());
+                    menu.findItem(R.id.actionEdit).setVisible(false);
+                    menu.findItem(R.id.actionDelete).setVisible(false);
                 }
                 popup.setOnMenuItemClickListener(this);
                 popup.show();
@@ -200,9 +204,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                         if (e != null) {
                             Log.e(TAG, "Error sending report", e);
                             Toast.makeText(context, "Error sending report", Toast.LENGTH_SHORT).show();
+                            return;
                         }
+                        Toast.makeText(context, "Report sent", Toast.LENGTH_SHORT).show();
                     }
                 });
+                return true;
             } else if (id == R.id.actionDelete) {
                 post.deleteInBackground(new DeleteCallback() {
                     @Override
@@ -237,7 +244,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             } else {
                 return false;
             }
-            return false;
         }
     }
 }

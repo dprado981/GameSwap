@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/actionEdit"
+        android:title="@string/edit"
+        app:showAsAction="ifRoom"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item android:id="@+id/actionDelete"
         android:title="@string/delete"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
-    <item android:id="@+id/actionEdit"
-        android:title="@string/edit"
-        app:showAsAction="ifRoom"
+    <item android:id="@+id/actionReport"
+        android:title="@string/report"
+        app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
 </menu>

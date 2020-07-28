@@ -108,7 +108,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                             .radius(3000)
                             .strokeColor(Color.RED)
                             .strokeWidth(4)
-                            .fillColor(Color.argb(50, 255, 0, 0)));
+                            .fillColor(Color.argb(30, 255, 0, 0)));
                     map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
                 }
             }

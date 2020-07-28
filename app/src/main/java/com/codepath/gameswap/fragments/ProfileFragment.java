@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -27,20 +31,30 @@ import com.bumptech.glide.Glide;
 import com.codepath.gameswap.LoginActivity;
 import com.codepath.gameswap.ProfilePostsAdapter;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
+import com.codepath.gameswap.models.Report;
 import com.codepath.gameswap.utils.CameraUtils;
+import com.google.android.gms.common.internal.FallbackServiceBroker;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.LogOutCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +69,7 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
     public static final String TAG = ProfileFragment.class.getSimpleName();
 
     private ParseUser user;
+    private ParseUser currentUser;
     private File profileImageFile;
     private Conversation targetConversation;
 
@@ -78,6 +93,7 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         context = getContext();
+        currentUser = ParseUser.getCurrentUser();
 
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -110,6 +126,8 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
         ivProfile.setOnClickListener(this);
 
         super.onViewCreated(view, savedInstanceState);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -156,8 +174,6 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
     public void onClick(View view) {
         if (view == ivProfile) {
             launchCamera();
-        } else if (view == btnLogout) {
-            logOut();
         } else if (view == btnMessage) {
             goToConversation();
         }
@@ -292,4 +308,115 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
         fragment.setArguments(bundle);
         fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_profile_options, menu);
+        if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+            menu.findItem(R.id.actionReport).setVisible(false);
+            menu.findItem(R.id.actionBlock).setVisible(false);
+        } else {
+            menu.findItem(R.id.actionLogOut).setVisible(false);
+            menu.findItem(R.id.actionSettings).setVisible(false);
+        }
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.actionReport) {
+            reportUser(user);
+            return true;
+        } else if (id == R.id.actionBlock) {
+            blockUser(user);
+            return true;
+        } else if (id == R.id.actionLogOut) {
+            logOut();
+            return true;
+        } else if (id == R.id.actionSettings) {
+            Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void reportUser(final ParseUser reported) {
+        ParseRelation<Report> relation = currentUser.getRelation("reports");
+        ParseQuery<Report> query = relation.getQuery();
+        query.include(Report.KEY_REPORTING);
+        query.include(Report.KEY_REPORTED);
+        query.findInBackground(new FindCallback<Report>() {
+            @Override
+            public void done(List<Report> reports, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error retrieving reports", e);
+                    Toast.makeText(context, "Error while reporting", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                for (Report report: reports) {
+                    if (report.getReported().getUsername().equals(reported.getUsername())) {
+                        Toast.makeText(context, "Already reported!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                final Report report = new Report();
+                report.setReporting(ParseUser.getCurrentUser());
+                report.setReported(user);
+                report.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Toast.makeText(context, "Error while reporting", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(context, "Report sent!", Toast.LENGTH_SHORT).show();
+                        currentUser.getRelation("reports").add(report);
+                        currentUser.saveInBackground();
+                    }
+                });
+            }
+        });
+    }
+
+    private void blockUser(final ParseUser blocked) {
+        ParseRelation<Block> relation = currentUser.getRelation("blocks");
+        ParseQuery<Block> query = relation.getQuery();
+        query.include(Block.KEY_BLOCKING);
+        query.include(Block.KEY_BLOCKED);
+        query.findInBackground(new FindCallback<Block>() {
+            @Override
+            public void done(List<Block> blocks, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error retrieving blocks", e);
+                    Toast.makeText(context, "Error while blocking", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                for (Block block: blocks) {
+                    if (block.getBlocked().getUsername().equals(blocked.getUsername())) {
+                        Toast.makeText(context, blocked.getUsername() + " is already blocked!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                final Block block = new Block();
+                block.setBlocking(ParseUser.getCurrentUser());
+                block.setBlocked(user);
+                block.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Toast.makeText(context, "Error while blocking", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(context, blocked.getUsername() + " is now blocked!", Toast.LENGTH_SHORT).show();
+                        currentUser.getRelation("blocks").add(block);
+                        currentUser.saveInBackground();
+                    }
+                });
+            }
+        });
+    }
+
 }

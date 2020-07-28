@@ -20,10 +20,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -75,7 +79,6 @@ public class PostsFragment extends Fragment {
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(layoutManager);
 
-        adapter.clear();
         queryPosts(false);
         setHasOptionsMenu(true);
 
@@ -127,22 +130,45 @@ public class PostsFragment extends Fragment {
         }
         query.findInBackground(new FindCallback<Post>() {
             @Override
-            public void done(List<Post> posts, ParseException e) {
+            public void done(final List<Post> posts, ParseException e) {
                 if (e != null) {
                     Log.e(TAG, "Issue with getting posts", e);
                     return;
                 }
-                if (!loadNext) {
-                    adapter.clear();
-                    scrollListener.resetState();
-                    swipeContainer.setRefreshing(false);
-                }
-                adapter.addAll(posts);
-                adapter.notifyDataSetChanged();
-                if (lastPosition >= 0) {
-                    rvPosts.scrollToPosition(lastPosition);
-                    lastPosition = -1;
-                }
+                ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
+                ParseQuery<Block> blockQuery = blockRelation.getQuery();
+                blockQuery.include(Block.KEY_BLOCKING);
+                blockQuery.include(Block.KEY_BLOCKED);
+                blockQuery.findInBackground(new FindCallback<Block>() {
+                    @Override
+                    public void done(List<Block> blocks, ParseException e) {
+                        List<Post> notBlocked = new ArrayList<>();
+                        for (Post post : posts) {
+                            boolean blockedPost = false;
+                            for (Block block : blocks) {
+                                Log.d(TAG, block.getBlocked().getUsername());
+                                if (block.getBlocked().getUsername().equals(post.getUser().getUsername())) {
+                                    blockedPost = true;
+                                    break;
+                                }
+                            }
+                            if (!blockedPost) {
+                                notBlocked.add(post);
+                            }
+                        }
+                        if (!loadNext) {
+                            adapter.clear();
+                            scrollListener.resetState();
+                            swipeContainer.setRefreshing(false);
+                        }
+                        adapter.addAll(notBlocked);
+                        adapter.notifyDataSetChanged();
+                        if (lastPosition >= 0) {
+                            rvPosts.scrollToPosition(lastPosition);
+                            lastPosition = -1;
+                        }
+                    }
+                });
             }
         });
     }
