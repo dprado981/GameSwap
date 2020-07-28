@@ -10,17 +10,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentManager.OnBackStackChangedListener;
 
 import com.codepath.gameswap.fragments.ChatsFragment;
 import com.codepath.gameswap.fragments.ComposeFragment;
 import com.codepath.gameswap.fragments.ComposeGameFragment;
 import com.codepath.gameswap.fragments.ComposePuzzleFragment;
 import com.codepath.gameswap.fragments.ConversationFragment;
-import com.codepath.gameswap.fragments.MapsFragment;
-import com.codepath.gameswap.fragments.PostsFragment;
+import com.codepath.gameswap.fragments.HomeFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -33,12 +30,10 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
 
     private BottomNavigationView bottomNavigation;
 
-    public PostsFragment postsFragment = new PostsFragment();
-    public MapsFragment mapsFragment = new MapsFragment();
-    public DialogFragment composeFragment = new ComposeTypeDialog();
-    public ChatsFragment chatsFragment = new ChatsFragment();
-    public ProfileFragment profileFragment = new ProfileFragment();
-
+    public HomeFragment homeFragment;
+    public DialogFragment composeFragment;
+    public ChatsFragment chatsFragment;
+    public ProfileFragment profileFragment;
 
     final private FragmentManager fragmentManager = getSupportFragmentManager();
 
@@ -48,11 +43,15 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
         setContentView(R.layout.activity_main);
 
         context = this;
+        homeFragment = new HomeFragment();
+        composeFragment = new ComposeTypeDialog();
+        chatsFragment = new ChatsFragment();
+        profileFragment = new ProfileFragment();
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
         bottomNavigation.setSelectedItemId(R.id.actionHome);
-        fragmentManager.beginTransaction().replace(R.id.flContainer, postsFragment).addToBackStack(null).commit();
+        fragmentManager.beginTransaction().replace(R.id.flContainer, homeFragment).addToBackStack(null).commit();
 
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -60,10 +59,7 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
                 Fragment fragment;
                 switch (item.getItemId()) {
                     case R.id.actionHome:
-                        fragment = postsFragment;
-                        break;
-                    case R.id.actionMap:
-                        fragment = mapsFragment;
+                        fragment = homeFragment;
                         break;
                     case R.id.actionCompose:
                         composeFragment.show(getSupportFragmentManager(), "type");
@@ -109,8 +105,6 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
                 bottomNavigation.setSelectedItemId(R.id.actionChat);
             } else if (currentFragment instanceof ComposeFragment) {
                 bottomNavigation.setSelectedItemId(R.id.actionCompose);
-            } else if (currentFragment instanceof MapsFragment) {
-                bottomNavigation.setSelectedItemId(R.id.actionMap);
             } else {
                 bottomNavigation.setSelectedItemId(R.id.actionHome);
             }

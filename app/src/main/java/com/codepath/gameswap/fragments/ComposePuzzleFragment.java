@@ -110,7 +110,7 @@ public class ComposePuzzleFragment extends ComposeFragment {
                 ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionHome);
                 // Go to home fragment
                 FragmentManager fragmentManager = activity.getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.flContainer, new PostsFragment()).commit();
+                fragmentManager.beginTransaction().replace(R.id.flContainer, new HomeFragment()).commit();
             }
         });
     }

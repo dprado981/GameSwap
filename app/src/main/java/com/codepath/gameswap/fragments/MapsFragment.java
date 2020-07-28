@@ -1,6 +1,7 @@
 package com.codepath.gameswap.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -8,15 +9,12 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -24,7 +22,6 @@ import androidx.fragment.app.FragmentManager;
 
 import com.codepath.gameswap.CustomWindowAdapter;
 import com.codepath.gameswap.R;
-import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.utils.MapUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,34 +37,25 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseQuery;
-import com.parse.ParseRelation;
-import com.parse.ParseUser;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class MapsFragment extends Fragment implements OnMyLocationButtonClickListener,
         OnMyLocationClickListener, OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
 
+    public interface MapsFragmentInterface {
+        void onMapReady();
+    }
+
     public static final String TAG = MapsFragment.class.getSimpleName();
 
     private Context context;
-    private FusedLocationProviderClient locationClient;
     private GoogleMap map;
-    private LatLng recentLatLng;
+    private MapsFragmentInterface callback;
 
-    private BottomNavigationView bottomNavigation;
-
-    // TODO: Chnage bottomNavigation into a horizontal recyclerview/swiping cardview thats populated with results of search queries
+    public MapsFragment(Fragment fragment) {
+        callback = (MapsFragmentInterface) fragment;
+    }
 
     @Nullable
     @Override
@@ -81,8 +69,6 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
-        bottomNavigation = view.findViewById(R.id.bottomNavigation);
-        setHasOptionsMenu(true);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -90,60 +76,17 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         }
     }
 
-    private void addPoints(final GoogleMap map) {
-        // Specify which class to query
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        // Find all posts
-        query.include(Post.KEY_USER);
-        query.setLimit(20);
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(final List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with getting posts", e);
-                    return;
-                }
-                if (!posts.isEmpty()) {
-                    placeUnblockedMarkers(posts, false);
-                }
-            }
-        });
-    }
-
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(final GoogleMap map) {
-        locationClient = getFusedLocationProviderClient(context);
         this.map = map;
+        callback.onMapReady();
         map.getUiSettings().setZoomControlsEnabled(true);
-        addPoints(map);
         map.setInfoWindowAdapter(new CustomWindowAdapter(getLayoutInflater(), context));
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    MapUtils.LOCATION_PERMISSION_CODE);
-        } else {
-            // Get current location and zoom in
-            locationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>(){
-                @Override
-                public void onSuccess(Location location) {
-                    double currentLatitude = location.getLatitude();
-                    double currentLongitude = location.getLongitude();
-                    recentLatLng = new LatLng(currentLatitude, currentLongitude);
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(recentLatLng, 12));
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG, "Error trying to get last GPS location", e);
-                }
-            });
-            map.setMyLocationEnabled(true);
-            map.setOnMyLocationButtonClickListener(this);
-            map.setOnMyLocationClickListener(this);
-        }
-
+        map.setPadding(0,0,0, 650);
+        map.setMyLocationEnabled(true);
+        map.setOnMyLocationButtonClickListener(this);
+        map.setOnMyLocationClickListener(this);
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -201,103 +144,22 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         return false;
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_search_bar, menu);
-        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setMaxWidth( Integer.MAX_VALUE );
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String queryString) {
-                // perform query here
-                querySearch(queryString);
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
-                searchView.clearFocus();
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String queryString) {
-                return false;
-            }
-        });
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                addPoints(map);
-                bottomNavigation.setVisibility(View.GONE);
-                return false;
-            }
-        });
-        super.onCreateOptionsMenu(menu, inflater);
+    public void addPoint(LatLng point, Post post) {
+        map.addCircle(new CircleOptions()
+                .center(point)
+                .radius(30)
+                .strokeColor(Color.RED)
+                .strokeWidth(4)
+                .fillColor(Color.argb(30, 255, 0, 0)));
+        map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
     }
 
-    private void querySearch(String queryString) {
-        // Specify which class to query
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        // Find all posts
-        query.include(Post.KEY_USER);
-        query.whereNear(Post.KEY_COORDINATES, new ParseGeoPoint(recentLatLng.latitude, recentLatLng.longitude));
-        query.setLimit(20);
-        if (!queryString.isEmpty()) {
-            query.whereContains(Post.KEY_TITLE, queryString);
-        }
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(final List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with getting posts", e);
-                    return;
-                }
-                for (Post post : posts) {
-                    Log.d(TAG, post.getTitle());
-                }
-                if (!posts.isEmpty()) {
-                    map.clear();
-                    placeUnblockedMarkers(posts, true);
-                }
-            }
-        });
+    public void moveTo(LatLng point, float zoom) {
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(point, zoom));
     }
 
-    private void placeUnblockedMarkers(final List<Post> posts, final boolean isSearch) {
-        ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
-        ParseQuery<Block> blockQuery = blockRelation.getQuery();
-        blockQuery.include(Block.KEY_BLOCKING);
-        blockQuery.include(Block.KEY_BLOCKED);
-        blockQuery.findInBackground(new FindCallback<Block>() {
-            @Override
-            public void done(List<Block> blocks, ParseException e) {
-                List<Post> notBlocked = new ArrayList<>();
-                for (Post post : posts) {
-                    boolean blockedPost = false;
-                    for (Block block : blocks) {
-                        if (block.getBlocked().getUsername().equals(post.getUser().getUsername())) {
-                            blockedPost = true;
-                            break;
-                        }
-                    }
-                    if (!blockedPost) {
-                        notBlocked.add(post);
-                        ParseGeoPoint geoPoint = post.getCoordinates();
-                        LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-                        map.addCircle(new CircleOptions()
-                                .center(point)
-                                .radius(3000)
-                                .strokeColor(Color.RED)
-                                .strokeWidth(4)
-                                .fillColor(Color.argb(30, 255, 0, 0)));
-                        map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
-                    }
-                }
-                if (isSearch) {
-                    ParseGeoPoint newGeoPoint = notBlocked.get(0).getCoordinates();
-                    LatLng newLatLng = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 14));
-                }
-            }
-        });
+    public void clear() {
+        map.clear();
     }
+
 }

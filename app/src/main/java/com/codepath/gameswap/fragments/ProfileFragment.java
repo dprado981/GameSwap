@@ -1,6 +1,7 @@
 package com.codepath.gameswap.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,9 +27,14 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.LoginActivity;
+import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.ProfilePostsAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Block;
@@ -64,23 +70,33 @@ import static android.app.Activity.RESULT_OK;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class ProfileFragment extends PostsFragment implements View.OnClickListener {
+public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = ProfileFragment.class.getSimpleName();
+
+    private Context context;
+    private int lastPosition;
 
     private ParseUser user;
     private ParseUser currentUser;
     private File profileImageFile;
     private Conversation targetConversation;
 
+    private List<Post> allPosts;
+    private LinearLayoutManager layoutManager;
+    private PostsAdapter adapter;
+    private RecyclerView rvPosts;
+    private SwipeRefreshLayout swipeContainer;
+    private EndlessRecyclerViewScrollListener scrollListener;
+
     private ImageView ivProfile;
     private TextView tvUsername;
     private Button btnLogout;
     private Button btnMessage;
 
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
+   public ProfileFragment() {
+
+   }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -91,9 +107,19 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         context = getContext();
         currentUser = ParseUser.getCurrentUser();
+
+        rvPosts = view.findViewById(R.id.rvPosts);
+        swipeContainer = view.findViewById(R.id.swipeContainer);
+
+        layoutManager = new LinearLayoutManager(context);
+        allPosts = new ArrayList<>();
+        adapter = new ProfilePostsAdapter(context, allPosts);
+        rvPosts.setAdapter(adapter);
+        rvPosts.setLayoutManager(layoutManager);
 
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -125,17 +151,34 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
         btnMessage.setOnClickListener(this);
         ivProfile.setOnClickListener(this);
 
-        super.onViewCreated(view, savedInstanceState);
-
         setHasOptionsMenu(true);
+        queryPosts(false);
+
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                queryPosts(true);
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvPosts.addOnScrollListener(scrollListener);
+
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                queryPosts(false);
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
-    @Override
-    protected void setAdapter() {
-        adapter = new ProfilePostsAdapter(context, allPosts);
-    }
 
-    @Override
     protected void queryPosts(final boolean loadNext) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
@@ -168,6 +211,12 @@ public class ProfileFragment extends PostsFragment implements View.OnClickListen
                 }
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        lastPosition = layoutManager.findFirstVisibleItemPosition();
     }
 
     @Override
