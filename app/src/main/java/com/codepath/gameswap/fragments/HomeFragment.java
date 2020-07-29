@@ -251,7 +251,7 @@ public class HomeFragment extends Fragment
                 if (forSearch) {
                     ParseGeoPoint newGeoPoint = allPosts.get(0).getCoordinates();
                     LatLng point = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
-                    mapsFragment.moveTo(point, 12);
+                    mapsFragment.panTo(point, 12);
                 }
             }
         });

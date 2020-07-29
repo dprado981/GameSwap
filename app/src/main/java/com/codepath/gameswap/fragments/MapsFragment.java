@@ -1,13 +1,15 @@
 package com.codepath.gameswap.fragments;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,23 +22,25 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.codepath.gameswap.CustomWindowAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.utils.MapUtils;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.parse.ParseFile;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -142,17 +146,50 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         return false;
     }
 
-    public void addPoint(LatLng point, Post post) {
-        map.addCircle(new CircleOptions()
-                .center(point)
-                .radius(30)
-                .strokeColor(Color.RED)
-                .strokeWidth(4)
-                .fillColor(Color.argb(30, 255, 0, 0)));
-        map.addMarker(new MarkerOptions().position(point).title(post.getTitle())).setTag(post);
+    public void addPoint(final LatLng point, final Post post) {
+        ParseFile image = post.getImageOne();
+        Glide.with(context)
+                .asBitmap()
+                .load(image.getUrl())
+                .override(192)
+                .circleCrop()
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        Bitmap bordered = addBorder(resource);
+                        map.addMarker(new MarkerOptions()
+                                .position(point)
+                                .title(post.getTitle())
+                                .icon(BitmapDescriptorFactory.fromBitmap(bordered))
+                                .flat(true))
+                                .setTag(post);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                    }
+                });
+    }
+
+    private Bitmap addBorder(Bitmap bitmap) {
+        int border = 15;
+        int width = bitmap.getWidth() + border;
+        int height = bitmap.getHeight() + border;
+        Bitmap bmpWithBorder = Bitmap.createBitmap(width, height, bitmap.getConfig());
+        Canvas canvas = new Canvas(bmpWithBorder);
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        canvas.drawCircle((width)/2f, (height)/2f, (width)/2f, paint);
+        canvas.drawColor(Color.TRANSPARENT);
+        canvas.drawBitmap(bitmap, border/2f, border/2f, null);
+        return bmpWithBorder;
     }
 
     public void moveTo(LatLng point, float zoom) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(point, zoom));
+    }
+
+    public void panTo(LatLng point, float zoom) {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(point, zoom));
     }
 

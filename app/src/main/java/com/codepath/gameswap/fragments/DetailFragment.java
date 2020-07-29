@@ -159,7 +159,7 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         ivProfile.setOnClickListener(this);
         tvUsername.setOnClickListener(this);
         btnMessage.setOnClickListener(this);
-        ibMore.setOnClickListener(this);
+        //ibMore.setOnClickListener(this);
 
     }
 
