@@ -13,7 +13,6 @@
     <string name="post_image">Post Image</string>
     <string name="send">Send</string>
     <string name="message">Message</string>
-    <string name="search">Search</string>
     <string name="delete">Delete</string>
     <string name="overflow">overflow</string>
     <string name="post">Post</string>
@@ -50,4 +49,7 @@
     <string name="create">Create</string>
     <string name="chat">Chat</string>
     <string name="profile">Profile</string>
+    <string name="clear">Clear</string>
+    <string name="search">Search</string>
+    <string name="search_here">Search here</string>
 </resources>

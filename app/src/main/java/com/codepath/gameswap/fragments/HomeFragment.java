@@ -1,20 +1,28 @@
 package com.codepath.gameswap.fragments;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -49,11 +57,15 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment
-        implements MapsFragment.MapsFragmentInterface, PostsFragment.PostsFragmentInterface {
+        implements MapsFragment.MapsFragmentInterface, PostsFragment.PostsFragmentInterface,
+        TextView.OnEditorActionListener, View.OnClickListener {
 
     public static final String TAG = HomeFragment.class.getSimpleName();
 
     private Context context;
+    private EditText etSearch;
+    private ImageButton ibClear;
+    private ImageButton ibSearch;
     private MapsFragment mapsFragment;
     private PostsFragment postsFragment;
     private List<Post> allPosts;
@@ -78,46 +90,48 @@ public class HomeFragment extends Fragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
+        etSearch = view.findViewById(R.id.etSearch);
+        ibClear = view.findViewById(R.id.ibClear);
+        ibSearch = view.findViewById(R.id.ibSearch);
         mapsFragment = new MapsFragment(this);
         postsFragment = new PostsFragment(this);
-        setHasOptionsMenu(true);
         allPosts = new ArrayList<>();
+        etSearch.setOnEditorActionListener(this);
+        ibClear.setOnClickListener(this);
+        ibSearch.setOnClickListener(this);
         FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.mapContainer, mapsFragment).commit();
         fragmentManager.beginTransaction().replace(R.id.listContainer, postsFragment).commit();
     }
 
     @Override
-    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_search_bar, menu);
-        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setMaxWidth( Integer.MAX_VALUE );
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String queryString) {
-                // perform query here
-                allPosts.clear();
-                mapsFragment.clear();
-                querySearch(queryString);
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
-                searchView.clearFocus();
-                return true;
-            }
+    public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+        if (id == EditorInfo.IME_ACTION_SEARCH) {
+            startSearch();
+            return true;
+        }
+        return false;
+    }
 
-            @Override
-            public boolean onQueryTextChange(String queryString) {
-                return false;
+    @Override
+    public void onClick(View view) {
+        if (view == ibClear) {
+            if (etSearch.getText().toString().isEmpty()) {
+                startSearch();
             }
-        });
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                queryPosts();
-                return false;
-            }
-        });
-        super.onCreateOptionsMenu(menu, inflater);
+            etSearch.setText("");
+        } else if (view == ibSearch) {
+            startSearch();
+        }
+    }
+
+    private void startSearch() {
+        allPosts.clear();
+        mapsFragment.clear();
+        InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+        etSearch.clearFocus();
+        querySearch(etSearch.getText().toString());
     }
 
     @Override

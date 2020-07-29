@@ -6,24 +6,26 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="12dp"
-    app:cardCornerRadius="40dp"
+    app:cardCornerRadius="20dp"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
 
     <RelativeLayout
         android:id="@+id/rlContent"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="-4dp"
         android:background="#FFFFFF"
         android:gravity="center_vertical">
 
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/viewPager"
+        <ImageView
+            android:id="@+id/ivImage"
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/image"
+            android:scaleType="center" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -31,7 +33,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_toEndOf="@id/viewPager"
+            android:layout_toEndOf="@id/ivImage"
             android:orientation="vertical">
 
             <LinearLayout

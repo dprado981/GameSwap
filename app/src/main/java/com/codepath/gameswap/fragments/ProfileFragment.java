@@ -22,7 +22,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -42,25 +43,18 @@ import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.models.Report;
 import com.codepath.gameswap.utils.CameraUtils;
-import com.google.android.gms.common.internal.FallbackServiceBroker;
-import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.LogOutCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -91,7 +85,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private ImageView ivProfile;
     private TextView tvUsername;
-    private Button btnLogout;
     private Button btnMessage;
 
    public ProfileFragment() {
@@ -109,6 +102,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setHasOptionsMenu(true);
+        TextView tvTitle = toolbar.findViewById(R.id.tvTitle);
+        tvTitle.setText(getString(R.string.profile));
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (activity != null) {
+            activity.setSupportActionBar(toolbar);
+        }
+
         context = getContext();
         currentUser = ParseUser.getCurrentUser();
 
@@ -123,7 +126,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
-        btnLogout = view.findViewById(R.id.btnLogout);
         btnMessage = view.findViewById(R.id.btnMessage);
 
         Bundle bundle = getArguments();
@@ -132,10 +134,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         } else {
             user = bundle.getParcelable(Post.KEY_USER);
         }
+        tvTitle.setText(user.getUsername());
         if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
             btnMessage.setVisibility(View.GONE);
         } else {
-            btnLogout.setVisibility(View.GONE);
+            btnMessage.setVisibility(View.VISIBLE);
         }
         tvUsername.setText(user.getUsername());
 
@@ -147,11 +150,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     .into(ivProfile);
         }
 
-        btnLogout.setOnClickListener(this);
         btnMessage.setOnClickListener(this);
         ivProfile.setOnClickListener(this);
 
-        setHasOptionsMenu(true);
         queryPosts(false);
 
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
@@ -360,7 +361,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
 
     @Override
-    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_profile_options, menu);
         if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
             menu.findItem(R.id.actionReport).setVisible(false);

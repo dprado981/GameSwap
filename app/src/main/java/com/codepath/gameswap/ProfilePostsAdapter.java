@@ -4,9 +4,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.cardview.widget.CardView;
 
 import com.codepath.gameswap.models.Post;
 
@@ -34,6 +36,11 @@ public class ProfilePostsAdapter extends PostsAdapter {
         public ViewHolder(@NonNull View view) {
             super(view);
             llHeader.setVisibility(View.GONE);
+            CardView cvContent = view.findViewById(R.id.cvContent);
+            ViewGroup.LayoutParams cvParams = cvContent.getLayoutParams();
+            cvParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            cvParams.height = 320;
+            cvContent.setLayoutParams(cvParams);
         }
     }
 }
