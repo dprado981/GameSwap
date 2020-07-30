@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -41,7 +40,6 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -68,6 +66,7 @@ public class HomeFragment extends Fragment
 
     private LatLng recentLatLng;
     private FusedLocationProviderClient locationClient;
+    private int lastPosition;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -166,7 +165,7 @@ public class HomeFragment extends Fragment
     @Override
     public void onMarkerClick(Post post) {
         int index = allPosts.indexOf(post);
-        postsFragment.scrollTo(index);
+        postsFragment.smoothScrollTo(index);
     }
 
 
@@ -195,8 +194,9 @@ public class HomeFragment extends Fragment
     }
 
     @Override
-    public void onSnapPositionChange(Post post) {
+    public void onSnapPositionChange(Post post, int position) {
         mapsFragment.focusOn(post);
+        lastPosition = position;
     }
 
     @Override
@@ -291,5 +291,17 @@ public class HomeFragment extends Fragment
                 }
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
+        Fragment fragment = postsFragment;
+        Bundle bundle = new Bundle();
+        bundle.putInt("lastPosition", lastPosition);
+        fragment.setArguments(bundle);
+        fragmentManager.beginTransaction().replace(R.id.mapContainer, mapsFragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.listContainer, postsFragment).commit();
     }
 }

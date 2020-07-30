@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -226,7 +227,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Google
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        Bitmap bordered = addBorder(resource, R.color.colorPrimary);
+                        int color = ContextCompat.getColor(context, R.color.colorPrimary);
+                        Bitmap bordered = addBorder(resource, color);
                         marker.setIcon(BitmapDescriptorFactory.fromBitmap(bordered));
                         marker.showInfoWindow();
                         map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 14f));

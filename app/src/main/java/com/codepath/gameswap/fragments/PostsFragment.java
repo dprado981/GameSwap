@@ -35,7 +35,7 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
     public interface PostsFragmentInterface {
         void onLoadMore();
         void onRefresh();
-        void onSnapPositionChange(Post position);
+        void onSnapPositionChange(Post position, int i);
     }
 
     public static final String TAG = PostsFragment.class.getSimpleName();
@@ -83,12 +83,16 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         SnapOnScrollListener snapOnScrollListener = new SnapOnScrollListener(snapHelper, this);
         rvPosts.addOnScrollListener(snapOnScrollListener);
         setScrollAndRefreshListeners();
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            lastPosition = bundle.getInt("lastPosition");
+            rvPosts.scrollToPosition(lastPosition);
+        }
     }
 
     @Override
     public void onSnapPositionChange(int position) {
-        Log.d(TAG, "hi: " + position);
-        callback.onSnapPositionChange(allPosts.get(position));
+        callback.onSnapPositionChange(allPosts.get(position), position);
     }
 
 
@@ -126,7 +130,7 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         scrollListener.resetState();
         swipeContainer.setRefreshing(false);
         if (lastPosition >= 0) {
-            rvPosts.scrollToPosition(lastPosition);
+            rvPosts.smoothScrollToPosition(lastPosition);
             lastPosition = -1;
         }
     }
@@ -137,7 +141,11 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         lastPosition = layoutManager.findFirstVisibleItemPosition();
     }
 
-    public void scrollTo(int index) {
+    public void smoothScrollTo(int index) {
         rvPosts.smoothScrollToPosition(index);
+    }
+
+    public void scrollTo(int index) {
+        rvPosts.scrollToPosition(index);
     }
 }
