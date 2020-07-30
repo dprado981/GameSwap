@@ -38,7 +38,7 @@ An platform for users to coordinate trades between board games/puzzles
 
 **Stretch Stories**
 
-* Users can add more information about the game (description, players, genre)
+* Users can add more information about the game (duration, players, genre)
 * Users can filter section in main Stream
 * Users can favorite to view later
 * Users can get hints and autocompletion for title/information from BGG API

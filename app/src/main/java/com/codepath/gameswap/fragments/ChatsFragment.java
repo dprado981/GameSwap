@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -14,9 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.codepath.gameswap.ConversationsAdapter;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
@@ -130,6 +134,43 @@ public class ChatsFragment extends Fragment {
         rvConversations = view.findViewById(R.id.rvConversations);
         swipeContainer = view.findViewById(R.id.swipeContainer);
 
+
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        final TextView tvTitle = view.findViewById(R.id.tvTitle);
+        SearchView searchView = view.findViewById(R.id.searchView);
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                    tvTitle.setVisibility(View.GONE);
+                } else {
+                    tvTitle.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String searchQuery) {
+                queryConversations(false, searchQuery);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                tvTitle.setVisibility(View.GONE);
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                tvTitle.setVisibility(View.VISIBLE);
+                queryConversations(false);
+                return false;
+            }
+        });
+
         conversations = new ArrayList<>();
         layoutManager = new LinearLayoutManager(context);
         adapter = new ConversationsAdapter(context, conversations);
@@ -167,6 +208,10 @@ public class ChatsFragment extends Fragment {
     }
 
     private void queryConversations(final boolean loadNext) {
+        queryConversations(loadNext, null);
+    }
+
+    private void queryConversations(final boolean loadNext, final String searchString) {
         // Specify which class to query
         ParseQuery<Conversation> userOneQuery = ParseQuery.getQuery(Conversation.class);
         ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);
@@ -200,14 +245,24 @@ public class ChatsFragment extends Fragment {
                     Log.e(TAG, "Issue with getting conversations", e);
                     return;
                 }
-                List<Conversation> notDeletedConversations = new ArrayList<>();
+                List<Conversation> relevantConversations = new ArrayList<>();
                 for (Conversation conversation : conversations) {
+                    String usernameOne = conversation.getUserOne().getUsername();
+                    String usernameTwo = conversation.getUserTwo().getUsername();
                     // If the current user hasn't deleted the conversation, add it
-                    boolean isUserOne = conversation.getUserOne().getUsername().equals(ParseUser.getCurrentUser().getUsername());
+                    boolean isUserOne = usernameOne.equals(ParseUser.getCurrentUser().getUsername());
                     if (!((isUserOne && conversation.getDeletedByOne())
                             || (!isUserOne && conversation.getDeletedByTwo()))) {
-                        notDeletedConversations.add(conversation);
+                        if (searchString != null) {
+                            if ((isUserOne && usernameTwo.contains(searchString))
+                            || (!isUserOne && usernameOne.contains(searchString))) {
+                                relevantConversations.add(conversation);
+                            }
+                        } else {
+                            relevantConversations.add(conversation);
+                        }
                     }
+
                 }
 
                 if (!loadNext) {
@@ -215,7 +270,7 @@ public class ChatsFragment extends Fragment {
                     scrollListener.resetState();
                     swipeContainer.setRefreshing(false);
                 }
-                adapter.addAll(notDeletedConversations);
+                adapter.addAll(relevantConversations);
                 adapter.notifyDataSetChanged();
             }
         });

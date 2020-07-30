@@ -8,7 +8,7 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/main_toolbar" />
+        layout="@layout/profile_toolbar" />
 
     <RelativeLayout
         android:id="@+id/rlHeader"

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,15 +59,15 @@ public class ConversationFragment extends Fragment {
     private ImageView ivProfile;
     private TextView tvUsername;
     private ImageView ivPost;
+    private EditText etMessage;
+    private ImageButton ibSend;
+    private ProgressBar progressBar;
 
     private RecyclerView rvMessages;
     private List<Message> messages;
     private LinearLayoutManager layoutManager;
     private MessagesAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
-
-    private EditText etMessage;
-    private ImageButton ibSend;
 
     public ConversationFragment() {
         // Required empty public constructor
@@ -90,6 +91,13 @@ public class ConversationFragment extends Fragment {
         otherUser = getOtherUser(conversation);
 
         rvMessages = view.findViewById(R.id.rvMessages);
+        ivProfile = view.findViewById(R.id.ivProfile);
+        tvUsername = view.findViewById(R.id.tvUsername);
+        ivPost = view.findViewById(R.id.ivPost);
+        etMessage = view.findViewById(R.id.etMessage);
+        ibSend = view.findViewById(R.id.ibSend);
+        progressBar = view.findViewById(R.id.progressBar);
+
         messages = new ArrayList<>();
         layoutManager = new LinearLayoutManager(context);
         adapter = new MessagesAdapter(context, messages);
@@ -97,7 +105,6 @@ public class ConversationFragment extends Fragment {
         layoutManager.setReverseLayout(true);
         rvMessages.setLayoutManager(layoutManager);
 
-        ivProfile = view.findViewById(R.id.ivProfile);
         ParseFile profileImage = (ParseFile) otherUser.get("image");
         if (profileImage != null) {
             Glide.with(context)
@@ -106,11 +113,9 @@ public class ConversationFragment extends Fragment {
                     .into(ivProfile);
         }
 
-        tvUsername = view.findViewById(R.id.tvUsername);
         tvUsername.setText(otherUser.getUsername());
 
         if (conversation.getFromPost() != null) {
-            ivPost = view.findViewById(R.id.ivPost);
             ivPost.setVisibility(View.VISIBLE);
             final Post fromPost = conversation.getFromPost();
             ParseFile postImage = fromPost.getImageOne();
@@ -141,8 +146,6 @@ public class ConversationFragment extends Fragment {
             });
         }
 
-        etMessage = view.findViewById(R.id.etMessage);
-        ibSend = view.findViewById(R.id.ibSend);
         ibSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -188,6 +191,7 @@ public class ConversationFragment extends Fragment {
                 scrollListener.resetState();
                 adapter.addAll(messages);
                 adapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

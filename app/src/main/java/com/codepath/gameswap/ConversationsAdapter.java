@@ -1,6 +1,13 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,14 +17,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.codepath.gameswap.fragments.ConversationFragment;
 import com.codepath.gameswap.models.Conversation;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
@@ -65,7 +80,6 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private LinearLayout llParent;
         private ImageView ivProfile;
         private LinearLayout llPreview;
         private TextView tvUsername;
@@ -77,12 +91,21 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
         public ViewHolder(@NonNull View view) {
             super(view);
-            llParent = view.findViewById(R.id.llParent);
             ivProfile = view.findViewById(R.id.ivProfile);
             llPreview = view.findViewById(R.id.llPreview);
             tvUsername = view.findViewById(R.id.tvUsername);
             tvPreview = view.findViewById(R.id.tvPreview);
             llPreview.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+            Fragment fragment = new ConversationFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Conversation.TAG, conversation);
+            fragment.setArguments(bundle);
+            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
         }
 
         public void bind(Conversation conversation) {
@@ -96,21 +119,40 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             ParseFile image = (ParseFile) otherUser.get("image");
             ivProfile.setImageDrawable(context.getDrawable(R.drawable.ic_profile));
             if (image != null) {
-                Glide.with(context)
-                        .load(image.getUrl())
-                        .placeholder(R.drawable.ic_profile)
-                        .into(ivProfile);
+                setProfileImage(image);
             }
         }
 
-        @Override
-        public void onClick(View view) {
-            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-            Fragment fragment = new ConversationFragment();
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(Conversation.TAG, conversation);
-            fragment.setArguments(bundle);
-            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+        private void setProfileImage(ParseFile image) {
+            Glide.with(context)
+                    .asBitmap()
+                    .load(image.getUrl())
+                    .circleCrop()
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            int color = ContextCompat.getColor(context, R.color.colorPrimary);
+                            Bitmap bordered = addBorder(resource, color, 150);
+                            ivProfile.setImageBitmap(bordered);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
+        }
+
+        private Bitmap addBorder(Bitmap bitmap, int color, int border) {
+            int width = bitmap.getWidth() + border;
+            int height = bitmap.getHeight() + border;
+            Bitmap bmpWithBorder = Bitmap.createBitmap(width, height, bitmap.getConfig());
+            Canvas canvas = new Canvas(bmpWithBorder);
+            Paint paint = new Paint();
+            paint.setColor(color);
+            canvas.drawCircle((width)/2f, (height)/2f, (width)/2f, paint);
+            canvas.drawColor(Color.TRANSPARENT);
+            canvas.drawBitmap(bitmap, border/2f, border/2f, null);
+            return bmpWithBorder;
         }
 
         private ParseUser getOtherUser(Conversation conversation) {
