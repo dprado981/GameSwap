@@ -1,16 +1,14 @@
 package com.codepath.gameswap.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -22,8 +20,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -44,9 +40,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -93,9 +88,11 @@ public class HomeFragment extends Fragment
         etSearch = view.findViewById(R.id.etSearch);
         ibClear = view.findViewById(R.id.ibClear);
         ibSearch = view.findViewById(R.id.ibSearch);
+
         mapsFragment = new MapsFragment(this);
         postsFragment = new PostsFragment(this);
         allPosts = new ArrayList<>();
+
         etSearch.setOnEditorActionListener(this);
         ibClear.setOnClickListener(this);
         ibSearch.setOnClickListener(this);
@@ -152,6 +149,7 @@ public class HomeFragment extends Fragment
                         double currentLongitude = location.getLongitude();
                         recentLatLng = new LatLng(currentLatitude, currentLongitude);
                         mapsFragment.moveTo(recentLatLng, 14);
+                        queryPosts();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -160,14 +158,21 @@ public class HomeFragment extends Fragment
                     Log.e(TAG, "Error trying to get last GPS location", e);
                 }
             });
+            return;
         }
         queryPosts();
+    }
+
+    @Override
+    public void onMarkerClick(Post post) {
+        int index = allPosts.indexOf(post);
+        postsFragment.scrollTo(index);
     }
 
 
     @Override
     public void onLoadMore() {
-        Date olderThanDate = allPosts.get(allPosts.size()-1).getCreatedAt();
+        Date olderThanDate = getOldestPostDate(allPosts);
         lastQuery.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
         processQuery(lastQuery, false, true);
     }
@@ -176,6 +181,22 @@ public class HomeFragment extends Fragment
     public void onRefresh() {
         //queryPosts();
         processQuery(lastQuery, false, false);
+    }
+
+    private Date getOldestPostDate(List<Post> posts) {
+        Date oldestDate = new Date();
+        for (Post post : posts) {
+            Date temp = post.getCreatedAt();
+            if (temp.before(oldestDate)) {
+                oldestDate = temp;
+            }
+        }
+        return oldestDate;
+    }
+
+    @Override
+    public void onSnapPositionChange(Post post) {
+        mapsFragment.focusOn(post);
     }
 
     @Override
@@ -208,13 +229,14 @@ public class HomeFragment extends Fragment
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
         query.include(Post.KEY_USER);
-        //query.whereNear(Post.KEY_COORDINATES, new ParseGeoPoint(recentLatLng.latitude, recentLatLng.longitude));
+        if (recentLatLng != null) {
+            query.whereNear(Post.KEY_COORDINATES, new ParseGeoPoint(recentLatLng.latitude, recentLatLng.longitude));
+        }
         query.setLimit(20);
         boolean forSearch = (queryString != null);
         if (forSearch) {
             query.whereContains(Post.KEY_TITLE, queryString);
         }
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
         lastQuery = query;
         processQuery(query, forSearch, false);
     }

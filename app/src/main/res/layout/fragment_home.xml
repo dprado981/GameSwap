@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.HomeFragment">
 
     <androidx.cardview.widget.CardView
@@ -33,17 +33,17 @@
                 android:background="@null"
                 android:hint="@string/search_here"
                 android:imeOptions="actionSearch"
+                android:importantForAutofill="no"
                 android:inputType="text"
-                android:lines="1"
-                android:importantForAutofill="no" />
+                android:lines="1" />
 
             <ImageButton
                 android:id="@+id/ibClear"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#00FFFFFF"
-                android:src="@drawable/ic_clear"
-                android:contentDescription="@string/clear" />
+                android:contentDescription="@string/clear"
+                android:src="@drawable/ic_clear" />
 
             <ImageButton
                 android:id="@+id/ibSearch"
@@ -51,8 +51,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:background="#00FFFFFF"
-                android:src="@drawable/ic_search"
-                android:contentDescription="@string/search" />
+                android:contentDescription="@string/search"
+                android:src="@drawable/ic_search" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -60,18 +60,12 @@
     <FrameLayout
         android:id="@+id/mapContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true" />
+        android:layout_height="match_parent" />
 
     <FrameLayout
         android:id="@+id/listContainer"
         android:layout_width="match_parent"
         android:layout_height="160dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true" />
+        android:layout_gravity="bottom"  />
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

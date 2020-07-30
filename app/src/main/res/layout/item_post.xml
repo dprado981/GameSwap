@@ -5,7 +5,7 @@
     android:id="@+id/cvContent"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
+    android:layout_marginEnd="12dp"
     app:cardCornerRadius="20dp"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
@@ -80,7 +80,7 @@
                 android:maxWidth="250dp"
                 android:maxLines="1"
                 android:textSize="30sp"
-                tools:text="Title" />
+                tools:text="Title"/>
 
             <RatingBar
                 android:id="@+id/rbCondition"

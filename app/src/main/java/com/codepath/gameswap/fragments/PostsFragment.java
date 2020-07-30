@@ -2,6 +2,7 @@ package com.codepath.gameswap.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -18,20 +19,23 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.SnapOnScrollListener;
 import com.codepath.gameswap.models.Post;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class PostsFragment extends Fragment {
+public class PostsFragment extends Fragment implements OnSnapPositionChangeListener {
 
     public interface PostsFragmentInterface {
         void onLoadMore();
         void onRefresh();
+        void onSnapPositionChange(Post position);
     }
 
     public static final String TAG = PostsFragment.class.getSimpleName();
@@ -74,11 +78,19 @@ public class PostsFragment extends Fragment {
         adapter = new PostsAdapter(context, allPosts);
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(layoutManager);
-        SnapHelper helper = new LinearSnapHelper();
-        helper.attachToRecyclerView(rvPosts);
-
+        SnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper.attachToRecyclerView(rvPosts);
+        SnapOnScrollListener snapOnScrollListener = new SnapOnScrollListener(snapHelper, this);
+        rvPosts.addOnScrollListener(snapOnScrollListener);
         setScrollAndRefreshListeners();
     }
+
+    @Override
+    public void onSnapPositionChange(int position) {
+        Log.d(TAG, "hi: " + position);
+        callback.onSnapPositionChange(allPosts.get(position));
+    }
+
 
     protected void setScrollAndRefreshListeners() {
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
@@ -123,5 +135,9 @@ public class PostsFragment extends Fragment {
     public void onPause() {
         super.onPause();
         lastPosition = layoutManager.findFirstVisibleItemPosition();
+    }
+
+    public void scrollTo(int index) {
+        rvPosts.smoothScrollToPosition(index);
     }
 }

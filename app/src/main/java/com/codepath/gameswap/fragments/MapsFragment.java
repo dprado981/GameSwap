@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,24 +31,24 @@ import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.utils.MapUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseFile;
 
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MapsFragment extends Fragment implements OnMyLocationButtonClickListener,
-        OnMyLocationClickListener, OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
+public class MapsFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnInfoWindowCloseListener,
+        ActivityCompat.OnRequestPermissionsResultCallback {
 
     public interface MapsFragmentInterface {
         void onMapReady();
+        void onMarkerClick(Post post);
     }
 
     public static final String TAG = MapsFragment.class.getSimpleName();
@@ -57,6 +56,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     private Context context;
     private GoogleMap map;
     private MapsFragmentInterface callback;
+    private Map<Post, Marker> markers;
 
     public MapsFragment(Fragment fragment) {
         callback = (MapsFragmentInterface) fragment;
@@ -74,6 +74,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
+        markers = new HashMap<>();
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         View locationButton = view.findViewWithTag("GoogleMapMyLocationButton");
@@ -82,7 +83,7 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         // position on right bottom
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        layoutParams.setMargins(0, 0, 0, 400);
+        layoutParams.setMargins(0, 0, 0, 450);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
@@ -95,29 +96,9 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
         callback.onMapReady();
         map.setInfoWindowAdapter(new CustomWindowAdapter(getLayoutInflater(), context));
         map.setMyLocationEnabled(true);
-        map.setOnMyLocationButtonClickListener(this);
-        map.setOnMyLocationClickListener(this);
-        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Post post = (Post) marker.getTag();
-                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                Fragment fragment;
-                if (post.getType().equals(Post.GAME)) {
-                    fragment = new DetailGameFragment();
-                } else if (post.getType().equals(Post.PUZZLE)) {
-                        fragment = new DetailPuzzleFragment();
-                } else {
-                    Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(Post.TAG, post);
-                fragment.setArguments(bundle);
-                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
-            }
-        });
-
+        map.setOnMarkerClickListener(this);
+        map.setOnInfoWindowClickListener(this);
+        map.setOnInfoWindowCloseListener(this);
     }
 
     @Override
@@ -142,19 +123,48 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
     }
 
     @Override
-    public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(context, "Current location:\n" + location, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        Toast.makeText(context, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
-        // Return false so that we don't consume the event and the default behavior still occurs
-        // (the camera animates to the user's current position).
+    public boolean onMarkerClick(Marker marker) {
+        Post post = (Post) marker.getTag();
+        if (post != null) {
+            focusOn(marker, post);
+            callback.onMarkerClick(post);
+        }
         return false;
     }
 
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Post post = (Post) marker.getTag();
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        Fragment fragment;
+        if (post.getType().equals(Post.GAME)) {
+            fragment = new DetailGameFragment();
+        } else if (post.getType().equals(Post.PUZZLE)) {
+            fragment = new DetailPuzzleFragment();
+        } else {
+            Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Post.TAG, post);
+        fragment.setArguments(bundle);
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+    }
+
+    @Override
+    public void onInfoWindowClose(Marker marker) {
+        Post post = (Post) marker.getTag();
+        LatLng latLng = marker.getPosition();
+        markers.remove(post);
+        marker.remove();
+        addPoint(latLng, post);
+    }
+
     public void addPoint(final LatLng point, final Post post) {
+        addPoint(point, post, Color.WHITE);
+    }
+
+    public void addPoint(final LatLng point, final Post post, final int color) {
         ParseFile image = post.getImageOne();
         Glide.with(context)
                 .asBitmap()
@@ -164,13 +174,17 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        Bitmap bordered = addBorder(resource);
-                        map.addMarker(new MarkerOptions()
+                        Bitmap bordered = addBorder(resource, color);
+                        Marker marker = map.addMarker(new MarkerOptions()
                                 .position(point)
                                 .title(post.getTitle())
                                 .icon(BitmapDescriptorFactory.fromBitmap(bordered))
-                                .flat(true))
-                                .setTag(post);
+                                .flat(true));
+                        marker.setTag(post);
+                        if (color != Color.WHITE) {
+                            marker.showInfoWindow();
+                        }
+                        markers.put(post, marker);
                     }
 
                     @Override
@@ -179,14 +193,14 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
                 });
     }
 
-    private Bitmap addBorder(Bitmap bitmap) {
+    private Bitmap addBorder(Bitmap bitmap, int color) {
         int border = 15;
         int width = bitmap.getWidth() + border;
         int height = bitmap.getHeight() + border;
         Bitmap bmpWithBorder = Bitmap.createBitmap(width, height, bitmap.getConfig());
         Canvas canvas = new Canvas(bmpWithBorder);
         Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
+        paint.setColor(color);
         canvas.drawCircle((width)/2f, (height)/2f, (width)/2f, paint);
         canvas.drawColor(Color.TRANSPARENT);
         canvas.drawBitmap(bitmap, border/2f, border/2f, null);
@@ -199,6 +213,43 @@ public class MapsFragment extends Fragment implements OnMyLocationButtonClickLis
 
     public void panTo(LatLng point, float zoom) {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(point, zoom));
+    }
+
+
+    public void focusOn(final Marker marker, final Post post) {
+        ParseFile image = post.getImageOne();
+        Glide.with(context)
+                .asBitmap()
+                .load(image.getUrl())
+                .override(192)
+                .circleCrop()
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        Bitmap bordered = addBorder(resource, R.color.colorPrimary);
+                        marker.setIcon(BitmapDescriptorFactory.fromBitmap(bordered));
+                        marker.showInfoWindow();
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 14f));
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                    }
+                });
+    }
+
+    public void focusOn(final Marker marker) {
+        Post post = (Post) marker.getTag();
+        if (post != null) {
+            focusOn(marker, post);
+        }
+    }
+
+    public void focusOn(Post post) {
+        Marker marker = markers.get(post);
+        if (marker != null) {
+            focusOn(marker, post);
+        }
     }
 
     public void clear() {

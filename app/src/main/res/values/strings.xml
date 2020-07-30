@@ -52,4 +52,7 @@
     <string name="clear">Clear</string>
     <string name="search">Search</string>
     <string name="search_here">Search here</string>
+    <string name="post_to_detail">postToDetail</string>
+    <string name="try_again">Try again!</string>
+    <string name="success">Sucesss!</string>
 </resources>

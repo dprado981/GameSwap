@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -96,14 +95,14 @@ public class LoginActivity extends AppCompatActivity implements TextView.OnEdito
                 pbLogin.setVisibility(View.INVISIBLE);
                 if (e != null) {
                     Log.e(TAG, "Issue with registration:", e);
-                    tvConfirmation.setText("Try again!");
+                    tvConfirmation.setText(R.string.try_again);
                     fadeIn(tvConfirmation, 1000);
                     fadeOut(tvConfirmation, 1000);
                     return;
                 }
                 etUsername.setText("");
                 etPassword.setText("");
-                tvConfirmation.setText("Sucesss!");
+                tvConfirmation.setText(R.string.success);
                 fadeIn(tvConfirmation, 1000);
                 fadeOut(tvConfirmation, 1000);
                 ParseUser.logOutInBackground();
