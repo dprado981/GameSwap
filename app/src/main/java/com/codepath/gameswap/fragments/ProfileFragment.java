@@ -3,11 +3,7 @@ package com.codepath.gameswap.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -42,7 +37,6 @@ import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.models.Report;
-import com.codepath.gameswap.utils.CameraUtils;
 import com.parse.FindCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
@@ -52,14 +46,11 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -191,7 +182,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
         query.include(Post.KEY_USER);
-        query.setLimit(20);
+        query.setLimit(HomeFragment.MAX_QUERY_SIZE);
         query.whereEqualTo(Post.KEY_USER, user);
         query.addDescendingOrder(Post.KEY_CREATED_AT);
         if (loadNext) {

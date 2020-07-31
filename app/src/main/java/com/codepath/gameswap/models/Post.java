@@ -1,5 +1,7 @@
 package com.codepath.gameswap.models;
 
+import androidx.annotation.Nullable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
@@ -142,4 +144,15 @@ public class Post extends ParseObject {
     public List<String> getReports() {
         return (List<String>) get(KEY_REPORTED_BY);
     }
+
+    public boolean containedIn(List<Post> posts) {
+        boolean containedIn = false;
+        for (Post post : posts) {
+            if (post.getObjectId().equals(this.getObjectId())) {
+                containedIn = true;
+            }
+        }
+        return containedIn;
+    }
+
 }

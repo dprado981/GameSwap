@@ -48,7 +48,6 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
     protected LinearLayoutManager layoutManager;
     protected PostsAdapter adapter;
     protected RecyclerView rvPosts;
-    protected SwipeRefreshLayout swipeContainer;
     protected EndlessRecyclerViewScrollListener scrollListener;
 
 
@@ -70,7 +69,6 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         context = getContext();
 
         rvPosts = view.findViewById(R.id.rvPosts);
-        swipeContainer = view.findViewById(R.id.swipeContainer);
 
         layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);
@@ -92,33 +90,23 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
 
     @Override
     public void onSnapPositionChange(int position) {
-        callback.onSnapPositionChange(allPosts.get(position), position);
+        Post post = allPosts.get(position);
+        if (post != null) {
+            callback.onSnapPositionChange(post, position);
+        }
     }
-
 
     protected void setScrollAndRefreshListeners() {
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                callback.onLoadMore();
+                if (allPosts.size() >= HomeFragment.MAX_QUERY_SIZE) {
+                    callback.onLoadMore();
+                }
             }
         };
         // Adds the scroll listener to RecyclerView
         rvPosts.addOnScrollListener(scrollListener);
-
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                callback.onRefresh();
-            }
-        });
-        // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(
-                android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
     }
 
     public void addPosts(List<Post> posts) {
@@ -128,7 +116,6 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
     public void clear() {
         adapter.clear();
         scrollListener.resetState();
-        swipeContainer.setRefreshing(false);
         if (lastPosition >= 0) {
             rvPosts.smoothScrollToPosition(lastPosition);
             lastPosition = -1;
@@ -141,11 +128,11 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         lastPosition = layoutManager.findFirstVisibleItemPosition();
     }
 
-    public void smoothScrollTo(int index) {
-        rvPosts.smoothScrollToPosition(index);
+    public void smoothScrollTo(int position) {
+        rvPosts.smoothScrollToPosition(position);
     }
 
-    public void scrollTo(int index) {
-        rvPosts.scrollToPosition(index);
+    public void scrollTo(int position) {
+        rvPosts.scrollToPosition(position);
     }
 }

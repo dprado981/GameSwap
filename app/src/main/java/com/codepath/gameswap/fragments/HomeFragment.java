@@ -40,7 +40,6 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
@@ -54,6 +53,7 @@ public class HomeFragment extends Fragment
         TextView.OnEditorActionListener, View.OnClickListener {
 
     public static final String TAG = HomeFragment.class.getSimpleName();
+    public static final int MAX_QUERY_SIZE = 10;
 
     private Context context;
     private EditText etSearch;
@@ -67,6 +67,7 @@ public class HomeFragment extends Fragment
     private LatLng recentLatLng;
     private FusedLocationProviderClient locationClient;
     private int lastPosition;
+    private int pages;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -91,6 +92,7 @@ public class HomeFragment extends Fragment
         mapsFragment = new MapsFragment(this);
         postsFragment = new PostsFragment(this);
         allPosts = new ArrayList<>();
+        pages = 1;
 
         etSearch.setOnEditorActionListener(this);
         ibClear.setOnClickListener(this);
@@ -122,6 +124,7 @@ public class HomeFragment extends Fragment
     }
 
     private void startSearch() {
+        pages = 1;
         allPosts.clear();
         mapsFragment.clear();
         InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -171,26 +174,15 @@ public class HomeFragment extends Fragment
 
     @Override
     public void onLoadMore() {
-        Date olderThanDate = getOldestPostDate(allPosts);
-        lastQuery.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
+        int querySize = HomeFragment.MAX_QUERY_SIZE * ++pages;
+        lastQuery.setLimit(querySize);
         processQuery(lastQuery, false, true);
     }
 
     @Override
     public void onRefresh() {
-        //queryPosts();
+        pages = 1;
         processQuery(lastQuery, false, false);
-    }
-
-    private Date getOldestPostDate(List<Post> posts) {
-        Date oldestDate = new Date();
-        for (Post post : posts) {
-            Date temp = post.getCreatedAt();
-            if (temp.before(oldestDate)) {
-                oldestDate = temp;
-            }
-        }
-        return oldestDate;
     }
 
     @Override
@@ -232,9 +224,12 @@ public class HomeFragment extends Fragment
         if (recentLatLng != null) {
             query.whereNear(Post.KEY_COORDINATES, new ParseGeoPoint(recentLatLng.latitude, recentLatLng.longitude));
         }
-        query.setLimit(20);
+        query.setLimit(MAX_QUERY_SIZE);
         boolean forSearch = (queryString != null);
         if (forSearch) {
+            allPosts.clear();
+            postsFragment.clear();
+            mapsFragment.clear();
             query.whereContains(Post.KEY_TITLE, queryString);
         }
         lastQuery = query;
@@ -249,8 +244,12 @@ public class HomeFragment extends Fragment
                     Log.e(TAG, "Issue with getting posts", e);
                     return;
                 }
+                Log.d(TAG, posts.size() + " posts queried");
                 if (!posts.isEmpty()) {
                     getUnblocked(posts, forSearch, forLoadMore);
+                } else {
+                    Toast.makeText(context, "No posts matched that query", Toast.LENGTH_SHORT).show();
+                    queryPosts();
                 }
             }
         });
@@ -265,9 +264,11 @@ public class HomeFragment extends Fragment
             @Override
             public void done(List<Block> blocks, ParseException e) {
                 if (!forLoadMore) {
+                    pages = 1;
                     allPosts.clear();
                     postsFragment.clear();
                 }
+                List<Post> newPosts = new ArrayList<>();
                 for (Post post : posts) {
                     boolean blockedPost = false;
                     for (Block block : blocks) {
@@ -277,17 +278,26 @@ public class HomeFragment extends Fragment
                         }
                     }
                     if (!blockedPost) {
-                        allPosts.add(post);
-                        ParseGeoPoint geoPoint = post.getCoordinates();
-                        LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-                        mapsFragment.addPoint(point, post);
+                        if (!post.containedIn(allPosts)) {
+                            Log.d(TAG, post.getTitle() + ", " + post.getObjectId() + " is new");
+                            newPosts.add(post);
+                            ParseGeoPoint geoPoint = post.getCoordinates();
+                            LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+                            mapsFragment.addPoint(point, post);
+                        } else {
+                            Log.d(TAG, post.getTitle() + ", " + post.getObjectId() + " is old");
+                        }
                     }
                 }
-                postsFragment.addPosts(allPosts);
-                if (forSearch) {
-                    ParseGeoPoint newGeoPoint = allPosts.get(0).getCoordinates();
-                    LatLng point = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
-                    mapsFragment.panTo(point, 12);
+                allPosts.addAll(newPosts);
+                postsFragment.addPosts(newPosts);
+                if (!newPosts.isEmpty() && !forLoadMore) {
+                    postsFragment.scrollTo(0);
+                    if (forSearch) {
+                        ParseGeoPoint newGeoPoint = allPosts.get(0).getCoordinates();
+                        LatLng point = new LatLng(newGeoPoint.getLatitude(), newGeoPoint.getLongitude());
+                        mapsFragment.panTo(point, 12);
+                    }
                 }
             }
         });

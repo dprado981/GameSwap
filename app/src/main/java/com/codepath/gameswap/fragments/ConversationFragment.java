@@ -178,7 +178,7 @@ public class ConversationFragment extends Fragment {
     private void queryMessages() {
         ParseQuery<Message> query = ParseQuery.getQuery(Message.class);
         query.whereEqualTo(Message.KEY_CONVERSATION, conversation);
-        query.setLimit(20);
+        query.setLimit(HomeFragment.MAX_QUERY_SIZE);
         query.addDescendingOrder(Message.KEY_CREATED_AT);
         query.findInBackground(new FindCallback<Message>() {
             @Override

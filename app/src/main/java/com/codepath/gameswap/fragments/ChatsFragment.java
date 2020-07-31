@@ -109,7 +109,7 @@ public class ChatsFragment extends Fragment {
         @Override
         public void onChildDraw (@NotNull Canvas c, @NotNull RecyclerView recyclerView, @NotNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(context, R.color.colorAccent))
+                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(context, R.color.colorDelete))
                     .addSwipeLeftActionIcon(R.drawable.ic_delete)
                     .create()
                     .decorate();
@@ -230,7 +230,7 @@ public class ChatsFragment extends Fragment {
         query.include(Conversation.KEY_USER_TWO);
         query.include(Conversation.KEY_LAST_MESSAGE);
         query.include(Conversation.KEY_FROM_POST);
-        query.setLimit(20);
+        query.setLimit(HomeFragment.MAX_QUERY_SIZE);
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
         if (loadNext) {
             Date olderThanDate = conversations.get(conversations.size()-1).getCreatedAt();

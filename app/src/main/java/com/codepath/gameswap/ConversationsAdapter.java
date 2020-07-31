@@ -131,9 +131,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            int color = ContextCompat.getColor(context, R.color.colorPrimary);
-                            Bitmap bordered = addBorder(resource, color, 150);
-                            ivProfile.setImageBitmap(bordered);
+                            ivProfile.setImageBitmap(resource);
                         }
 
                         @Override
@@ -142,18 +140,6 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
                     });
         }
 
-        private Bitmap addBorder(Bitmap bitmap, int color, int border) {
-            int width = bitmap.getWidth() + border;
-            int height = bitmap.getHeight() + border;
-            Bitmap bmpWithBorder = Bitmap.createBitmap(width, height, bitmap.getConfig());
-            Canvas canvas = new Canvas(bmpWithBorder);
-            Paint paint = new Paint();
-            paint.setColor(color);
-            canvas.drawCircle((width)/2f, (height)/2f, (width)/2f, paint);
-            canvas.drawColor(Color.TRANSPARENT);
-            canvas.drawBitmap(bitmap, border/2f, border/2f, null);
-            return bmpWithBorder;
-        }
 
         private ParseUser getOtherUser(Conversation conversation) {
             ParseUser userOne = conversation.getUserOne();

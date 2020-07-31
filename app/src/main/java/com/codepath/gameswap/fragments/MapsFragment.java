@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -227,7 +228,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Google
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        int color = ContextCompat.getColor(context, R.color.colorPrimary);
+                        int color = ContextCompat.getColor(context, R.color.colorAccent);
                         Bitmap bordered = addBorder(resource, color);
                         marker.setIcon(BitmapDescriptorFactory.fromBitmap(bordered));
                         marker.showInfoWindow();
@@ -255,7 +256,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
     public void clear() {
-        map.clear();
+        if (map != null) {
+            try {
+                map.clear();
+            } catch (Exception e) {
+                Log.e(TAG, "uh oh");
+            }
+        }
     }
 
 }
