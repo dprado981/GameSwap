@@ -2,11 +2,13 @@ package com.codepath.gameswap.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +20,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.codepath.gameswap.BGGAsyncTask;
 import com.codepath.gameswap.BGGGameAdapter;
-import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.BGGGame;
 
@@ -48,13 +49,13 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
     public static final String TAG = PostsFragment.class.getSimpleName();
 
     private Context context;
+    private String lastSearch;
 
     private List<BGGGame> games;
     private LinearLayoutManager layoutManager;
     private BGGGameAdapter adapter;
     private RecyclerView rvResults;
     private SwipeRefreshLayout swipeContainer;
-    private EndlessRecyclerViewScrollListener scrollListener;
 
     public BGGSearchFragment() {
         // Required empty public constructor
@@ -73,6 +74,41 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
 
         context = getContext();
 
+        final TextView tvTitle = view.findViewById(R.id.tvTitle);
+        tvTitle.setText(R.string.bgg_lookup);
+        final android.widget.SearchView searchView = view.findViewById(R.id.searchView);
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                    tvTitle.setVisibility(View.GONE);
+                } else {
+                    tvTitle.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        searchView.setOnQueryTextListener(new android.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String searchQuery) {
+                querySearch(searchQuery.trim());
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new android.widget.SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                tvTitle.setVisibility(View.VISIBLE);
+                querySearch(null);
+                return false;
+            }
+        });
+
         rvResults = view.findViewById(R.id.rvResults);
         swipeContainer = view.findViewById(R.id.swipeContainer);
 
@@ -84,93 +120,30 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
         rvResults.setAdapter(adapter);
         rvResults.setLayoutManager(layoutManager);
 
-        setHasOptionsMenu(true);
-/*
-        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to the bottom of the list
-                queryPosts(true);
-            }
-        };
-        // Adds the scroll listener to RecyclerView
-        rvPosts.addOnScrollListener(scrollListener);
-
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                queryPosts(false);
+                swipeContainer.setRefreshing(true);
+                querySearch(lastSearch);
             }
         });
         // Configure the refreshing colors
         swipeContainer.setColorSchemeResources(
-                android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);*/
+                R.color.colorAccent,
+                R.color.colorPrimary,
+                R.color.colorDelete);
     }
 
-    /*private void queryPosts(final boolean loadNext) {
-        // Specify which class to query
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        // Find all posts
-        query.include(Post.KEY_USER);
-        query.setLimit(20);
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
-        if (loadNext) {
-            Date olderThanDate = allPosts.get(allPosts.size()-1).getCreatedAt();
-            query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
-        }
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with getting posts", e);
-                    return;
-                }
-                if (!loadNext) {
-                    adapter.clear();
-                    scrollListener.resetState();
-                    swipeContainer.setRefreshing(false);
-                }
-                adapter.addAll(posts);
-                adapter.notifyDataSetChanged();
-            }
-        });
-    }*/
-
-    @Override
-    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_search_bar, menu);
-        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setIconified(false);
-        searchView.setMaxWidth( Integer.MAX_VALUE );
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String queryString) {
-                // perform query here
-                querySearch(queryString);
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
-                searchView.clearFocus();
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String queryString) {
-                //querySearch(queryString);
-                return false;
-            }
-        });
-        super.onCreateOptionsMenu(menu, inflater);
-    }
 
     private void querySearch(String queryString) {
         adapter.clear();
+        games.clear();
+        if (queryString == null || queryString.isEmpty()) {
+            return;
+        }
         String modifiedQuery = queryString.replaceAll("\\s", "+");
+        lastSearch = modifiedQuery;
         String base = "https://www.boardgamegeek.com/xmlapi2/search?query=%s&type=boardgame";
         String url = String.format(base, modifiedQuery);
         BGGAsyncTask test = new BGGAsyncTask(this, BGGResponseType.SEARCH);
@@ -199,6 +172,7 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
 
     @Override
     public void onFinish(String output, BGGResponseType responseType) {
+        swipeContainer.setRefreshing(false);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();

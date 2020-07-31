@@ -5,9 +5,18 @@
     android:layout_height="match_parent"
     tools:context=".fragments.BGGSearchFragment">
 
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/chat_toolbar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvResults"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar" >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvResults"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </RelativeLayout>

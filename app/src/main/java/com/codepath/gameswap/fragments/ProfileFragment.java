@@ -170,10 +170,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         });
         // Configure the refreshing colors
         swipeContainer.setColorSchemeResources(
-                android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+                R.color.colorAccent,
+                R.color.colorPrimary,
+                R.color.colorDelete);
     }
 
 

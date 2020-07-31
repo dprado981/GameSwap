@@ -8,15 +8,23 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="16dp"
         android:orientation="vertical"
         tools:context=".fragments.ComposeFragment">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/basic_toolbar" />
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/btnPost"
-            android:layout_marginBottom="0dp">
+            android:layout_below="@id/toolbar"
+            android:layout_margin="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

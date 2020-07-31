@@ -21,10 +21,12 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -91,6 +93,9 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
 
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        TextView tvTitle = toolbar.findViewById(R.id.tvTitle);
+        tvTitle.setText(R.string.create);
         etTitle = view.findViewById(R.id.etTitle);
         btnCamera = view.findViewById(R.id.btnCapture);
         btnGallery = view.findViewById(R.id.btnGallery);
