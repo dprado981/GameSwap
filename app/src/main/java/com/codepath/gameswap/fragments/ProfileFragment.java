@@ -105,8 +105,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         btnMessage = view.findViewById(R.id.btnMessage);
 
         toolbar.setTitle("");
-        setHasOptionsMenu(true);
         tvTitle.setText(getString(R.string.profile));
+        setHasOptionsMenu(true);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
             activity.setSupportActionBar(toolbar);
@@ -114,7 +114,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         context = getContext();
         currentUser = ParseUser.getCurrentUser();
-
 
         layoutManager = new LinearLayoutManager(context);
         allPosts = new ArrayList<>();

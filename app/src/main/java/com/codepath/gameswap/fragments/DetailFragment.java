@@ -2,15 +2,6 @@ package com.codepath.gameswap.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewpager.widget.ViewPager;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,11 +11,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.ImagePagerAdapter;
@@ -46,7 +45,7 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public abstract class DetailFragment extends Fragment implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
+public abstract class DetailFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = DetailFragment.class.getSimpleName();
 
@@ -61,7 +60,6 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
     private ImageView ivProfile;
     private TextView tvUsername;
     private TextView tvTitle;
-    private ImageButton ibMore;
     private ViewPager viewPager;
     private TextView tvNotesContent;
     private RatingBar rbCondition;
@@ -91,16 +89,24 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
 
         context = getContext();
 
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         ivProfile = view.findViewById(R.id.ivProfile);
         tvUsername = view.findViewById(R.id.tvUsername);
         btnMessage = view.findViewById(R.id.btnMessage);
         tvTitle = view.findViewById(R.id.tvTitle);
-        ibMore = view.findViewById(R.id.ibMore);
         viewPager = view.findViewById(R.id.viewPager);
         tvNotesContent = view.findViewById(R.id.tvNotesContent);
         rbCondition = view.findViewById(R.id.rbCondition);
         rbDifficulty = view.findViewById(R.id.rbDifficulty);
         tvAgeRatingValue = view.findViewById(R.id.tvAgeRatingValue);
+
+        // Set up options menu
+        setHasOptionsMenu(true);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (activity != null) {
+            activity.setSupportActionBar(toolbar);
+        }
 
         images = new ArrayList<>();
         adapter = new ImagePagerAdapter<>(context, images);
@@ -185,19 +191,6 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
             bundle.putParcelable(Post.KEY_USER, user);
             fragment.setArguments(bundle);
             fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
-        } else if (view == ibMore) {
-            PopupMenu popup = new PopupMenu(context, view);
-            MenuInflater inflater = popup.getMenuInflater();
-            inflater.inflate(R.menu.menu_post_options, popup.getMenu());
-            Menu menu = popup.getMenu();
-            if (post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
-                menu.findItem(R.id.actionReport).setVisible(false);
-            } else {
-                menu.findItem(R.id.actionEdit).setVisible(false);
-                menu.findItem(R.id.actionDelete).setVisible(false);
-            }
-            popup.setOnMenuItemClickListener(this);
-            popup.show();
         }
     }
 
@@ -267,21 +260,38 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_profile_options, menu);
+        menu.findItem(R.id.actionBlock).setVisible(false);
+        menu.findItem(R.id.actionLogOut).setVisible(false);
+        menu.findItem(R.id.actionSettings).setVisible(false);
+        if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+            menu.findItem(R.id.actionReport).setVisible(false);
+        } else {
+            menu.findItem(R.id.actionEdit).setVisible(false);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.actionReport) {
-            post.addReportBy(ParseUser.getCurrentUser());
-            post.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e != null) {
-                        Log.e(TAG, "Error sending report", e);
-                        Toast.makeText(context, "Error sending report", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+            reportPost(post);
+            return true;
+        } else if (id == R.id.actionEdit) {
+            goToEditPost();
+            return true;
+        } else {
+            Log.d(TAG, "Not yet implemented");
+            return false;
         }
-        return false;
     }
+
+    private void reportPost(Post post) {
+        Toast.makeText(context, "Post was reported!", Toast.LENGTH_SHORT).show();
+    }
+
+    protected abstract void goToEditPost();
 
 }

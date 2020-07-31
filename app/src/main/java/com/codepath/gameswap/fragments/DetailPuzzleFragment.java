@@ -8,8 +8,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Post;
 
 import java.util.Locale;
 
@@ -54,6 +58,15 @@ public class DetailPuzzleFragment extends DetailFragment {
             tvDimensionsValue.setText(String.format(Locale.getDefault(), "%.2f x %.2f inches", width, height));
         }
 
+    }
+
+    protected void goToEditPost() {
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        Fragment fragment = new EditPuzzleFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Post.TAG, post);
+        fragment.setArguments(bundle);
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 
 }

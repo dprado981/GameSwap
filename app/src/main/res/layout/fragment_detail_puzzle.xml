@@ -1,71 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="8dp">
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/detail_toolbar" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar">
 
         <LinearLayout
-            android:id="@+id/llHeader"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true">
+            android:layout_height="match_parent"
+            android:layout_margin="4dp"
+            android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cvProfile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                app:cardCornerRadius="40dp"
-                app:cardElevation="0dp" >
+            <LinearLayout
+                android:id="@+id/llHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/ivProfile"
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cvProfile"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:contentDescription="@string/profile_picture"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/ic_profile" />
-            </androidx.cardview.widget.CardView>
+                    app:cardCornerRadius="40dp"
+                    app:cardElevation="0dp">
 
-            <TextView
-                android:id="@+id/tvUsername"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:ems="10"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                tools:text="Username" />
+                    <ImageView
+                        android:id="@+id/ivProfile"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/profile_picture"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/ic_profile" />
+                </androidx.cardview.widget.CardView>
 
-            <Button
-                android:id="@+id/btnMessage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/message" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:ems="10"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Username" />
 
-        <LinearLayout
-            android:id="@+id/rlContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/llHeader"
-            android:orientation="vertical">
+                <Button
+                    android:id="@+id/btnMessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/message" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
                 android:textSize="30sp"
                 tools:text="Title" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/cvHeader"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
+
+        <LinearLayout
+            android:id="@+id/rlContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/viewPager"
@@ -245,7 +267,6 @@
 
         </LinearLayout>
 
+    </ScrollView>
 
-    </RelativeLayout>
-
-</ScrollView>
+</RelativeLayout>

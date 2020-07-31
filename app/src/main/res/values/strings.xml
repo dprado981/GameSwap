@@ -67,4 +67,5 @@
     <string name="tap_to_choose_new_profile_picture">Tap to choose a new profile picture</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="bgg_lookup">Board Game Geek Lookup</string>
+    <string name="details">Details</string>
 </resources>

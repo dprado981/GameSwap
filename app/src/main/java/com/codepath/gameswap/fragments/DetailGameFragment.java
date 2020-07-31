@@ -8,8 +8,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Post;
 
 import java.util.Locale;
 
@@ -59,6 +63,15 @@ public class DetailGameFragment extends DetailFragment {
             tvPlaytimeValue.setText(String.format(Locale.getDefault(), "%d - %d minutes", minPlaytime, maxPlaytime));
         }
 
+    }
+
+    protected void goToEditPost() {
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        Fragment fragment = new EditGameFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Post.TAG, post);
+        fragment.setArguments(bundle);
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 
 }
