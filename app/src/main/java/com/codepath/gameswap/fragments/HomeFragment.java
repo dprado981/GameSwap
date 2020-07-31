@@ -244,7 +244,6 @@ public class HomeFragment extends Fragment
                     Log.e(TAG, "Issue with getting posts", e);
                     return;
                 }
-                Log.d(TAG, posts.size() + " posts queried");
                 if (!posts.isEmpty()) {
                     getUnblocked(posts, forSearch, forLoadMore);
                 } else {
@@ -279,13 +278,11 @@ public class HomeFragment extends Fragment
                     }
                     if (!blockedPost) {
                         if (!post.containedIn(allPosts)) {
-                            Log.d(TAG, post.getTitle() + ", " + post.getObjectId() + " is new");
                             newPosts.add(post);
                             ParseGeoPoint geoPoint = post.getCoordinates();
                             LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
                             mapsFragment.addPoint(point, post);
                         } else {
-                            Log.d(TAG, post.getTitle() + ", " + post.getObjectId() + " is old");
                         }
                     }
                 }

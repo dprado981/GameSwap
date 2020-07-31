@@ -283,7 +283,7 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
             goToEditPost();
             return true;
         } else {
-            Log.d(TAG, "Not yet implemented");
+            Log.e(TAG, "Not yet implemented");
             return false;
         }
     }
