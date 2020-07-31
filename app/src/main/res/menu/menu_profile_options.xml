@@ -10,6 +10,9 @@
     <item android:id="@+id/actionLogOut"
         android:title="@string/log_out"
         app:showAsAction="never" />
+    <item android:id="@+id/actionEdit"
+        android:title="@string/edit"
+        app:showAsAction="never" />
     <item android:id="@+id/actionSettings"
         android:title="@string/settings"
         app:showAsAction="never" />

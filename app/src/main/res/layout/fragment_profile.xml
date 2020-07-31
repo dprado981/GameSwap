@@ -10,23 +10,19 @@
         android:id="@+id/toolbar"
         layout="@layout/profile_toolbar" />
 
-    <RelativeLayout
-        android:id="@+id/rlHeader"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:id="@+id/llHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="23dp"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
+        <RelativeLayout
+            android:id="@+id/rlHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp" >
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cvProfile"
@@ -44,37 +40,61 @@
                         app:srcCompat="@drawable/ic_profile" />
                 </androidx.cardview.widget.CardView>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="8dp"
+                android:layout_toEndOf="@id/cvProfile"
+                android:orientation="vertical">
+
                 <TextView
-                    android:id="@+id/tvUsername"
+                    android:id="@+id/tvName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="8dp"
-                    android:ems="10"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_toStartOf="@+id/btnMessage"
+                    android:maxWidth="300dp"
+                    android:maxLines="1"
                     android:textSize="30sp"
                     android:textStyle="bold"
-                    tools:text="Username" />
+                    tools:text="Real Name" />
 
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/tvBio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvName"
+                    android:maxLines="4"
+                    tools:text="Bio goes here" />
 
-        </androidx.cardview.widget.CardView>
+                <Button
+                    android:id="@+id/btnMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/tvBio"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:text="@string/chat"
+                    tools:ignore="RelativeOverlap" />
+            </RelativeLayout>
 
-        <Button
-            android:id="@+id/btnMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:text="@string/message"
-            tools:ignore="RelativeOverlap" />
+        </RelativeLayout>
 
-    </RelativeLayout>
+    </androidx.cardview.widget.CardView>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/rlHeader">
+        android:layout_below="@id/cvHeader"
+        android:layout_marginStart="8dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPosts"

@@ -57,6 +57,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -84,7 +85,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private EndlessRecyclerViewScrollListener scrollListener;
 
     private ImageView ivProfile;
-    private TextView tvUsername;
+    private TextView tvName;
+    private TextView tvBio;
     private Button btnMessage;
 
    public ProfileFragment() {
@@ -103,9 +105,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
+        TextView tvTitle = toolbar.findViewById(R.id.tvTitle);
+        rvPosts = view.findViewById(R.id.rvPosts);
+        swipeContainer = view.findViewById(R.id.swipeContainer);
+        ivProfile = view.findViewById(R.id.ivProfile);
+        tvName = view.findViewById(R.id.tvName);
+        tvBio = view.findViewById(R.id.tvBio);
+        btnMessage = view.findViewById(R.id.btnMessage);
+
         toolbar.setTitle("");
         setHasOptionsMenu(true);
-        TextView tvTitle = toolbar.findViewById(R.id.tvTitle);
         tvTitle.setText(getString(R.string.profile));
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
@@ -115,8 +124,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         context = getContext();
         currentUser = ParseUser.getCurrentUser();
 
-        rvPosts = view.findViewById(R.id.rvPosts);
-        swipeContainer = view.findViewById(R.id.swipeContainer);
 
         layoutManager = new LinearLayoutManager(context);
         allPosts = new ArrayList<>();
@@ -124,23 +131,23 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(layoutManager);
 
-        ivProfile = view.findViewById(R.id.ivProfile);
-        tvUsername = view.findViewById(R.id.tvUsername);
-        btnMessage = view.findViewById(R.id.btnMessage);
-
         Bundle bundle = getArguments();
         if (bundle == null) {
             user = ParseUser.getCurrentUser();
         } else {
             user = bundle.getParcelable(Post.KEY_USER);
         }
-        tvTitle.setText(user.getUsername());
+
         if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
             btnMessage.setVisibility(View.GONE);
         } else {
             btnMessage.setVisibility(View.VISIBLE);
         }
-        tvUsername.setText(user.getUsername());
+
+        tvTitle.setText(user.getUsername());
+        tvName.setText(String.format(Locale.getDefault(), "%s %c.",
+                user.getString("firstName"), user.getString("lastName").charAt(0)));
+        tvBio.setText(user.getString("bio"));
 
         ParseFile image = (ParseFile) user.get("image");
         if (image != null) {
@@ -151,7 +158,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
 
         btnMessage.setOnClickListener(this);
-        ivProfile.setOnClickListener(this);
 
         queryPosts(false);
 
@@ -222,61 +228,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (view == ivProfile) {
-            launchCamera();
-        } else if (view == btnMessage) {
+       if (view == btnMessage) {
             goToConversation();
-        }
-    }
-
-    /**
-     * Starts the camera and sets the URI where the photo will be stored
-     */
-    private void launchCamera() {
-        // Create Intent to take a picture and return control to the calling application
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Create a File reference for future access
-        profileImageFile = CameraUtils.getPhotoFileUri(context, CameraUtils.getProfileFileName(), TAG);
-        // Wrap File object into a content provider (required for API >= 24)
-        Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", profileImageFile);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
-        // Ensure that it's safe to use the Intent
-        Activity activity = getActivity();
-        if (activity != null && intent.resolveActivity(activity.getPackageManager()) != null) {
-            // Start the image capture intent to take photo
-            startActivityForResult(intent, CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-        }
-    }
-
-    /**
-     * Loads image into preview
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                final Bitmap takenImage = BitmapFactory.decodeFile(profileImageFile.getAbsolutePath());
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                takenImage.compress(Bitmap.CompressFormat.JPEG, 10, stream);
-                byte[] bitmapBytes = stream.toByteArray();
-                ParseFile image = new ParseFile(CameraUtils.getProfileFileName(), bitmapBytes);
-                user.put("image", image);
-                user.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e != null) {
-                            Log.e(TAG, "Error saving photo");
-                            return;
-                        }
-                        // Load the taken image into a preview
-                        ivProfile.setImageBitmap(takenImage);
-                        Toast.makeText(context, "Profile Picture Updated", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else { // Result was a failure
-                Toast.makeText(context, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
@@ -369,6 +322,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             menu.findItem(R.id.actionBlock).setVisible(false);
         } else {
             menu.findItem(R.id.actionLogOut).setVisible(false);
+            menu.findItem(R.id.actionEdit).setVisible(false);
             menu.findItem(R.id.actionSettings).setVisible(false);
         }
     }
@@ -385,6 +339,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             return true;
         } else if (id == R.id.actionLogOut) {
             logOut();
+            return true;
+        } else if (id == R.id.actionEdit) {
+            goToEditProfile();
             return true;
         } else if (id == R.id.actionSettings) {
             Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show();
@@ -468,6 +425,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 });
             }
         });
+    }
+
+    private void goToEditProfile() {
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        Fragment fragment = new EditProfileFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Post.KEY_USER, currentUser);
+        fragment.setArguments(bundle);
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 
 }

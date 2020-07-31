@@ -43,7 +43,7 @@ An platform for users to coordinate trades between board games/puzzles
 * Users can favorite to view later
 * Users can get hints and autocompletion for title/information from BGG API
 * Users can block/report users and posts
-* Users has a settings page to manage search range/blocklist/notifications
+* Users has a settings page to blocklist/notifications
 
 ### 2. Screen Archetypes
 

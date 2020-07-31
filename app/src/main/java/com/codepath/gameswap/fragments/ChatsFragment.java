@@ -19,6 +19,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -127,17 +129,15 @@ public class ChatsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
 
         rvConversations = view.findViewById(R.id.rvConversations);
         swipeContainer = view.findViewById(R.id.swipeContainer);
 
-
-        Toolbar toolbar = view.findViewById(R.id.toolbar);
         final TextView tvTitle = view.findViewById(R.id.tvTitle);
-        SearchView searchView = view.findViewById(R.id.searchView);
+        final SearchView searchView = view.findViewById(R.id.searchView);
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -152,13 +152,12 @@ public class ChatsFragment extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String searchQuery) {
-                queryConversations(false, searchQuery);
+                queryConversations(false, searchQuery.trim());
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String s) {
-                tvTitle.setVisibility(View.GONE);
                 return false;
             }
         });
@@ -262,7 +261,6 @@ public class ChatsFragment extends Fragment {
                             relevantConversations.add(conversation);
                         }
                     }
-
                 }
 
                 if (!loadNext) {

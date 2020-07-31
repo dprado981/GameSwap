@@ -13,6 +13,6 @@
         android:layout_gravity="center"
         android:textSize="20sp"
         android:textStyle="bold"
-        tools:text="Profile" />
+        tools:text="Username" />
 
 </androidx.appcompat.widget.Toolbar>

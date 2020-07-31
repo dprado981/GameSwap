@@ -56,4 +56,14 @@
     <string name="try_again">Try again!</string>
     <string name="success">Sucesss!</string>
     <string name="chats">Chats</string>
+    <string name="name">Name</string>
+    <string name="bio">Bio</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="set_your_bio_max_180_characters">Set your bio (max 180 characters)</string>
+    <string name="set_your_last_name">Set your last name</string>
+    <string name="set_your_first_name">Set your first name</string>
+    <string name="set_your_username">Set your username</string>
+    <string name="tap_to_choose_new_profile_picture">Tap to choose a new profile picture</string>
+    <string name="edit_profile">Edit Profile</string>
 </resources>

@@ -2,9 +2,13 @@ package com.codepath.gameswap;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,12 +26,14 @@ import com.codepath.gameswap.fragments.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
-public class MainActivity extends AppCompatActivity implements ComposeTypeDialog.ComposeTypeDialogListener {
+public class MainActivity extends AppCompatActivity implements ComposeTypeDialog.ComposeTypeDialogListener, ViewTreeObserver.OnGlobalLayoutListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private Context context;
+    private boolean isKeyboardShowing;
 
+    private View content;
     private BottomNavigationView bottomNavigation;
 
     public HomeFragment homeFragment;
@@ -42,13 +48,20 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         context = this;
         homeFragment = new HomeFragment();
         composeFragment = new ComposeTypeDialog();
         chatsFragment = new ChatsFragment();
         profileFragment = new ProfileFragment();
 
+        content = findViewById(R.id.content);
         bottomNavigation = findViewById(R.id.bottomNavigation);
+
+        isKeyboardShowing = false;
+        content.getViewTreeObserver().addOnGlobalLayoutListener(this);
+
         fragmentManager.beginTransaction().replace(R.id.flContainer, homeFragment).addToBackStack(null).commit();
 
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -110,4 +123,29 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
 
     }
 
+    @Override
+    public void onGlobalLayout() {
+        Rect r = new Rect();
+        content.getWindowVisibleDisplayFrame(r);
+        int screenHeight = content.getRootView().getHeight();
+
+        // r.bottom is the position above soft keypad or device button.
+        // if keypad is shown, the r.bottom is smaller than that before.
+        int keypadHeight = screenHeight - r.bottom;
+
+        if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+            // keyboard is opened
+            if (!isKeyboardShowing) {
+                isKeyboardShowing = true;
+                bottomNavigation.setVisibility(View.GONE);
+            }
+        }
+        else {
+            // keyboard is closed
+            if (isKeyboardShowing) {
+                isKeyboardShowing = false;
+                bottomNavigation.setVisibility(View.VISIBLE);
+            }
+        }
+    }
 }

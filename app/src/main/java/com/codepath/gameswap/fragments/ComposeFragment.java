@@ -56,7 +56,6 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
 public abstract class ComposeFragment extends Fragment implements View.OnClickListener {
 
     public final String TAG = ComposeFragment.class.getSimpleName();
-    public enum ImageLocation { CAMERA, GALLERY }
 
     protected Context context;
     protected LatLng currentLocation;
@@ -126,9 +125,9 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
     @Override
     public void onClick(View view) {
         if (view == btnCamera) {
-            getPhoto(ImageLocation.CAMERA);
+            getPhoto(CameraUtils.ImageLocation.CAMERA);
         } else if (view == btnGallery) {
-            getPhoto(ImageLocation.GALLERY);
+            getPhoto(CameraUtils.ImageLocation.GALLERY);
         } else if (view == btnPost) {
             if (allFieldsFilled()) {
                 savePost();
@@ -194,12 +193,12 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
     }
 
     /**
-     * Starts either the Camera or the Gallery to retreive the image(s) and prepares for the result
+     * Starts either the Camera or the Gallery to retrieve the image(s) and prepares for the result
      */
-    public void getPhoto(ImageLocation imageLocation) {
+    public void getPhoto(CameraUtils.ImageLocation imageLocation) {
         Intent intent = null;
         int requestCode = -1;
-        if (imageLocation == ImageLocation.CAMERA) {
+        if (imageLocation == CameraUtils.ImageLocation.CAMERA) {
             // Open the camera
             intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File photoFile = CameraUtils.getPhotoFileUri(context, CameraUtils.getFileName(), TAG);
@@ -208,7 +207,7 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
             Uri fileProvider = FileProvider.getUriForFile(context, "com.codepath.fileprovider.gameswap", photoFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
             requestCode = CameraUtils.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE;
-        } else if (imageLocation == ImageLocation.GALLERY) {
+        } else if (imageLocation == CameraUtils.ImageLocation.GALLERY) {
             // Open the photo gallery
             intent = new Intent(Intent.ACTION_PICK,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

@@ -1,5 +1,6 @@
 package com.codepath.gameswap.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -16,13 +17,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 
+@SuppressLint("ExifInterface")
 public class CameraUtils {
+
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 101;
     public static final int PICK_IMAGE_ACTIVITY_REQUEST_CODE = 102;
     public static final int JPEG_COMPRESSION_FACTOR = 20;
-    public static final String PHOTO_FILE_NAME = "photo.jpg";
     public static final String PHOTO_FILE_NAME_FORMAT = "photo%d.jpg";
     public static final String PROFILE_PHOTO_FILE_NAME = "profile_photo.jpg";
+
+    public enum ImageLocation { CAMERA, GALLERY }
 
     public static Bitmap adjustRotation(Bitmap bitmap, File photoFile) throws IOException {
         ExifInterface ei = new ExifInterface(photoFile.getAbsolutePath());
