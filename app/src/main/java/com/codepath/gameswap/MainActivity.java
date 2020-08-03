@@ -1,6 +1,5 @@
 package com.codepath.gameswap;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -30,14 +28,13 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    private Context context;
     private boolean isKeyboardShowing;
 
     private View content;
     private BottomNavigationView bottomNavigation;
 
     public HomeFragment homeFragment;
-    public DialogFragment composeFragment;
+    public ComposeTypeDialog composeFragment;
     public ChatsFragment chatsFragment;
     public ProfileFragment profileFragment;
 
@@ -50,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        context = this;
         homeFragment = new HomeFragment();
         composeFragment = new ComposeTypeDialog();
         chatsFragment = new ChatsFragment();
@@ -67,12 +63,15 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment oldFragment = fragmentManager.findFragmentById(R.id.flContainer);
                 Fragment fragment;
                 switch (item.getItemId()) {
                     case R.id.actionHome:
                         fragment = homeFragment;
                         break;
                     case R.id.actionCompose:
+                        composeFragment.setBottomNav(bottomNavigation);
+                        composeFragment.setOldFragment(oldFragment);
                         composeFragment.show(getSupportFragmentManager(), "type");
                         return true;
                     case R.id.actionChat:
@@ -106,10 +105,9 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
 
     @Override
     public void onBackPressed() {
-        FragmentManager manager = getSupportFragmentManager();
-        if (manager.getBackStackEntryCount() > 0) {
+        if (fragmentManager.getBackStackEntryCount() > 0) {
             super.onBackPressed();
-            Fragment currentFragment = manager.findFragmentById(R.id.flContainer);
+            Fragment currentFragment = fragmentManager.findFragmentById(R.id.flContainer);
             if (currentFragment instanceof ProfileFragment) {
                 bottomNavigation.setSelectedItemId(R.id.actionProfile);
             } else if (currentFragment instanceof ChatsFragment || currentFragment instanceof ConversationFragment) {

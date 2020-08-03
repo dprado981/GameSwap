@@ -1,17 +1,27 @@
 package com.codepath.gameswap;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+
+import com.codepath.gameswap.fragments.ChatsFragment;
+import com.codepath.gameswap.fragments.ComposeFragment;
+import com.codepath.gameswap.fragments.ConversationFragment;
+import com.codepath.gameswap.fragments.ProfileFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
 public class ComposeTypeDialog extends DialogFragment {
+
+    private Fragment oldFragment;
+    private BottomNavigationView bottomNavigation;
 
     public interface ComposeTypeDialogListener {
         void onClick(DialogInterface dialog, int pos);
@@ -25,7 +35,7 @@ public class ComposeTypeDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
-        AlertDialog.Builder builder = new AlertDialog.Builder((Activity) context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.choose_type)
                 .setItems(R.array.type_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int pos) {
@@ -52,4 +62,25 @@ public class ComposeTypeDialog extends DialogFragment {
         }
     }
 
+    public void setBottomNav(BottomNavigationView bottomNavigation) {
+        this.bottomNavigation = bottomNavigation;
+    }
+
+    public void setOldFragment(Fragment oldFragment) {
+        this.oldFragment = oldFragment;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (oldFragment instanceof ProfileFragment) {
+            bottomNavigation.setSelectedItemId(R.id.actionProfile);
+        } else if (oldFragment instanceof ChatsFragment || oldFragment instanceof ConversationFragment) {
+            bottomNavigation.setSelectedItemId(R.id.actionChat);
+        } else if (oldFragment instanceof ComposeFragment) {
+            bottomNavigation.setSelectedItemId(R.id.actionCompose);
+        } else {
+            bottomNavigation.setSelectedItemId(R.id.actionHome);
+        }
+    }
 }

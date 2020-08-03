@@ -139,18 +139,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Google
         Post post = (Post) marker.getTag();
         FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
         Fragment fragment;
-        if (post.getType().equals(Post.GAME)) {
-            fragment = new DetailGameFragment();
-        } else if (post.getType().equals(Post.PUZZLE)) {
-            fragment = new DetailPuzzleFragment();
-        } else {
-            Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
-            return;
+        if (post != null) {
+            if (post.getType().equals(Post.GAME)) {
+                fragment = new DetailGameFragment();
+            } else if (post.getType().equals(Post.PUZZLE)) {
+                fragment = new DetailPuzzleFragment();
+            } else {
+                Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Post.TAG, post);
+            fragment.setArguments(bundle);
+            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
         }
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(Post.TAG, post);
-        fragment.setArguments(bundle);
-        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 
     @Override
