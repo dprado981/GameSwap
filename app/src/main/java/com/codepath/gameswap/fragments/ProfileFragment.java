@@ -65,7 +65,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private ParseUser user;
     private ParseUser currentUser;
-    private File profileImageFile;
     private Conversation targetConversation;
 
     private List<Post> allPosts;
@@ -128,16 +127,36 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             user = bundle.getParcelable(Post.KEY_USER);
         }
 
-        if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
-            btnMessage.setVisibility(View.GONE);
-        } else {
-            btnMessage.setVisibility(View.VISIBLE);
+        if (user == null) {
+            Log.e(TAG, "user not found");
+            Toast.makeText(context, "User not found", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        tvTitle.setText(user.getUsername());
-        tvName.setText(String.format(Locale.getDefault(), "%s %c.",
-                user.getString("firstName"), user.getString("lastName").charAt(0)));
-        tvBio.setText(user.getString("bio"));
+        String username = user.getUsername();
+        if (username != null && !username.isEmpty()) {
+            if (username.equals(ParseUser.getCurrentUser().getUsername())) {
+                btnMessage.setVisibility(View.GONE);
+            } else {
+                btnMessage.setVisibility(View.VISIBLE);
+            }
+            tvTitle.setText(username);
+        }
+
+        String firstName = user.getString("firstName");
+        if (firstName != null && !firstName.isEmpty())  {
+            String displayName = firstName;
+            String lastName = user.getString("lastName");
+            if (lastName != null && !lastName.isEmpty()) {
+                displayName += " " + lastName.charAt(0) + ".";
+            }
+            tvName.setText(displayName);
+        }
+
+        String bio = user.getString("bio");
+        if (bio != null && !bio.isEmpty()) {
+            tvBio.setText(bio);
+        }
 
         ParseFile image = (ParseFile) user.get("image");
         if (image != null) {
@@ -175,7 +194,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    protected void queryPosts(final boolean loadNext) {
+    private void queryPosts(final boolean loadNext) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts

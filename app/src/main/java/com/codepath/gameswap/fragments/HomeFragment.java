@@ -73,6 +73,7 @@ public class HomeFragment extends Fragment
         // Required empty public constructor
     }
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -98,6 +99,15 @@ public class HomeFragment extends Fragment
         ibClear.setOnClickListener(this);
         ibSearch.setOnClickListener(this);
         FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
+        // If scroll position has been saved, send to fragments
+        if (lastPosition == 0) {
+            mapsFragment.setArguments(null);
+            postsFragment.setArguments(null);
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putInt("lastPosition", lastPosition);
+            postsFragment.setArguments(bundle);
+        }
         fragmentManager.beginTransaction().replace(R.id.mapContainer, mapsFragment).commit();
         fragmentManager.beginTransaction().replace(R.id.listContainer, postsFragment).commit();
     }
@@ -130,7 +140,7 @@ public class HomeFragment extends Fragment
         InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
         etSearch.clearFocus();
-        querySearch(etSearch.getText().toString());
+        querySearch(etSearch.getText().toString(), false);
     }
 
     @Override
@@ -151,7 +161,7 @@ public class HomeFragment extends Fragment
                         double currentLongitude = location.getLongitude();
                         recentLatLng = new LatLng(currentLatitude, currentLongitude);
                         mapsFragment.moveTo(recentLatLng, 14);
-                        queryPosts();
+                        queryFirst();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -162,7 +172,7 @@ public class HomeFragment extends Fragment
             });
             return;
         }
-        queryPosts();
+        queryFirst();
     }
 
     @Override
@@ -176,13 +186,13 @@ public class HomeFragment extends Fragment
     public void onLoadMore() {
         int querySize = HomeFragment.MAX_QUERY_SIZE * ++pages;
         lastQuery.setLimit(querySize);
-        processQuery(lastQuery, false, true);
+        processQuery(lastQuery, false, true, false);
     }
 
     @Override
     public void onRefresh() {
         pages = 1;
-        processQuery(lastQuery, false, false);
+        processQuery(lastQuery, false, false, false);
     }
 
     @Override
@@ -212,11 +222,15 @@ public class HomeFragment extends Fragment
         }
     }
 
-    private void queryPosts() {
-        querySearch(null);
+    private void queryFirst() {
+        querySearch(null, true);
     }
 
-    private void querySearch(String queryString) {
+    private void queryPosts() {
+        querySearch(null, false);
+    }
+
+    private void querySearch(String queryString, final boolean firstQuery) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
@@ -233,10 +247,10 @@ public class HomeFragment extends Fragment
             query.whereContains(Post.KEY_TITLE, queryString);
         }
         lastQuery = query;
-        processQuery(query, forSearch, false);
+        processQuery(query, forSearch, false, firstQuery);
     }
 
-    private void processQuery(ParseQuery<Post> query, final boolean forSearch, final boolean forLoadMore) {
+    private void processQuery(ParseQuery<Post> query, final boolean forSearch, final boolean forLoadMore, final boolean firstQuery) {
         query.findInBackground(new FindCallback<Post>() {
             @Override
             public void done(final List<Post> posts, ParseException e) {
@@ -245,7 +259,7 @@ public class HomeFragment extends Fragment
                     return;
                 }
                 if (!posts.isEmpty()) {
-                    getUnblocked(posts, forSearch, forLoadMore);
+                    getUnblocked(posts, forSearch, forLoadMore, firstQuery);
                 } else {
                     Toast.makeText(context, "No posts matched that query", Toast.LENGTH_SHORT).show();
                     queryPosts();
@@ -254,7 +268,7 @@ public class HomeFragment extends Fragment
         });
     }
 
-    private void getUnblocked(final List<Post> posts, final boolean forSearch, final boolean forLoadMore) {
+    private void getUnblocked(final List<Post> posts, final boolean forSearch, final boolean forLoadMore, final boolean firstQuery) {
         ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
         ParseQuery<Block> blockQuery = blockRelation.getQuery();
         blockQuery.include(Block.KEY_BLOCKING);
@@ -262,7 +276,7 @@ public class HomeFragment extends Fragment
         blockQuery.findInBackground(new FindCallback<Block>() {
             @Override
             public void done(List<Block> blocks, ParseException e) {
-                if (!forLoadMore) {
+                if (!forLoadMore && !firstQuery) {
                     pages = 1;
                     allPosts.clear();
                     postsFragment.clear();
@@ -282,7 +296,6 @@ public class HomeFragment extends Fragment
                             ParseGeoPoint geoPoint = post.getCoordinates();
                             LatLng point = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
                             mapsFragment.addPoint(point, post);
-                        } else {
                         }
                     }
                 }
@@ -300,15 +313,4 @@ public class HomeFragment extends Fragment
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
-        Fragment fragment = postsFragment;
-        Bundle bundle = new Bundle();
-        bundle.putInt("lastPosition", lastPosition);
-        fragment.setArguments(bundle);
-        fragmentManager.beginTransaction().replace(R.id.mapContainer, mapsFragment).commit();
-        fragmentManager.beginTransaction().replace(R.id.listContainer, postsFragment).commit();
-    }
 }

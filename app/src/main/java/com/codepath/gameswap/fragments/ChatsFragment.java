@@ -170,6 +170,8 @@ public class ChatsFragment extends Fragment {
             }
         });
 
+        // TODO: add animation to conversation fragment
+
         conversations = new ArrayList<>();
         layoutManager = new LinearLayoutManager(context);
         adapter = new ConversationsAdapter(context, conversations);

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +42,7 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
 
     protected Context context;
     protected int lastPosition;
+    private boolean layedOut;
     private PostsFragmentInterface callback;
 
     protected List<Post> allPosts;
@@ -68,6 +70,12 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         context = getContext();
 
         rvPosts = view.findViewById(R.id.rvPosts);
+        lastPosition = 0;
+        layedOut = false;
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            lastPosition = bundle.getInt("lastPosition");
+        }
 
         layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);
@@ -80,11 +88,20 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         SnapOnScrollListener snapOnScrollListener = new SnapOnScrollListener(snapHelper, this);
         rvPosts.addOnScrollListener(snapOnScrollListener);
         setScrollAndRefreshListeners();
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            lastPosition = bundle.getInt("lastPosition");
-            rvPosts.scrollToPosition(lastPosition);
-        }
+        rvPosts.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int itemCount = adapter.getItemCount();
+                if (!layedOut && itemCount > 0) {
+                    if (itemCount - 1 < lastPosition) {
+                        scrollTo(itemCount - 1);
+                    } else {
+                        scrollTo(lastPosition);
+                        layedOut = true;
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -115,9 +132,9 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
     public void clear() {
         adapter.clear();
         scrollListener.resetState();
-        if (lastPosition >= 0) {
+        if (lastPosition > 0) {
             rvPosts.smoothScrollToPosition(lastPosition);
-            lastPosition = -1;
+            lastPosition = 0;
         }
     }
 
