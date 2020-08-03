@@ -86,6 +86,15 @@ public class ConversationFragment extends Fragment {
         context = getContext();
 
         Bundle bundle = getArguments();
+        if (bundle == null) {
+            Log.e(TAG, "Error getting conversation");
+            Toast.makeText(context, "Error getting conversation", Toast.LENGTH_SHORT).show();
+            FragmentManager manager = getFragmentManager();
+            if (manager != null) {
+                manager.popBackStackImmediate();
+            }
+            return;
+        }
         conversation = bundle.getParcelable(Conversation.TAG);
         currentUser = ParseUser.getCurrentUser();
         otherUser = getOtherUser(conversation);
@@ -290,5 +299,4 @@ public class ConversationFragment extends Fragment {
             return userOne;
         }
     }
-
 }

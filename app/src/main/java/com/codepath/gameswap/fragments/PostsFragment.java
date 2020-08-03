@@ -2,6 +2,7 @@ package com.codepath.gameswap.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,9 +116,7 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                if (allPosts.size() >= HomeFragment.MAX_QUERY_SIZE) {
-                    callback.onLoadMore();
-                }
+                callback.onLoadMore();
             }
         };
         // Adds the scroll listener to RecyclerView

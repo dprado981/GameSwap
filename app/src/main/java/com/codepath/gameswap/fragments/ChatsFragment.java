@@ -3,26 +3,21 @@ package com.codepath.gameswap.fragments;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.SearchView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SearchView;
-import android.widget.TextView;
 
 import com.codepath.gameswap.ConversationsAdapter;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
@@ -169,8 +164,6 @@ public class ChatsFragment extends Fragment {
                 return false;
             }
         });
-
-        // TODO: add animation to conversation fragment
 
         conversations = new ArrayList<>();
         layoutManager = new LinearLayoutManager(context);

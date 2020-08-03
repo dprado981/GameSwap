@@ -29,7 +29,7 @@ android {
 
 ext {
     appCompatVersion = '1.0.0'
-    designSupportVersion = '1.1.0'
+    designSupportVersion = '1.3.0-alpha02'
     recyclerViewVersion = '1.0.0'
     googlePlayVersion = "17.0.0"
 }

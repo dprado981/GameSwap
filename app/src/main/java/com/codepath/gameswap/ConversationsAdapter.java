@@ -2,11 +2,6 @@ package com.codepath.gameswap;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,8 +13,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -30,9 +23,6 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.codepath.gameswap.fragments.ConversationFragment;
 import com.codepath.gameswap.models.Conversation;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
@@ -105,7 +95,11 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             Bundle bundle = new Bundle();
             bundle.putParcelable(Conversation.TAG, conversation);
             fragment.setArguments(bundle);
-            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+            fragmentManager.beginTransaction()
+                    .addSharedElement(tvUsername, "username")
+                    .replace(R.id.flContainer, fragment)
+                    .addToBackStack(null)
+                    .commit();
         }
 
         public void bind(Conversation conversation) {
