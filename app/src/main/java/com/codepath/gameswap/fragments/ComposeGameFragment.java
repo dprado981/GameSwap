@@ -140,12 +140,7 @@ public class ComposeGameFragment extends ComposeFragment {
                 }
                 pbLoading.setVisibility(View.INVISIBLE);
                 FragmentActivity activity = (FragmentActivity) context;
-                // Ensure that correct menu item is selected
                 ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionHome);
-                // Go to home fragment
-                Log.e(TAG, "FIX MOVING BACK TO HOME FRAGMENT");
-                //FragmentManager fragmentManager = activity.getSupportFragmentManager();
-                //fragmentManager.beginTransaction().replace(R.id.flContainer, new PostsFragment()).commit();
             }
         });
     }

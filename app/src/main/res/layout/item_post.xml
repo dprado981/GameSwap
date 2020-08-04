@@ -96,17 +96,6 @@
         </LinearLayout>
 
 
-        <ImageButton
-            android:id="@+id/ibMore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="0dp"
-            android:contentDescription="@string/overflow"
-            android:src="@drawable/ic_more_horizontal"
-            android:visibility="gone" />
-
     </RelativeLayout>
 
 </androidx.cardview.widget.CardView>

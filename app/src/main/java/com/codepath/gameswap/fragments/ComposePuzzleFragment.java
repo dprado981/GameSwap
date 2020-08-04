@@ -73,7 +73,7 @@ public class ComposePuzzleFragment extends ComposeFragment {
         }
         String height = etHeight.getText().toString();
         if (!height.isEmpty()) {
-            post.setHeight(Integer.parseInt(height));
+            post.setHeight(Float.parseFloat(height));
         }
         if (currentLocation != null) {
             post.setCoordinates(new ParseGeoPoint(currentLocation.latitude, currentLocation.longitude));
@@ -105,11 +105,7 @@ public class ComposePuzzleFragment extends ComposeFragment {
                 }
                 pbLoading.setVisibility(View.INVISIBLE);
                 FragmentActivity activity = (FragmentActivity) context;
-                // Ensure that correct menu item is selected
                 ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionHome);
-                // Go to home fragment
-                FragmentManager fragmentManager = activity.getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.flContainer, new HomeFragment()).commit();
             }
         });
     }

@@ -81,12 +81,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
+            implements View.OnClickListener {
 
         protected LinearLayout llHeader;
         protected ImageView ivProfile;
         protected TextView tvUsername;
-        protected ImageButton ibMore;
         protected RelativeLayout rlContent;
         protected TextView tvTitle;
         protected ImageView ivImage;
@@ -100,7 +99,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             llHeader = view.findViewById(R.id.llHeader);
             ivProfile = view.findViewById(R.id.ivProfile);
             tvUsername = view.findViewById(R.id.tvUsername);
-            ibMore = view.findViewById(R.id.ibMore);
             rlContent = view.findViewById(R.id.rlContent);
             tvTitle = view.findViewById(R.id.tvTitle);
             ivImage = view.findViewById(R.id.ivImage);
@@ -108,7 +106,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
             llHeader.setOnClickListener(this);
             rlContent.setOnClickListener(this);
-            ibMore.setOnClickListener(this);
         }
 
         public void bind(Post post) {
@@ -164,72 +161,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                         .replace(R.id.flContainer, fragment)
                         .addToBackStack(null).commit();
 
-            } else if (view == ibMore) {
-                PopupMenu popup = new PopupMenu(context, view);
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.menu_post_options, popup.getMenu());
-                Menu menu = popup.getMenu();
-                if (post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
-                    menu.findItem(R.id.actionReport).setVisible(false);
-                } else {
-                    menu.findItem(R.id.actionEdit).setVisible(false);
-                    menu.findItem(R.id.actionDelete).setVisible(false);
-                }
-                popup.setOnMenuItemClickListener(this);
-                popup.show();
-            }
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-            int id = item.getItemId();
-            if (id == R.id.actionReport) {
-                post.addReportBy(ParseUser.getCurrentUser());
-                post.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e != null) {
-                            Log.e(TAG, "Error sending report", e);
-                            Toast.makeText(context, "Error sending report", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Toast.makeText(context, "Report sent", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                return true;
-            } else if (id == R.id.actionDelete) {
-                post.deleteInBackground(new DeleteCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e != null) {
-                            Log.e(TAG, "Issue with deleting post", e);
-                            return;
-                        }
-                        Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show();
-                        int index = posts.indexOf(post);
-                        posts.remove(index);
-                        notifyItemRemoved(index);
-                    }
-                });
-                return true;
-            } else if (id == R.id.actionEdit) {
-
-                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                Fragment fragment;
-                if (post.getType().equals(Post.GAME)) {
-                    fragment = new EditGameFragment();
-                } else if (post.getType().equals(Post.PUZZLE)) {
-                    fragment = new EditPuzzleFragment();
-                } else {
-                    return false;
-                }
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(Post.TAG, post);
-                fragment.setArguments(bundle);
-                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
-                return true;
-            } else {
-                return false;
             }
         }
     }

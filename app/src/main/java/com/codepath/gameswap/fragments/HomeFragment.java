@@ -62,7 +62,7 @@ public class HomeFragment extends Fragment
         TextView.OnEditorActionListener, View.OnClickListener, RangeSlider.OnChangeListener {
 
     public static final String TAG = HomeFragment.class.getSimpleName();
-    public static final int MAX_QUERY_SIZE = 10;
+    public static final int MAX_QUERY_SIZE = 20;
     public static final List<Float> DEFAULT_VALUES = new ArrayList<>(Arrays.asList(0.0f, 5.0f));
 
     private Context context;
@@ -465,9 +465,6 @@ public class HomeFragment extends Fragment
             }
         });
     }
-
-
-    // TODO: fix transition from create game and create puzzle back to home fragment
 
     // TODO: actually implement post reporting
     // TODO: implement reporting/block dashboard

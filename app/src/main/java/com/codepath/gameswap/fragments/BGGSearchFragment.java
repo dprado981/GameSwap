@@ -109,6 +109,8 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
             }
         });
 
+        searchView.setIconified(false);
+
         rvResults = view.findViewById(R.id.rvResults);
         swipeContainer = view.findViewById(R.id.swipeContainer);
 

@@ -1,15 +1,30 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
+import com.codepath.gameswap.fragments.EditGameFragment;
+import com.codepath.gameswap.fragments.EditPuzzleFragment;
 import com.codepath.gameswap.models.Post;
+import com.parse.DeleteCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +45,7 @@ public class ProfilePostsAdapter extends PostsAdapter {
         super(context, posts);
     }
 
-    public class ViewHolder extends PostsAdapter.ViewHolder implements PopupMenu.OnMenuItemClickListener {
+    public class ViewHolder extends PostsAdapter.ViewHolder {
 
         public ViewHolder(@NonNull View view) {
             super(view);

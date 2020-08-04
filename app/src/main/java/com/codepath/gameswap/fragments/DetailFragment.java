@@ -31,6 +31,8 @@ import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -273,14 +275,12 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_profile_options, menu);
-        menu.findItem(R.id.actionBlock).setVisible(false);
-        menu.findItem(R.id.actionLogOut).setVisible(false);
-        menu.findItem(R.id.actionSettings).setVisible(false);
+        inflater.inflate(R.menu.menu_post_options, menu);
         if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
             menu.findItem(R.id.actionReport).setVisible(false);
         } else {
             menu.findItem(R.id.actionEdit).setVisible(false);
+            menu.findItem(R.id.actionDelete).setVisible(false);
         }
     }
 
@@ -292,6 +292,9 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
             return true;
         } else if (id == R.id.actionEdit) {
             goToEditPost();
+            return true;
+        } else if (id == R.id.actionDelete) {
+            deletePost(post);
             return true;
         } else {
             Log.e(TAG, "Not yet implemented");
@@ -306,5 +309,31 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
     }
 
     protected abstract void goToEditPost();
+
+    private void deletePost(final Post post) {
+        final Post copy = Post.copy(post);
+        post.deleteInBackground(new DeleteCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error deleting post", e);
+                    Toast.makeText(context, "Error deleting post", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                View view = getView();
+                if (view != null) {
+                    Snackbar.make(view, "Post deleted", Snackbar.LENGTH_SHORT)
+                            .setAction("Undo", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //post.saveInBackground();
+                                    //referenceCopy.saveInBackground();
+                                    copy.saveInBackground();
+                                }
+                            }).show();
+                }
+            }
+        });
+    }
 
 }

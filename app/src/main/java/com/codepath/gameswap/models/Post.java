@@ -138,10 +138,10 @@ public class Post extends ParseObject {
         }
     }
 
+    public void setReports(List<String> reports) { put(KEY_REPORTED_BY, reports); }
+
     @SuppressWarnings("unchecked")
-    public List<String> getReports() {
-        return (List<String>) get(KEY_REPORTED_BY);
-    }
+    public List<String> getReports() { return (List<String>) get(KEY_REPORTED_BY); }
 
     public boolean containedIn(List<Post> posts) {
         boolean containedIn = false;
@@ -151,6 +151,28 @@ public class Post extends ParseObject {
             }
         }
         return containedIn;
+    }
+
+    public static Post copy(Post oldPost) {
+        Post newPost = new Post();
+        newPost.setType(oldPost.getType());
+        newPost.setUser(oldPost.getUser());
+        newPost.setTitle(oldPost.getTitle());
+        newPost.setCondition(oldPost.getCondition());
+        newPost.setNotes(oldPost.getNotes());
+        newPost.setCoordinates(oldPost.getCoordinates());
+        newPost.setDifficulty(oldPost.getDifficulty());
+        newPost.setAgeRating(oldPost.getAgeRating());
+        newPost.setImages(oldPost.getImages());
+        newPost.setMinPlayers(oldPost.getMinPlayers());
+        newPost.setMaxPlayers(oldPost.getMaxPlayers());
+        newPost.setMinPlaytime(oldPost.getMinPlaytime());
+        newPost.setMaxPlaytime(oldPost.getMaxPlaytime());
+        newPost.setPieces(oldPost.getPieces());
+        newPost.setWidth(oldPost.getWidth());
+        newPost.setHeight(oldPost.getHeight());
+        newPost.setReports(oldPost.getReports());
+        return newPost;
     }
 
 }
