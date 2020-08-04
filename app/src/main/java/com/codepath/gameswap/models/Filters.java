@@ -1,5 +1,7 @@
 package com.codepath.gameswap.models;
 
+import android.util.Log;
+
 import org.jetbrains.annotations.NotNull;
 
 public class Filters {
@@ -13,7 +15,7 @@ public class Filters {
         games = false;
         puzzles = false;
         lowerLimit = 0;
-        upperLimit = 100;
+        upperLimit = 50;
     }
 
     public boolean getGames() {
@@ -61,5 +63,9 @@ public class Filters {
                 ", lowerLimit=" + lowerLimit +
                 ", upperLimit=" + upperLimit +
                 '}';
+    }
+
+    public boolean areDefault() {
+        return games && puzzles && lowerLimit == 0 && upperLimit == 50;
     }
 }

@@ -46,6 +46,7 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -62,6 +63,7 @@ public class HomeFragment extends Fragment
 
     public static final String TAG = HomeFragment.class.getSimpleName();
     public static final int MAX_QUERY_SIZE = 10;
+    public static final List<Float> DEFAULT_VALUES = new ArrayList<>(Arrays.asList(0.0f, 5.0f));
 
     private Context context;
     private EditText etSearch;
@@ -75,13 +77,15 @@ public class HomeFragment extends Fragment
     private RangeSlider conditionSlider;
     private TextView tvLowerLimit;
     private TextView tvUpperLimit;
-    private Button filterButton;
+    private Button btnFilter;
+    private Button btnClear;
 
     private MapsFragment mapsFragment;
     private PostsFragment postsFragment;
 
     private List<Post> allPosts;
     private ParseQuery<Post> lastQuery;
+    private Filters filters;
     private LatLng recentLatLng;
     private FusedLocationProviderClient locationClient;
     private int lastPosition;
@@ -91,6 +95,7 @@ public class HomeFragment extends Fragment
         // Required empty public constructor
     }
 
+    // TODO: add difficulty and age rating to filter
 
     @Nullable
     @Override
@@ -116,7 +121,8 @@ public class HomeFragment extends Fragment
         conditionSlider = view.findViewById(R.id.conditionSlider);
         tvLowerLimit = view.findViewById(R.id.tvLowerLimit);
         tvUpperLimit = view.findViewById(R.id.tvUpperLimit);
-        filterButton = view.findViewById(R.id.filterButton);
+        btnFilter = view.findViewById(R.id.btnFilter);
+        btnClear = view.findViewById(R.id.btnClear);
 
         gameCheck.setChecked(true);
         puzzleCheck.setChecked(true);
@@ -143,7 +149,8 @@ public class HomeFragment extends Fragment
         ibClear.setOnClickListener(this);
         ibSearch.setOnClickListener(this);
         ibFilter.setOnClickListener(this);
-        filterButton.setOnClickListener(this);
+        btnFilter.setOnClickListener(this);
+        btnClear.setOnClickListener(this);
         FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
         // If scroll position has been saved, send to fragments
         if (lastPosition == 0) {
@@ -171,6 +178,8 @@ public class HomeFragment extends Fragment
     public void onClick(View view) {
         if (view == ibClear) {
             if (etSearch.getText().toString().isEmpty()) {
+                lastQuery = null;
+                filters = null;
                 startSearch();
             }
             etSearch.setText("");
@@ -178,19 +187,28 @@ public class HomeFragment extends Fragment
             startSearch();
         } else if (view == ibFilter) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        } else if (view == filterButton) {
+        } else if (view == btnFilter) {
             List<Float> sliderValues = conditionSlider.getValues();
             boolean games = gameCheck.isChecked();
             boolean puzzles = puzzleCheck.isChecked();
             int lowerLimit = (int) (Collections.min(sliderValues) * 10);
             int upperLimit = (int) (Collections.max(sliderValues) * 10);
-            Filters filters = new Filters();
+            filters = new Filters();
             filters.setGames(games)
                     .setPuzzles(puzzles)
                     .setLowerLimit(lowerLimit)
                     .setUpperLimit(upperLimit);
-            filteredSearch(filters);
+            String queryString = etSearch.getText().toString().trim();
+            if (!queryString.isEmpty()) {
+                searchQuery(queryString);
+            } else {
+                queryPosts();
+            }
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        } else if (view == btnClear) {
+            gameCheck.setChecked(true);
+            puzzleCheck.setChecked(true);
+            conditionSlider.setValues(DEFAULT_VALUES);
         }
     }
 
@@ -201,7 +219,7 @@ public class HomeFragment extends Fragment
         InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
         etSearch.clearFocus();
-        querySearch(etSearch.getText().toString(), false, null);
+        searchQuery(etSearch.getText().toString());
     }
 
     @Override
@@ -242,18 +260,6 @@ public class HomeFragment extends Fragment
         postsFragment.smoothScrollTo(index);
     }
 
-    @Override
-    public void onLoadMore() {
-        int querySize = HomeFragment.MAX_QUERY_SIZE * ++pages;
-        lastQuery.setLimit(querySize);
-        processQuery(lastQuery, false, true, false, false);
-    }
-
-    @Override
-    public void onRefresh() {
-        pages = 1;
-        processQuery(lastQuery, false, false, false, false);
-    }
 
     @Override
     public void onSnapPositionChange(Post post, int position) {
@@ -282,19 +288,44 @@ public class HomeFragment extends Fragment
         }
     }
 
-    private void filteredSearch(Filters filters) {
-        querySearch(null, false, filters);
+    @Override
+    public void onLoadMore() {
+        int querySize = HomeFragment.MAX_QUERY_SIZE * ++pages;
+        lastQuery.setLimit(querySize);
+        processQuery(lastQuery, false, true, false, false);
+    }
+
+    @Override
+    public void onRefresh() {
+        pages = 1;
+        processQuery(lastQuery, false, false, false, false);
     }
 
     private void queryFirst() {
-        querySearch(null, true, null);
+        querySearch(null, false, true);
     }
 
     private void queryPosts() {
-        querySearch(null, false, null);
+        querySearch(null, false, false);
     }
 
-    private void querySearch(String queryString, final boolean firstQuery, Filters filters) {
+    private void searchQuery(String queryString) {
+        querySearch(queryString,  false, false);
+
+    }
+
+    private void applyFilters(ParseQuery<Post> query) {
+        if (filters.getPuzzles() && !filters.getGames()) {
+            query.whereEqualTo(Post.KEY_TYPE, "puzzle");
+        } else if (filters.getGames() && !filters.getPuzzles()) {
+            query.whereEqualTo(Post.KEY_TYPE, "game");
+        }
+        query.whereGreaterThanOrEqualTo(Post.KEY_CONDITION, filters.getLowerLimit());
+        query.whereLessThanOrEqualTo(Post.KEY_CONDITION, filters.getUpperLimit());
+    }
+
+    private void querySearch(String queryString, final boolean forLoadMore,
+                             final boolean firstQuery) {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // Find all posts
@@ -302,18 +333,11 @@ public class HomeFragment extends Fragment
         if (recentLatLng != null) {
             query.whereNear(Post.KEY_COORDINATES, new ParseGeoPoint(recentLatLng.latitude, recentLatLng.longitude));
         }
-        boolean forFilter = (filters != null);
-        if (forFilter) {
-            if (filters.getPuzzles() && !filters.getGames()) {
-                query.whereEqualTo(Post.KEY_TYPE, "puzzle");
-            } else if (filters.getGames() && !filters.getPuzzles()) {
-                query.whereEqualTo(Post.KEY_TYPE, "game");
-            }
-            query.whereGreaterThanOrEqualTo(Post.KEY_CONDITION, filters.getLowerLimit());
-            query.whereLessThanOrEqualTo(Post.KEY_CONDITION, filters.getUpperLimit());
-            Log.d(TAG, filters.toString());
-        }
         query.setLimit(MAX_QUERY_SIZE);
+        boolean forFilter = (filters != null && !filters.areDefault());
+        if (forFilter) {
+            applyFilters(query);
+        }
         boolean forSearch = (queryString != null);
         if (forSearch || forFilter) {
             allPosts.clear();
@@ -324,7 +348,7 @@ public class HomeFragment extends Fragment
             }
         }
         lastQuery = query;
-        processQuery(query, forSearch, false, firstQuery, forFilter);
+        processQuery(query, forSearch, forLoadMore, firstQuery, forFilter);
     }
 
     private void processQuery(ParseQuery<Post> query, final boolean forSearch, final boolean forLoadMore, final boolean firstQuery, final boolean forFilter) {

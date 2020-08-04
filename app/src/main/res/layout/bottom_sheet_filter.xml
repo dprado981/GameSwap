@@ -130,12 +130,32 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/filterButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:text="@string/filter"/>
+        android:layout_marginBottom="8dp"
+        android:weightSum="3">
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/clear"
+            android:layout_weight="1"
+            tools:ignore="ButtonStyle" />
+
+        <Button
+            android:id="@+id/btnFilter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/filter"
+            android:layout_weight="2"
+            tools:ignore="ButtonStyle" />
+    </LinearLayout>
+
+
 
 </RelativeLayout>
