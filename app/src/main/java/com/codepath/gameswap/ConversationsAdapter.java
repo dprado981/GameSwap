@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.codepath.gameswap.fragments.ConversationFragment;
+import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Conversation;
+import com.codepath.gameswap.models.Post;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
@@ -33,11 +36,13 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
     public static final String TAG = ConversationsAdapter.class.getSimpleName();
 
     private final Context context;
+    private FragmentManager fragmentManager;
     private final List<Conversation> conversations;
 
     public ConversationsAdapter(Context context, List<Conversation> conversations) {
         this.context = context;
         this.conversations = conversations;
+        fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
     }
 
     @NonNull
@@ -68,6 +73,10 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
         notifyDataSetChanged();
     }
 
+    public boolean isEmpty() {
+        return conversations.isEmpty();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ImageView ivProfile;
@@ -85,15 +94,25 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             llPreview = view.findViewById(R.id.llPreview);
             tvUsername = view.findViewById(R.id.tvUsername);
             tvPreview = view.findViewById(R.id.tvPreview);
+            ivProfile.setOnClickListener(this);
             llPreview.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-            Fragment fragment = new ConversationFragment();
+            Fragment fragment;
             Bundle bundle = new Bundle();
-            bundle.putParcelable(Conversation.TAG, conversation);
+            if (view == llPreview) {
+                fragment = new ConversationFragment();
+                bundle.putParcelable(Conversation.TAG, conversation);
+
+            } else if (view == ivProfile) {
+                fragment = new ProfileFragment();
+                bundle.putParcelable(Post.KEY_USER, otherUser);
+            } else {
+                Log.e(TAG, "Not yet implemented");
+                return;
+            }
             fragment.setArguments(bundle);
             fragmentManager.beginTransaction()
                     .replace(R.id.flContainer, fragment)
@@ -132,7 +151,6 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
                         }
                     });
         }
-
 
         private ParseUser getOtherUser(Conversation conversation) {
             ParseUser userOne = conversation.getUserOne();

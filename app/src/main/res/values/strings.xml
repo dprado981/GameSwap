@@ -82,4 +82,5 @@
     <string name="register_text">New here? Create an account</string>
     <string name="email_address">Email Address</string>
     <string name="account_exists">Already have an account? Click here to log in</string>
+    <string name="try_sending_someone_a_message">Try sending someone a message!</string>
 </resources>

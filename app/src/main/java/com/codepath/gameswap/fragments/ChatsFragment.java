@@ -53,6 +53,7 @@ public class ChatsFragment extends Fragment {
     private RecyclerView rvConversations;
     private SwipeRefreshLayout swipeContainer;
     private EndlessRecyclerViewScrollListener scrollListener;
+    private TextView tvNoConversations;
 
     private List<Conversation> conversations;
     private LinearLayoutManager layoutManager;
@@ -132,6 +133,7 @@ public class ChatsFragment extends Fragment {
 
         rvConversations = view.findViewById(R.id.rvConversations);
         swipeContainer = view.findViewById(R.id.swipeContainer);
+        tvNoConversations = view.findViewById(R.id.tvNoConversations);
 
         final TextView tvTitle = view.findViewById(R.id.tvTitle);
         final SearchView searchView = view.findViewById(R.id.searchView);
@@ -205,6 +207,7 @@ public class ChatsFragment extends Fragment {
     private void queryConversations(final boolean forLoadMore) { queryConversations(forLoadMore, null); }
 
     private void queryConversations(final boolean forLoadMore, final String searchString) {
+        tvNoConversations.setVisibility(View.INVISIBLE);
         // Specify which class to query
         ParseQuery<Conversation> userOneQuery = ParseQuery.getQuery(Conversation.class);
         ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);
@@ -294,9 +297,11 @@ public class ChatsFragment extends Fragment {
                 }
                 adapter.addAll(newConversations);
                 adapter.notifyDataSetChanged();
+                if (adapter.isEmpty()) {
+                    tvNoConversations.setVisibility(View.VISIBLE);
+                }
             }
         });
-
 
     }
 }
