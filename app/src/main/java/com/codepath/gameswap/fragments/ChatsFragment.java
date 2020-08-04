@@ -22,11 +22,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.codepath.gameswap.ConversationsAdapter;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Conversation;
 import com.google.android.material.snackbar.Snackbar;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -200,11 +202,9 @@ public class ChatsFragment extends Fragment {
                 R.color.colorDelete);
     }
 
-    private void queryConversations(final boolean loadNext) {
-        queryConversations(loadNext, null);
-    }
+    private void queryConversations(final boolean forLoadMore) { queryConversations(forLoadMore, null); }
 
-    private void queryConversations(final boolean loadNext, final String searchString) {
+    private void queryConversations(final boolean forLoadMore, final String searchString) {
         // Specify which class to query
         ParseQuery<Conversation> userOneQuery = ParseQuery.getQuery(Conversation.class);
         ParseQuery<Conversation> userTwoQuery = ParseQuery.getQuery(Conversation.class);
@@ -226,7 +226,7 @@ public class ChatsFragment extends Fragment {
         query.include(Conversation.KEY_FROM_POST);
         query.setLimit(HomeFragment.MAX_QUERY_SIZE);
         query.addDescendingOrder(Conversation.KEY_UPDATED_AT);
-        if (loadNext) {
+        if (forLoadMore) {
             Date olderThanDate = conversations.get(conversations.size()-1).getCreatedAt();
             query.whereLessThan(Conversation.KEY_UPDATED_AT, olderThanDate);
         }
@@ -257,14 +257,46 @@ public class ChatsFragment extends Fragment {
                     }
                 }
 
-                if (!loadNext) {
+                filterUnblocked(relevantConversations, forLoadMore);
+            }
+        });
+    }
+
+    private void filterUnblocked(final List<Conversation> relevantConversations, final boolean forLoadMore) {
+        ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
+        ParseQuery<Block> blockQuery = blockRelation.getQuery();
+        blockQuery.include(Block.KEY_BLOCKING);
+        blockQuery.include(Block.KEY_BLOCKED);
+        blockQuery.findInBackground(new FindCallback<Block>() {
+            @Override
+            public void done(List<Block> blocks, ParseException e) {
+                if (!forLoadMore) {
                     adapter.clear();
                     scrollListener.resetState();
                     swipeContainer.setRefreshing(false);
                 }
-                adapter.addAll(relevantConversations);
+                List<Conversation> newConversations = new ArrayList<>();
+                for (Conversation conversation : relevantConversations) {
+                    boolean blockedConversation = false;
+                    for (Block block : blocks) {
+                        String usernameOne = conversation.getUserOne().getUsername();
+                        String usernameTwo = conversation.getUserTwo().getUsername();
+                        boolean isUserOne = usernameOne.equals(ParseUser.getCurrentUser().getUsername());
+                        if ((isUserOne && block.getBlocked().getUsername().equals(usernameTwo))
+                                || (!isUserOne && block.getBlocked().getUsername().equals(usernameOne))) {
+                            blockedConversation = true;
+                            break;
+                        }
+                    }
+                    if (!blockedConversation) {
+                        newConversations.add(conversation);
+                    }
+                }
+                adapter.addAll(newConversations);
                 adapter.notifyDataSetChanged();
             }
         });
+
+
     }
 }

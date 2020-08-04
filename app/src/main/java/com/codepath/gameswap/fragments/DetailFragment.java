@@ -30,6 +30,8 @@ import com.codepath.gameswap.ImagePagerAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
+import com.codepath.gameswap.models.PostReport;
+import com.codepath.gameswap.models.Report;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.parse.DeleteCallback;
@@ -37,6 +39,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -302,11 +305,44 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         }
     }
 
-    private void reportPost(Post post) {
-        //Toast.makeText(context, "Post was reported!", Toast.LENGTH_SHORT).show();
-        Toast.makeText(context, "IMPLEMENT THIS YOU FOOL", Toast.LENGTH_LONG).show();
-        Log.e(TAG, "REPORTING POSTS NOT YET IMPLEMENTED");
+    private void reportPost(final Post post) {
+        ParseRelation<PostReport> relation = post.getRelation("reports");
+        ParseQuery<PostReport> query = relation.getQuery();
+        query.include(PostReport.KEY_POST);
+        query.include(PostReport.KEY_REPORTED_BY);
+        query.findInBackground(new FindCallback<PostReport>() {
+            @Override
+            public void done(List<PostReport> reports, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error retrieving reports", e);
+                    Toast.makeText(context, "Error while reporting", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                for (PostReport report: reports) {
+                    if (report.getReportedBy().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                        Toast.makeText(context, "Already reported!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                final PostReport report = new PostReport();
+                report.setReportedBy(ParseUser.getCurrentUser());
+                report.setPost(post);
+                report.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Toast.makeText(context, "Error while reporting", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(context, "Report sent!", Toast.LENGTH_SHORT).show();
+                        post.getRelation("reports").add(report);
+                        post.saveInBackground();
+                    }
+                });
+            }
+        });
     }
+
 
     protected abstract void goToEditPost();
 

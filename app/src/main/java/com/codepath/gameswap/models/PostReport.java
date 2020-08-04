@@ -4,17 +4,17 @@ import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
-@ParseClassName("Report")
-public class Report extends ParseObject {
+@ParseClassName("PostReport")
+public class PostReport extends ParseObject {
 
-    public static final String TAG = Report.class.getSimpleName();
-    public static final String KEY_USER = "user";
+    public static final String TAG = PostReport.class.getSimpleName();
+    public static final String KEY_POST = "post";
     public static final String KEY_REPORTED_BY = "reportedBy";
     public static final String KEY_REASON = "reason";
 
-    public ParseUser getUser() { return getParseUser(KEY_USER); }
+    public Post getPost() { return (Post) get(KEY_POST); }
 
-    public void setUser(ParseUser parseUser) { put(KEY_USER, parseUser); }
+    public void setPost(Post post) { put(KEY_POST, post); }
 
     public ParseUser getReportedBy() { return getParseUser(KEY_REPORTED_BY); }
 

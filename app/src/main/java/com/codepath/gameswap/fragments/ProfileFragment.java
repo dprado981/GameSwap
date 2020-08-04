@@ -357,11 +357,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void reportUser(final ParseUser reported) {
+    private void reportUser(final ParseUser reportedUser) {
         ParseRelation<Report> relation = currentUser.getRelation("reports");
         ParseQuery<Report> query = relation.getQuery();
-        query.include(Report.KEY_REPORTING);
-        query.include(Report.KEY_REPORTED);
+        query.include(Report.KEY_USER);
+        query.include(Report.KEY_REPORTED_BY);
         query.findInBackground(new FindCallback<Report>() {
             @Override
             public void done(List<Report> reports, ParseException e) {
@@ -371,14 +371,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     return;
                 }
                 for (Report report: reports) {
-                    if (report.getReported().getUsername().equals(reported.getUsername())) {
+                    if (report.getUser().getUsername().equals(reportedUser.getUsername())) {
                         Toast.makeText(context, "Already reported!", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
                 final Report report = new Report();
-                report.setReporting(ParseUser.getCurrentUser());
-                report.setReported(user);
+                report.setUser(reportedUser);
+                report.setReportedBy(currentUser);
                 report.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {

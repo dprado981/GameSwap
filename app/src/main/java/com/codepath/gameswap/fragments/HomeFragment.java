@@ -412,7 +412,7 @@ public class HomeFragment extends Fragment
                     return;
                 }
                 if (!posts.isEmpty()) {
-                    getUnblocked(posts, forSearch, forLoadMore, firstQuery, forFilter);
+                    filterUnblocked(posts, forSearch, forLoadMore, firstQuery, forFilter);
                 } else {
                     Toast.makeText(context, "No posts matched that query", Toast.LENGTH_SHORT).show();
                     queryPosts();
@@ -421,7 +421,7 @@ public class HomeFragment extends Fragment
         });
     }
 
-    private void getUnblocked(final List<Post> posts, final boolean forSearch, final boolean forLoadMore, final boolean firstQuery, final boolean forFilter) {
+    private void filterUnblocked(final List<Post> posts, final boolean forSearch, final boolean forLoadMore, final boolean firstQuery, final boolean forFilter) {
         ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
         ParseQuery<Block> blockQuery = blockRelation.getQuery();
         blockQuery.include(Block.KEY_BLOCKING);
@@ -466,12 +466,10 @@ public class HomeFragment extends Fragment
         });
     }
 
-    // TODO: actually implement post reporting
     // TODO: implement reporting/block dashboard
 
     // TODO: add click listener inside chats fragment/conversations adapter
     // TODO: change chats fragment to show real name and not username
-    // TODO: block user from chats if blocked
     // TODO: improve search of chats to include messages (?)
 
     // TODO: add click listeners inside conversation
