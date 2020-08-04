@@ -79,4 +79,7 @@
     <string name="apply_filter">Apply Filter</string>
     <string name="min_age_rating">2+</string>
     <string name="max_age_rating">21+</string>
+    <string name="register_text">New here? Create an account</string>
+    <string name="email_address">Email Address</string>
+    <string name="account_exists">Already have an account? Click here to log in</string>
 </resources>

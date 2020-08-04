@@ -6,8 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import com.codepath.gameswap.fragments.OnSnapPositionChangeListener;
-
 public class SnapOnScrollListener extends RecyclerView.OnScrollListener {
 
     private SnapHelper snapHelper;

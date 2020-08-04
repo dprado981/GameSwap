@@ -96,7 +96,6 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             bundle.putParcelable(Conversation.TAG, conversation);
             fragment.setArguments(bundle);
             fragmentManager.beginTransaction()
-                    .addSharedElement(tvUsername, "username")
                     .replace(R.id.flContainer, fragment)
                     .addToBackStack(null)
                     .commit();

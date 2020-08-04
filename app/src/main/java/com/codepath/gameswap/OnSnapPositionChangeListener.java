@@ -1,4 +1,4 @@
-package com.codepath.gameswap.fragments;
+package com.codepath.gameswap;
 
 public interface OnSnapPositionChangeListener {
     void onSnapPositionChange(int position);

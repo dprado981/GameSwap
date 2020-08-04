@@ -49,11 +49,11 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
 
     public static final String TAG = DetailFragment.class.getSimpleName();
 
-    private Context context;
+    protected Context context;
     private FragmentActivity activity;
     private FragmentManager fragmentManager;
 
-    private Post post;
+    protected Post post;
     private ParseUser user;
     private Conversation targetConversation;
     private List<ParseFile> images;

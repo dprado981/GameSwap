@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements ComposeTypeDialog
                 bottomNavigation.setSelectedItemId(R.id.actionHome);
             }
         }
-
     }
 
     @Override

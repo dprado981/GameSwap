@@ -2,7 +2,6 @@ package com.codepath.gameswap.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
+import com.codepath.gameswap.OnSnapPositionChangeListener;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.SnapOnScrollListener;

@@ -9,10 +9,22 @@
     tools:context=".LoginActivity">
 
     <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/email_address"
+        android:inputType="text|textEmailAddress"
+        android:selectAllOnFocus="true" />
+
+    <EditText
         android:id="@+id/etUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_below="@id/etEmail"
+        android:layout_marginTop="4dp"
         android:autofillHints=""
         android:ems="10"
         android:hint="@string/username"
@@ -31,24 +43,46 @@
         android:inputType="textPassword"
         android:selectAllOnFocus="true" />
 
-    <Button
-        android:id="@+id/btnLogin"
+    <EditText
+        android:id="@+id/etFirstName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/etPassword"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/first_name"
+        android:inputType="textPersonName|text"
+        android:selectAllOnFocus="true" />
+
+    <EditText
+        android:id="@+id/etLastName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etFirstName"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/last_name"
+        android:inputType="textPersonName|text"
+        android:selectAllOnFocus="true" />
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etLastName"
         android:layout_marginTop="4dp"
-        android:text="@string/login" />
+        android:text="@string/register" />
 
     <TextView
-        android:id="@+id/tvRegister"
+        android:id="@+id/tvAccountExists"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnLogin"
+        android:layout_below="@id/btnRegister"
         android:layout_alignParentEnd="true"
-        android:text="@string/register_text" />
+        android:text="@string/account_exists" />
 
     <ProgressBar
-        android:id="@+id/pbLogin"
+        android:id="@+id/pbRegister"
         style="@android:style/Widget.Material.ProgressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
