@@ -59,7 +59,7 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
  */
 public class HomeFragment extends Fragment
         implements MapsFragment.MapsFragmentInterface, PostsFragment.PostsFragmentInterface,
-        TextView.OnEditorActionListener, View.OnClickListener {
+        TextView.OnEditorActionListener, View.OnClickListener, RangeSlider.OnChangeListener {
 
     public static final String TAG = HomeFragment.class.getSimpleName();
     public static final int MAX_QUERY_SIZE = 10;
@@ -75,8 +75,14 @@ public class HomeFragment extends Fragment
     private CheckBox gameCheck;
     private CheckBox puzzleCheck;
     private RangeSlider conditionSlider;
-    private TextView tvLowerLimit;
-    private TextView tvUpperLimit;
+    private TextView tvConditionLowerLimit;
+    private TextView tvConditionUpperLimit;
+    private RangeSlider difficultySlider;
+    private TextView tvDifficultyLowerLimit;
+    private TextView tvDifficultyUpperLimit;
+    private RangeSlider ageRatingSlider;
+    private TextView tvAgeRatingLowerLimit;
+    private TextView tvAgeRatingUpperLimit;
     private Button btnFilter;
     private Button btnClear;
 
@@ -119,8 +125,14 @@ public class HomeFragment extends Fragment
         gameCheck = view.findViewById(R.id.gameCheck);
         puzzleCheck = view.findViewById(R.id.puzzleCheck);
         conditionSlider = view.findViewById(R.id.conditionSlider);
-        tvLowerLimit = view.findViewById(R.id.tvLowerLimit);
-        tvUpperLimit = view.findViewById(R.id.tvUpperLimit);
+        tvConditionLowerLimit = view.findViewById(R.id.tvConditionLowerLimit);
+        tvConditionUpperLimit = view.findViewById(R.id.tvConditionUpperLimit);
+        difficultySlider = view.findViewById(R.id.difficultySlider);
+        tvDifficultyLowerLimit = view.findViewById(R.id.tvDifficultyLowerLimit);
+        tvDifficultyUpperLimit = view.findViewById(R.id.tvDifficultyUpperLimit);
+        ageRatingSlider = view.findViewById(R.id.ageRatingSlider);
+        tvAgeRatingLowerLimit = view.findViewById(R.id.tvAgeRatingLowerLimit);
+        tvAgeRatingUpperLimit = view.findViewById(R.id.tvAgeRatingUpperLimit);
         btnFilter = view.findViewById(R.id.btnFilter);
         btnClear = view.findViewById(R.id.btnClear);
 
@@ -128,17 +140,14 @@ public class HomeFragment extends Fragment
         puzzleCheck.setChecked(true);
 
         conditionSlider.setValues(0f,5f);
+        difficultySlider.setValues(0f,5f);
+        ageRatingSlider.setValues(2f,21f);
         conditionSlider.setStepSize(0.1f);
-        conditionSlider.addOnChangeListener(new RangeSlider.OnChangeListener() {
-            @Override
-            public void onValueChange(@NonNull RangeSlider slider, float value, boolean fromUser) {
-                List<Float> sliderValues = slider.getValues();
-                float lowerLimit = Collections.min(sliderValues);
-                float upperLimit = Collections.max(sliderValues);
-                tvLowerLimit.setText(String.format(Locale.getDefault(), "%.1f", lowerLimit));
-                tvUpperLimit.setText(String.format(Locale.getDefault(), "%.1f", upperLimit));
-            }
-        });
+        difficultySlider.setStepSize(0.1f);
+        ageRatingSlider.setStepSize(1);
+        conditionSlider.addOnChangeListener(this);
+        difficultySlider.addOnChangeListener(this);
+        ageRatingSlider.addOnChangeListener(this);
 
         mapsFragment = new MapsFragment(this);
         postsFragment = new PostsFragment(this);
@@ -166,6 +175,33 @@ public class HomeFragment extends Fragment
     }
 
     @Override
+    public void onValueChange(@NonNull RangeSlider slider, float value, boolean fromUser) {
+        List<Float> sliderValues = slider.getValues();
+        float lowerLimit = Collections.min(sliderValues);
+        float upperLimit = Collections.max(sliderValues);
+        TextView tvLowerLimit;
+        TextView tvUpperLimit;
+        if (slider == conditionSlider) {
+            tvLowerLimit = tvConditionUpperLimit;
+            tvUpperLimit = tvConditionUpperLimit;
+        } else if (slider == difficultySlider) {
+            tvLowerLimit = tvDifficultyLowerLimit;
+            tvUpperLimit = tvDifficultyUpperLimit;
+        } else if (slider == ageRatingSlider) {
+            tvLowerLimit = tvAgeRatingLowerLimit;
+            tvUpperLimit = tvAgeRatingUpperLimit;
+            tvLowerLimit.setText(String.format(Locale.getDefault(), "%d+", (int)lowerLimit));
+            tvUpperLimit.setText(String.format(Locale.getDefault(), "%d+", (int)upperLimit));
+            return;
+        } else {
+            Log.e(TAG, "Error getting slider info");
+            return;
+        }
+        tvLowerLimit.setText(String.format(Locale.getDefault(), "%.1f", lowerLimit));
+        tvUpperLimit.setText(String.format(Locale.getDefault(), "%.1f", upperLimit));
+    }
+
+    @Override
     public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
         if (id == EditorInfo.IME_ACTION_SEARCH) {
             startSearch();
@@ -186,18 +222,33 @@ public class HomeFragment extends Fragment
         } else if (view == ibSearch) {
             startSearch();
         } else if (view == ibFilter) {
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            int state = bottomSheetBehavior.getState();
+            if (state == BottomSheetBehavior.STATE_HIDDEN) {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            } else if (state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            }
         } else if (view == btnFilter) {
-            List<Float> sliderValues = conditionSlider.getValues();
             boolean games = gameCheck.isChecked();
             boolean puzzles = puzzleCheck.isChecked();
-            int lowerLimit = (int) (Collections.min(sliderValues) * 10);
-            int upperLimit = (int) (Collections.max(sliderValues) * 10);
+            List<Float> conditionSliderValues = conditionSlider.getValues();
+            List<Float> difficultySliderValues = difficultySlider.getValues();
+            List<Float> ageRatingSliderValues = ageRatingSlider.getValues();
+            int lowerConditionLimit = (int) (Collections.min(conditionSliderValues) * 10);
+            int upperConditionLimit = (int) (Collections.max(conditionSliderValues) * 10);
+            int lowerDifficultyLimit = (int) (Collections.min(difficultySliderValues) * 10);
+            int upperDifficultyLimit = (int) (Collections.max(difficultySliderValues) * 10);
+            int lowerAgeRatingLimit = (int) Math.floor(Collections.min(ageRatingSliderValues));
+            int upperAgeRatingLimit = (int) Math.floor(Collections.max(ageRatingSliderValues));
             filters = new Filters();
             filters.setGames(games)
                     .setPuzzles(puzzles)
-                    .setLowerLimit(lowerLimit)
-                    .setUpperLimit(upperLimit);
+                    .setLowerConditionLimit(lowerConditionLimit)
+                    .setUpperConditionLimit(upperConditionLimit)
+                    .setLowerDifficultyLimit(lowerDifficultyLimit)
+                    .setUpperDifficultyLimit(upperDifficultyLimit)
+                    .setLowerAgeRatingLimit(lowerAgeRatingLimit)
+                    .setUpperAgeRatingLimit(upperAgeRatingLimit);
             String queryString = etSearch.getText().toString().trim();
             if (!queryString.isEmpty()) {
                 searchQuery(queryString);
@@ -280,10 +331,7 @@ public class HomeFragment extends Fragment
                         .show();
                 onMapReady();
             } else {
-                Toast.makeText(context,
-                        "Location Permission Denied",
-                        Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(context, "Location Permission Denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -320,8 +368,12 @@ public class HomeFragment extends Fragment
         } else if (filters.getGames() && !filters.getPuzzles()) {
             query.whereEqualTo(Post.KEY_TYPE, "game");
         }
-        query.whereGreaterThanOrEqualTo(Post.KEY_CONDITION, filters.getLowerLimit());
-        query.whereLessThanOrEqualTo(Post.KEY_CONDITION, filters.getUpperLimit());
+        query.whereGreaterThanOrEqualTo(Post.KEY_CONDITION, filters.getLowerConditionLimit());
+        query.whereLessThanOrEqualTo(Post.KEY_CONDITION, filters.getUpperConditionLimit());
+        query.whereGreaterThanOrEqualTo(Post.KEY_DIFFICULTY, filters.getLowerDifficultyLimit());
+        query.whereLessThanOrEqualTo(Post.KEY_DIFFICULTY, filters.getUpperDifficultyLimit());
+        query.whereGreaterThanOrEqualTo(Post.KEY_AGE_RATING, filters.getLowerAgeRatingLimit());
+        query.whereLessThanOrEqualTo(Post.KEY_AGE_RATING, filters.getUpperAgeRatingLimit());
     }
 
     private void querySearch(String queryString, final boolean forLoadMore,

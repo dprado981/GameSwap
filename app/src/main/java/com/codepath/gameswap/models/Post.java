@@ -1,7 +1,5 @@
 package com.codepath.gameswap.models;
 
-import androidx.annotation.Nullable;
-
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
@@ -63,9 +61,9 @@ public class Post extends ParseObject {
 
     public void setDifficulty(int difficulty) { put(KEY_DIFFICULTY, difficulty); }
 
-    public String getAgeRating() { return getString(KEY_AGE_RATING); }
+    public int getAgeRating() { return getInt(KEY_AGE_RATING); }
 
-    public void setAgeRating(String ageRating) { put(KEY_AGE_RATING, ageRating); }
+    public void setAgeRating(int ageRating) { put(KEY_AGE_RATING, ageRating); }
 
     public void setMinPlayers(int minPlayers) { put(KEY_MIN_PLAYERS, minPlayers); }
 

@@ -61,7 +61,8 @@ public class ComposePuzzleFragment extends ComposeFragment {
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*10));
         post.setDifficulty((int)(rbDifficulty.getRating()*10));
-        post.setAgeRating((String) spAgeRating.getSelectedItem());
+        String ageRating = spAgeRating.getSelectedItem().toString().replace("+","");
+        post.setAgeRating(Integer.parseInt(ageRating));
         String pieces = etPieces.getText().toString();
         if (!pieces.isEmpty()) {
             post.setPieces(Integer.parseInt(pieces));

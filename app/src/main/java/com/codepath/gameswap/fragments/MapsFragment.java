@@ -262,7 +262,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Google
             try {
                 map.clear();
             } catch (Exception e) {
-                Log.e(TAG, "uh oh");
+                Log.e(TAG, "Error clearing map");
             }
         }
     }

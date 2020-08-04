@@ -74,4 +74,9 @@
     <string name="puzzles">Puzzles:</string>
     <string name="games">Games:</string>
     <string name="filter_search">Filter Search</string>
+    <string name="include_games">Include Games:</string>
+    <string name="include_puzzles">Include Puzzles:</string>
+    <string name="apply_filter">Apply Filter</string>
+    <string name="min_age_rating">2+</string>
+    <string name="max_age_rating">21+</string>
 </resources>

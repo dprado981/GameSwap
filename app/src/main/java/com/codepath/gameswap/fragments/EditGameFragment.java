@@ -68,7 +68,7 @@ public class EditGameFragment extends ComposeGameFragment implements View.OnClic
                 etTitle.setText(post.getTitle());
                 rbCondition.setRating((float) post.getCondition() / 10);
                 rbDifficulty.setRating((float) post.getDifficulty() / 10);
-                String ageRating = post.getAgeRating();
+                String ageRating = post.getAgeRating() + "+";
                 int spinnerPosition = spAdapter.getPosition(ageRating);
                 spAgeRating.setSelection(spinnerPosition);
                 etNotes.setText(post.getNotes());
@@ -117,7 +117,8 @@ public class EditGameFragment extends ComposeGameFragment implements View.OnClic
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*10));
         post.setDifficulty((int)(rbDifficulty.getRating()*10));
-        post.setAgeRating((String) spAgeRating.getSelectedItem());
+        String ageRating = spAgeRating.getSelectedItem().toString().replace("+","");
+        post.setAgeRating(Integer.parseInt(ageRating));
         String minPlayers = etMinPlayers.getText().toString();
         if (!minPlayers.isEmpty()) {
             post.setMinPlayers(Integer.parseInt(minPlayers));

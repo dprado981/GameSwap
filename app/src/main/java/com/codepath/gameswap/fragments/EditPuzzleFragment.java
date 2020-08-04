@@ -67,7 +67,7 @@ public class EditPuzzleFragment extends ComposePuzzleFragment implements View.On
                 etTitle.setText(post.getTitle());
                 rbCondition.setRating((float) post.getCondition() / 10);
                 rbDifficulty.setRating((float) post.getDifficulty() / 10);
-                String ageRating = post.getAgeRating();
+                String ageRating = post.getAgeRating() + "+";
                 int spinnerPosition = spAdapter.getPosition(ageRating);
                 spAgeRating.setSelection(spinnerPosition);
                 etNotes.setText(post.getNotes());
@@ -117,7 +117,8 @@ public class EditPuzzleFragment extends ComposePuzzleFragment implements View.On
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*10));
         post.setDifficulty((int)(rbDifficulty.getRating()*10));
-        post.setAgeRating((String) spAgeRating.getSelectedItem());
+        String ageRating = spAgeRating.getSelectedItem().toString().replace("+","");
+        post.setAgeRating(Integer.parseInt(ageRating));
         List<ParseFile> parseFiles = new ArrayList<>(4);
         for (File file : photoFiles) {
             parseFiles.add(new ParseFile(file));

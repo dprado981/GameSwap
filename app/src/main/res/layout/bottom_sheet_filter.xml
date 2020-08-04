@@ -45,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:text="@string/games"
+                    android:text="@string/include_games"
                     tools:ignore="RelativeOverlap" />
 
                 <CheckBox
@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:text="@string/puzzles"
+                    android:text="@string/include_puzzles"
                     tools:ignore="RelativeOverlap" />
 
                 <CheckBox
@@ -97,11 +97,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="@string/condition"/>
+                android:text="@string/condition"
+                android:ems="5"/>
 
             <TextView
-                android:id="@+id/tvLowerLimit"
-                android:layout_width="20dp"
+                android:id="@+id/tvConditionLowerLimit"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_centerVertical="true"
@@ -113,19 +114,105 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/tvLowerLimit"
-                android:layout_toStartOf="@id/tvUpperLimit"
+                android:layout_toEndOf="@id/tvConditionLowerLimit"
+                android:layout_toStartOf="@id/tvConditionUpperLimit"
                 android:valueFrom="0"
                 android:valueTo="5"/>
 
             <TextView
-                android:id="@+id/tvUpperLimit"
-                android:layout_width="20dp"
+                android:id="@+id/tvConditionUpperLimit"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
                 android:text="@string/max_value"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvDifficultySlider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/difficulty"
+                android:ems="5"/>
+
+            <TextView
+                android:id="@+id/tvDifficultyLowerLimit"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/tvDifficultySlider"
+                android:text="@string/min_value"/>
+
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/difficultySlider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/tvDifficultyLowerLimit"
+                android:layout_toStartOf="@id/tvDifficultyUpperLimit"
+                android:valueFrom="0"
+                android:valueTo="5"/>
+
+            <TextView
+                android:id="@+id/tvDifficultyUpperLimit"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:text="@string/max_value"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvAgeRatingSlider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/age_rating"
+                android:ems="5"/>
+
+            <TextView
+                android:id="@+id/tvAgeRatingLowerLimit"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/tvAgeRatingSlider"
+                android:text="@string/min_age_rating"/>
+            
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/ageRatingSlider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/tvAgeRatingLowerLimit"
+                android:layout_toStartOf="@id/tvAgeRatingUpperLimit"
+                android:valueFrom="2"
+                android:valueTo="21"/>
+
+            <TextView
+                android:id="@+id/tvAgeRatingUpperLimit"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:text="@string/max_age_rating"/>
         </RelativeLayout>
 
     </LinearLayout>
@@ -136,7 +223,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="8dp"
         android:weightSum="3">
         <Button
             android:id="@+id/btnClear"
@@ -151,11 +239,9 @@
             android:id="@+id/btnFilter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/filter"
+            android:text="@string/apply_filter"
             android:layout_weight="2"
             tools:ignore="ButtonStyle" />
     </LinearLayout>
-
-
 
 </RelativeLayout>

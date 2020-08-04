@@ -91,7 +91,8 @@ public class ComposeGameFragment extends ComposeFragment {
         post.setNotes(etNotes.getText().toString());
         post.setCondition((int)(rbCondition.getRating()*10));
         post.setDifficulty((int)(rbDifficulty.getRating()*10));
-        post.setAgeRating((String) spAgeRating.getSelectedItem());
+        String ageRating = spAgeRating.getSelectedItem().toString().replace("+","");
+        post.setAgeRating(Integer.parseInt(ageRating));
         String minPlayers = etMinPlayers.getText().toString();
         if (!minPlayers.isEmpty()) {
             post.setMinPlayers(Integer.parseInt(minPlayers));
@@ -142,7 +143,8 @@ public class ComposeGameFragment extends ComposeFragment {
                 // Ensure that correct menu item is selected
                 ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionHome);
                 // Go to home fragment
-                FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                Log.e(TAG, "FIX MOVING BACK TO HOME FRAGMENT");
+                //FragmentManager fragmentManager = activity.getSupportFragmentManager();
                 //fragmentManager.beginTransaction().replace(R.id.flContainer, new PostsFragment()).commit();
             }
         });

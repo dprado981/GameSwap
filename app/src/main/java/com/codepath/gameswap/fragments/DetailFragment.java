@@ -49,9 +49,11 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
 
     public static final String TAG = DetailFragment.class.getSimpleName();
 
-    protected Context context;
+    private Context context;
+    private FragmentActivity activity;
+    private FragmentManager fragmentManager;
 
-    protected Post post;
+    private Post post;
     private ParseUser user;
     private Conversation targetConversation;
     private List<ParseFile> images;
@@ -88,6 +90,10 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         super.onViewCreated(view, savedInstanceState);
 
         context = getContext();
+        activity = (FragmentActivity) context;
+        if (activity != null) {
+            fragmentManager = activity.getSupportFragmentManager();
+        }
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setTitle("");
@@ -126,9 +132,20 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
 
         Bundle bundle = getArguments();
         if (bundle == null) {
+            Log.e(TAG, "Error getting bundle for detail");
+            if (fragmentManager != null) {
+                fragmentManager.popBackStack();
+            }
             return;
         }
         post = bundle.getParcelable(Post.TAG);
+        if (post == null) {
+            Log.e(TAG, "Error getting post for detail");
+            if (fragmentManager != null) {
+                fragmentManager.popBackStack();
+            }
+            return;
+        }
         user = post.getUser();
         try {
             tvUsername.setText(user.fetchIfNeeded().getUsername());
@@ -142,12 +159,8 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         rbCondition.setRating((float) post.getCondition() / 10);
         rbDifficulty.setRating((float) post.getDifficulty() / 10);
 
-        String ageRating = post.getAgeRating();
-        if (ageRating == null || ageRating.isEmpty()) {
-            tvAgeRatingValue.setText(R.string.not_specified);
-        } else {
-            tvAgeRatingValue.setText(post.getAgeRating());
-        }
+        String ageRating = post.getAgeRating() + "+";
+        tvAgeRatingValue.setText(ageRating);
 
         String notes = post.getNotes();
         if (notes.isEmpty()) {
@@ -179,13 +192,11 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         if (view == btnMessage) {
             setTargetConversation();
         } else if (view == ivProfile || view == tvUsername) {
-            FragmentActivity activity = (FragmentActivity) context;
             // Ensure that correct menu item is selected
             if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
                 ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.actionProfile);
             }
             // Go to home fragment
-            FragmentManager fragmentManager = activity.getSupportFragmentManager();
             Fragment fragment = new ProfileFragment();
             Bundle bundle = new Bundle();
             bundle.putParcelable(Post.KEY_USER, user);
@@ -289,7 +300,9 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
     }
 
     private void reportPost(Post post) {
-        Toast.makeText(context, "Post was reported!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "Post was reported!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "IMPLEMENT THIS YOU FOOL", Toast.LENGTH_LONG).show();
+        Log.e(TAG, "REPORTING POSTS NOT YET IMPLEMENTED");
     }
 
     protected abstract void goToEditPost();
