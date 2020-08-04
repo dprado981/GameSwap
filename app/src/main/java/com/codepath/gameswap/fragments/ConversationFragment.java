@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +40,8 @@ import com.parse.SaveCallback;
 import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,18 +50,24 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class ConversationFragment extends Fragment {
+public class ConversationFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = Conversation.class.getSimpleName();
 
     private Context context;
+    private FragmentActivity activity;
+    private FragmentManager fragmentManager;
     private Conversation conversation;
     private ParseUser currentUser;
     private ParseUser otherUser;
+    private Post fromPost;
 
     private ImageView ivProfile;
+    private TextView tvName;
     private TextView tvUsername;
+    private LinearLayout llPost;
     private ImageView ivPost;
+    private TextView tvPost;
     private EditText etMessage;
     private ImageButton ibSend;
     private ProgressBar progressBar;
@@ -84,6 +93,10 @@ public class ConversationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
+        activity = (FragmentActivity) context;
+        if (activity != null) {
+            fragmentManager = activity.getSupportFragmentManager();
+        }
 
         Bundle bundle = getArguments();
         if (bundle == null) {
@@ -101,8 +114,11 @@ public class ConversationFragment extends Fragment {
 
         rvMessages = view.findViewById(R.id.rvMessages);
         ivProfile = view.findViewById(R.id.ivProfile);
+        tvName = view.findViewById(R.id.tvName);
         tvUsername = view.findViewById(R.id.tvUsername);
+        llPost = view.findViewById(R.id.llPost);
         ivPost = view.findViewById(R.id.ivPost);
+        tvPost = view.findViewById(R.id.tvPost);
         etMessage = view.findViewById(R.id.etMessage);
         ibSend = view.findViewById(R.id.ibSend);
         progressBar = view.findViewById(R.id.progressBar);
@@ -122,11 +138,19 @@ public class ConversationFragment extends Fragment {
                     .into(ivProfile);
         }
 
+        String firstName = otherUser.getString("firstName");
+        String lastName = otherUser.getString("lastName");
+        if (lastName != null) {
+            tvName.setText(String.format("%s %s.", firstName, lastName.charAt(0)));
+        } else {
+            tvName.setText(String.format("%s", firstName));
+        }
+
         tvUsername.setText(otherUser.getUsername());
 
         if (conversation.getFromPost() != null) {
-            ivPost.setVisibility(View.VISIBLE);
-            final Post fromPost = conversation.getFromPost();
+            llPost.setVisibility(View.VISIBLE);
+            fromPost = conversation.getFromPost();
             ParseFile postImage = fromPost.getImageOne();
             if (postImage != null) {
                 Glide.with(context)
@@ -134,37 +158,13 @@ public class ConversationFragment extends Fragment {
                         .placeholder(R.drawable.ic_profile)
                         .into(ivPost);
             }
-            ivPost.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                    Fragment fragment;
-                    if (fromPost.getType().equals(Post.GAME)) {
-                        fragment = new DetailGameFragment();
-                    } else if (fromPost.getType().equals(Post.PUZZLE)) {
-                        fragment = new DetailPuzzleFragment();
-                    } else {
-                        Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable(Post.TAG, fromPost);
-                    fragment.setArguments(bundle);
-                    fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
-                }
-            });
+            llPost.setOnClickListener(this);
         }
 
-        ibSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String messageText = etMessage.getText().toString();
-                if (messageText.isEmpty()) {
-                    return;
-                }
-                sendMessage(messageText);
-            }
-        });
+        ibSend.setOnClickListener(this);
+        ivProfile.setOnClickListener(this);
+        tvName.setOnClickListener(this);
+        tvUsername.setOnClickListener(this);
 
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
@@ -179,6 +179,38 @@ public class ConversationFragment extends Fragment {
 
         queryMessages();
         liveQueryMessages();
+    }
+
+
+    @Override
+    public void onClick(View view) {
+        if (view == ibSend) {
+            String messageText = etMessage.getText().toString();
+            if (messageText.isEmpty()) {
+                return;
+            }
+            sendMessage(messageText);
+        } else if (view == llPost || view == ivPost || view == tvPost) {
+            Fragment fragment;
+            if (fromPost.getType().equals(Post.GAME)) {
+                fragment = new DetailGameFragment();
+            } else if (fromPost.getType().equals(Post.PUZZLE)) {
+                fragment = new DetailPuzzleFragment();
+            } else {
+                Toast.makeText(context, "Try again later", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Post.TAG, fromPost);
+            fragment.setArguments(bundle);
+            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+        } else if (view == ivProfile || view == tvName || view == tvUsername) {
+            Fragment fragment = new ProfileFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Post.KEY_USER, otherUser);
+            fragment.setArguments(bundle);
+            fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+        }
     }
 
     /**

@@ -468,11 +468,8 @@ public class HomeFragment extends Fragment
 
     // TODO: implement reporting/block dashboard
 
-    // TODO: add click listener inside chats fragment/conversations adapter
-    // TODO: change chats fragment to show real name and not username
     // TODO: improve search of chats to include messages (?)
 
-    // TODO: add click listeners inside conversation
     // TODO: add toolbar on conversation fragment with options to block/report user and display username
 
     // TODO: add ability to favorite posts (be able to do from list view and detail view (and maybe infowindow))

@@ -6,65 +6,107 @@
     android:layout_height="match_parent"
     tools:context=".fragments.ConversationFragment">
 
-    <RelativeLayout
-        android:id="@+id/llHeader"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cvHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cvProfile"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            app:cardCornerRadius="50dp"
-            app:cardElevation="0dp">
+        <RelativeLayout
+            android:id="@+id/rlHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/ivProfile"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvProfile"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:contentDescription="@string/profile_picture"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/ic_profile" />
-        </androidx.cardview.widget.CardView>
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="0dp">
 
-        <TextView
-            android:id="@+id/tvUsername"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="4dp"
-            android:layout_toEndOf="@+id/cvProfile"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            tools:text="Username" />
+                <ImageView
+                    android:id="@+id/ivProfile"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                android:background="@color/colorAccent"
+                    android:contentDescription="@string/profile_picture"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_profile" />
+            </androidx.cardview.widget.CardView>
 
-        <ImageView
-            android:id="@+id/ivPost"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:contentDescription="@string/profile_picture"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            app:srcCompat="@drawable/ic_profile" />
+            <RelativeLayout
+                android:id="@+id/rlNames"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="28dp"
+                android:layout_toEndOf="@+id/cvProfile"
+                android:orientation="vertical">
 
-    </RelativeLayout>
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:maxWidth="160dp"
+                    android:maxLines="1"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    tools:text="First L." />
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvName"
+                    android:layout_marginStart="4dp"
+                    tools:text="Username" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/llPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="end"
+                android:orientation="vertical"
+                android:visibility="visible"
+                tools:ignore="RelativeOverlap">
+
+                <ImageView
+                    android:id="@+id/ivPost"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:contentDescription="@string/profile_picture"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_profile" />
+
+                <TextView
+                    android:id="@+id/tvPost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/related_post" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/etMessage"
-        android:layout_below="@+id/llHeader" />
+        android:layout_below="@+id/cvHeader" />
 
     <EditText
         android:id="@+id/etMessage"
@@ -72,11 +114,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="0dp"
         android:layout_toStartOf="@+id/ibSend"
         android:hint="@string/write_a_message"
         android:importantForAutofill="no"
-        android:inputType="text"/>
+        android:inputType="text" />
 
     <ImageButton
         android:id="@+id/ibSend"
@@ -84,9 +127,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="0dp"
+        android:layout_marginEnd="4dp"
+        android:backgroundTint="@color/colorPrimary"
         android:contentDescription="@string/send"
-        android:src="@drawable/ic_send" />
+        android:src="@drawable/ic_send"
+        android:tint="#FFFFFF" />
 
     <ProgressBar
         android:id="@+id/progressBar"

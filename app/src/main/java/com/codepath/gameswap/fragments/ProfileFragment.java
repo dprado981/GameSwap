@@ -3,7 +3,14 @@ package com.codepath.gameswap.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -33,6 +41,7 @@ import com.codepath.gameswap.LoginActivity;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.ProfilePostsAdapter;
 import com.codepath.gameswap.R;
+import com.codepath.gameswap.RegisterActivity;
 import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
@@ -45,6 +54,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,6 +70,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     public static final String TAG = ProfileFragment.class.getSimpleName();
 
     private Context context;
+    private FragmentActivity activity;
+    private FragmentManager fragmentManager;
     private int lastPosition;
 
     private ParseUser user;
@@ -104,12 +117,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         toolbar.setTitle("");
         tvTitle.setText(getString(R.string.profile));
         setHasOptionsMenu(true);
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        if (activity != null) {
-            activity.setSupportActionBar(toolbar);
+        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        if (appCompatActivity != null) {
+            appCompatActivity.setSupportActionBar(toolbar);
         }
 
         context = getContext();
+        activity = (FragmentActivity) context;
+        if (activity != null) {
+            fragmentManager = activity.getSupportFragmentManager();
+        }
         currentUser = ParseUser.getCurrentUser();
 
         layoutManager = new LinearLayoutManager(context);
@@ -154,6 +171,26 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         String bio = user.getString("bio");
         if (bio != null && !bio.isEmpty()) {
             tvBio.setText(bio);
+        } else if (user.getUsername().equals(currentUser.getUsername())) {
+            ClickableSpan goToEdit = new ClickableSpan() {
+                @Override
+                public void onClick(@NotNull View textView) {
+                    goToEditProfile();
+                }
+                @Override
+                public void updateDrawState(@NotNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                }
+            };
+            String registerText = "Click here to set a bio!";
+            SpannableString ss = new SpannableString(registerText);
+            ss.setSpan(goToEdit, 0, registerText.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.colorAccent)),
+                    0, registerText.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            tvBio.setText(ss);
+            tvBio.setMovementMethod(LinkMovementMethod.getInstance());
+            tvBio.setHighlightColor(Color.TRANSPARENT);
         }
 
         ParseFile image = (ParseFile) user.get("image");
@@ -310,7 +347,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private void goToConversationFragment(Conversation targetConversation) {
         // Go to conversation fragment
-        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
         Fragment fragment = new ConversationFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable(Conversation.TAG, targetConversation);
@@ -434,7 +470,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void goToEditProfile() {
-        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
         Fragment fragment = new EditProfileFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable(Post.KEY_USER, currentUser);

@@ -38,6 +38,7 @@
                         android:id="@+id/ivProfile"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
+                android:background="@color/colorAccent"
                         android:contentDescription="@string/profile_picture"
                         android:scaleType="centerCrop"
                         app:srcCompat="@drawable/ic_profile" />

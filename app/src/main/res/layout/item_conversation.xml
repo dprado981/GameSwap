@@ -26,7 +26,7 @@
                 android:id="@+id/ivProfile"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:background="@color/colorPrimary"
+                android:background="@color/colorAccent"
                 android:contentDescription="@string/profile_picture"
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_profile" />
@@ -44,7 +44,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvUsername"
+                android:id="@+id/tvName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"

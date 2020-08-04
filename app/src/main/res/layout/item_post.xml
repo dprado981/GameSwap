@@ -52,13 +52,14 @@
                         android:id="@+id/ivProfile"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                android:background="@color/colorAccent"
                         android:contentDescription="@string/profile_picture"
                         android:scaleType="centerCrop"
                         app:srcCompat="@drawable/ic_profile" />
                 </androidx.cardview.widget.CardView>
 
                 <TextView
-                    android:id="@+id/tvUsername"
+                    android:id="@+id/tvName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

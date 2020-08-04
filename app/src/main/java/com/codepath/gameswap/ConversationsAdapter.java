@@ -81,7 +81,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
 
         private ImageView ivProfile;
         private LinearLayout llPreview;
-        private TextView tvUsername;
+        private TextView tvName;
         private TextView tvPreview;
 
         private Conversation conversation;
@@ -92,7 +92,7 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             super(view);
             ivProfile = view.findViewById(R.id.ivProfile);
             llPreview = view.findViewById(R.id.llPreview);
-            tvUsername = view.findViewById(R.id.tvUsername);
+            tvName = view.findViewById(R.id.tvName);
             tvPreview = view.findViewById(R.id.tvPreview);
             ivProfile.setOnClickListener(this);
             llPreview.setOnClickListener(this);
@@ -124,7 +124,13 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationsAdap
             this.conversation = conversation;
             currentUser = ParseUser.getCurrentUser();
             otherUser = getOtherUser(conversation);
-            tvUsername.setText(otherUser.getUsername());
+            String firstName = otherUser.getString("firstName");
+            String lastName = otherUser.getString("lastName");
+            if (lastName != null) {
+                tvName.setText(String.format("%s %s.", firstName, lastName.charAt(0)));
+            } else {
+                tvName.setText(String.format("%s", firstName));
+            }
             if (conversation.getLastMessage() != null) {
                 tvPreview.setText(conversation.getLastMessage().getText());
             }

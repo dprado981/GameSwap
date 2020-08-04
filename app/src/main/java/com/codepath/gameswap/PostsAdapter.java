@@ -85,7 +85,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         protected LinearLayout llHeader;
         protected ImageView ivProfile;
-        protected TextView tvUsername;
+        protected TextView tvName;
         protected RelativeLayout rlContent;
         protected TextView tvTitle;
         protected ImageView ivImage;
@@ -98,7 +98,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
             llHeader = view.findViewById(R.id.llHeader);
             ivProfile = view.findViewById(R.id.ivProfile);
-            tvUsername = view.findViewById(R.id.tvUsername);
+            tvName = view.findViewById(R.id.tvName);
             rlContent = view.findViewById(R.id.rlContent);
             tvTitle = view.findViewById(R.id.tvTitle);
             ivImage = view.findViewById(R.id.ivImage);
@@ -111,7 +111,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         public void bind(Post post) {
             this.post = post;
             ParseUser user = post.getUser();
-            tvUsername.setText(user.getUsername());
+            String firstName = user.getString("firstName");
+            String lastName = user.getString("lastName");
+            if (lastName != null) {
+                tvName.setText(String.format("%s %s.", firstName, lastName.charAt(0)));
+            } else {
+                tvName.setText(String.format("%s", firstName));
+            }
             tvTitle.setText(post.getTitle());
             rbCondition.setRating((float) post.getCondition() / 10);
             ParseFile image = post.getImageOne();
