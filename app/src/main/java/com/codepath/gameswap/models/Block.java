@@ -8,14 +8,14 @@ import com.parse.ParseUser;
 public class Block extends ParseObject {
 
     public static final String TAG = Block.class.getSimpleName();
-    public static final String KEY_BLOCKING = "blocking";
-    public static final String KEY_BLOCKED = "blocked";
+    public static final String KEY_USER = "user";
+    public static final String KEY_BLOCKED_BY = "blockedBy";
 
-    public ParseUser getBlocking() { return getParseUser(KEY_BLOCKING); }
+    public ParseUser getUser() { return getParseUser(KEY_USER); }
 
-    public void setBlocking(ParseUser parseUser) { put(KEY_BLOCKING, parseUser); }
+    public void setUser(ParseUser parseUser) { put(KEY_USER, parseUser); }
 
-    public ParseUser getBlocked() { return getParseUser(KEY_BLOCKED); }
+    public ParseUser getBlockedBy() { return getParseUser(KEY_BLOCKED_BY); }
 
-    public void setBlocked(ParseUser parseUser) { put(KEY_BLOCKED, parseUser); }
+    public void setBlockedBy(ParseUser parseUser) { put(KEY_BLOCKED_BY, parseUser); }
 }

@@ -41,7 +41,6 @@ import com.codepath.gameswap.LoginActivity;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.ProfilePostsAdapter;
 import com.codepath.gameswap.R;
-import com.codepath.gameswap.RegisterActivity;
 import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
@@ -439,8 +438,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private void blockUser(final ParseUser blocked) {
         ParseRelation<Block> relation = currentUser.getRelation("blocks");
         ParseQuery<Block> query = relation.getQuery();
-        query.include(Block.KEY_BLOCKING);
-        query.include(Block.KEY_BLOCKED);
+        query.include(Block.KEY_USER);
+        query.include(Block.KEY_BLOCKED_BY);
         query.findInBackground(new FindCallback<Block>() {
             @Override
             public void done(List<Block> blocks, ParseException e) {
@@ -450,14 +449,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     return;
                 }
                 for (Block block: blocks) {
-                    if (block.getBlocked().getUsername().equals(blocked.getUsername())) {
+                    if (block.getBlockedBy().getUsername().equals(blocked.getUsername())) {
                         Toast.makeText(context, blocked.getUsername() + " is already blocked!", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
                 final Block block = new Block();
-                block.setBlocking(ParseUser.getCurrentUser());
-                block.setBlocked(user);
+                block.setUser(ParseUser.getCurrentUser());
+                block.setBlockedBy(user);
                 block.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
@@ -494,7 +493,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void goToBlockedAccounts() {
-        Toast.makeText(context, "Not yet implemented users", Toast.LENGTH_SHORT).show();
+        Fragment fragment = new ManageBlocksFragment();
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 
 }

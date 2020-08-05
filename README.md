@@ -39,11 +39,11 @@ An platform for users to coordinate trades between board games/puzzles
 **Stretch Stories**
 
 * Users can add more information about the game (duration, players, genre)
-* Users can filter section in main Stream
+* Users can filter section in main Stream by type, condition, difficulty and age rating
 * Users can favorite to view later
 * Users can get hints and autocompletion for title/information from BGG API
 * Users can block/report users and posts
-* Users has a settings page to blocklist/notifications
+    * Users has a settings page to manage blocks and reports
 
 ### 2. Screen Archetypes
 

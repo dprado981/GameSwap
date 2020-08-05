@@ -106,6 +106,7 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
 
     @Override
     public void onSnapPositionChange(int position) {
+        if (allPosts.isEmpty()) { return; }
         Post post = allPosts.get(position);
         if (post != null) {
             callback.onSnapPositionChange(post, position);

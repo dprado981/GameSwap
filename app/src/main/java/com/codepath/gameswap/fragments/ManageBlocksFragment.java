@@ -20,9 +20,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.codepath.gameswap.BlocksAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.ReportedPostsAdapter;
 import com.codepath.gameswap.UserReportsAdapter;
+import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.models.PostReport;
 import com.codepath.gameswap.models.Report;
@@ -38,26 +40,22 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ManageUserReportsFragment extends Fragment implements View.OnClickListener {
+public class ManageBlocksFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = ManageUserReportsFragment.class.getSimpleName();
+    private static final String TAG = ManageBlocksFragment.class.getSimpleName();
 
     private Context context;
     private FragmentActivity activity;
     private FragmentManager fragmentManager;
 
-    private RecyclerView rvUnderReview;
-    private RecyclerView rvCompletedReview;
+    private RecyclerView rvBlocked;
     private Button btnClear;
 
-    private LinearLayoutManager underReviewLayoutManager;
-    private List<Report> underReviewReports;
-    private UserReportsAdapter underReviewAdapter;
-    private LinearLayoutManager completedReviewLayoutManager;
-    private List<Report> completedReviewReports;
-    private UserReportsAdapter completedReviewAdapter;
+    private LinearLayoutManager layoutManager;
+    private List<Block> allBlocks;
+    private BlocksAdapter adapter;
 
-    public ManageUserReportsFragment() {
+    public ManageBlocksFragment() {
         // Required empty public constructor
     }
 
@@ -65,7 +63,7 @@ public class ManageUserReportsFragment extends Fragment implements View.OnClickL
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_manage_reports, container, false);
+        return inflater.inflate(R.layout.fragment_manage_blocks, container, false);
     }
 
     @Override
@@ -80,51 +78,34 @@ public class ManageUserReportsFragment extends Fragment implements View.OnClickL
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         TextView tvTitle = toolbar.findViewById(R.id.tvTitle);
-        rvUnderReview = view.findViewById(R.id.rvUnderReview);
-        rvCompletedReview = view.findViewById(R.id.rvCompletedReview);
+        rvBlocked = view.findViewById(R.id.rvBlocked);
         btnClear = view.findViewById(R.id.btnClear);
 
-        tvTitle.setText(R.string.manage_reported_users);
+        tvTitle.setText(R.string.manage_blocked_users);
         btnClear.setOnClickListener(this);
 
-        underReviewLayoutManager = new LinearLayoutManager(context);
-        underReviewReports = new ArrayList<>();
-        underReviewAdapter = new UserReportsAdapter(context, underReviewReports);
-        rvUnderReview.setAdapter(underReviewAdapter);
-        rvUnderReview.setLayoutManager(underReviewLayoutManager);
+        layoutManager = new LinearLayoutManager(context);
+        allBlocks = new ArrayList<>();
+        adapter = new BlocksAdapter(context, allBlocks);
+        rvBlocked.setAdapter(adapter);
+        rvBlocked.setLayoutManager(layoutManager);
 
-        completedReviewLayoutManager = new LinearLayoutManager(context);
-        completedReviewReports = new ArrayList<>();
-        completedReviewAdapter = new UserReportsAdapter(context, completedReviewReports);
-        rvCompletedReview.setAdapter(completedReviewAdapter);
-        rvCompletedReview.setLayoutManager(completedReviewLayoutManager);
-
-        queryReportedPosts();
+        queryBlocked();
     }
 
-    private void queryReportedPosts() {
-        ParseRelation<Report> relation = ParseUser.getCurrentUser().getRelation("reports");
-        ParseQuery<Report> query = relation.getQuery();
-        query.include("post");
-        query.include("reportedBy");
-        query.findInBackground(new FindCallback<Report>() {
+    private void queryBlocked() {
+        ParseRelation<Block> relation = ParseUser.getCurrentUser().getRelation("blocks");
+        ParseQuery<Block> query = relation.getQuery();
+        query.include("user");
+        query.include("blockedBy");
+        query.findInBackground(new FindCallback<Block>() {
             @Override
-            public void done(List<Report> reports, ParseException e) {
+            public void done(List<Block> blocks, ParseException e) {
                 if (e != null) {
                     Log.e(TAG, "Error getting reports");
                     return;
                 }
-                List<Report> underReview = new ArrayList<>();
-                List<Report> completedReview = new ArrayList<>();
-                for (Report report : reports) {
-                    if (report.isUnderReview()) {
-                        underReview.add(report);
-                    } else {
-                        completedReview.add(report);
-                    }
-                }
-                underReviewAdapter.addAll(underReview);
-                completedReviewAdapter.addAll(completedReview);
+                adapter.addAll(blocks);
             }
         });
     }
@@ -133,18 +114,17 @@ public class ManageUserReportsFragment extends Fragment implements View.OnClickL
     public void onClick(View view) {
         if (view == btnClear) {
             new AlertDialog.Builder(context)
-                    .setTitle("Delete Completed Reports")
-                    .setMessage("This action cannot be undone. Are you sure you want to delete the completed reports?")
+                    .setTitle("Unblock Accounts")
+                    .setMessage("This action cannot be undone. Are you sure you want to unblock all blocked accounts?")
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            completedReviewAdapter.deleteAll();
+                            adapter.deleteAll();
                         }
                     })
                     // A null listener allows the button to dismiss the dialog and take no further action.
                     .setNegativeButton(android.R.string.no, null)
                     .setIcon(R.drawable.ic_caution)
                     .show();
-
         }
     }
 }

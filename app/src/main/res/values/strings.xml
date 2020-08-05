@@ -91,4 +91,6 @@
     <string name="completed_review">Completed Review</string>
     <string name="under_review">Under Review</string>
     <string name="status">Status:</string>
+    <string name="manage_reported_users">Manage Reported Users</string>
+    <string name="manage_blocked_users">Manage Blocked Users</string>
 </resources>

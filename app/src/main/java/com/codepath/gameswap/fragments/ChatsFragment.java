@@ -268,8 +268,8 @@ public class ChatsFragment extends Fragment {
     private void filterUnblocked(final List<Conversation> relevantConversations, final boolean forLoadMore) {
         ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
         ParseQuery<Block> blockQuery = blockRelation.getQuery();
-        blockQuery.include(Block.KEY_BLOCKING);
-        blockQuery.include(Block.KEY_BLOCKED);
+        blockQuery.include(Block.KEY_USER);
+        blockQuery.include(Block.KEY_BLOCKED_BY);
         blockQuery.findInBackground(new FindCallback<Block>() {
             @Override
             public void done(List<Block> blocks, ParseException e) {
@@ -285,8 +285,8 @@ public class ChatsFragment extends Fragment {
                         String usernameOne = conversation.getUserOne().getUsername();
                         String usernameTwo = conversation.getUserTwo().getUsername();
                         boolean isUserOne = usernameOne.equals(ParseUser.getCurrentUser().getUsername());
-                        if ((isUserOne && block.getBlocked().getUsername().equals(usernameTwo))
-                                || (!isUserOne && block.getBlocked().getUsername().equals(usernameOne))) {
+                        if ((isUserOne && block.getBlockedBy().getUsername().equals(usernameTwo))
+                                || (!isUserOne && block.getBlockedBy().getUsername().equals(usernameOne))) {
                             blockedConversation = true;
                             break;
                         }
