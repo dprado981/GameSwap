@@ -28,6 +28,7 @@
             android:scaleType="center" />
 
         <LinearLayout
+            android:id="@+id/llDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -52,7 +53,7 @@
                         android:id="@+id/ivProfile"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                android:background="@color/colorAccent"
+                        android:background="@color/colorAccent"
                         android:contentDescription="@string/profile_picture"
                         android:scaleType="centerCrop"
                         app:srcCompat="@drawable/ic_profile" />
@@ -81,7 +82,7 @@
                 android:maxWidth="250dp"
                 android:maxLines="1"
                 android:textSize="30sp"
-                tools:text="Title"/>
+                tools:text="Title" />
 
             <RatingBar
                 android:id="@+id/rbCondition"
@@ -94,8 +95,42 @@
                 android:secondaryProgressTint="#00000000"
                 android:stepSize="0.1" />
 
+            <LinearLayout
+                android:id="@+id/llStatus"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvStatusText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    tools:text="No action taken" />
+            </LinearLayout>
+
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/ivClear"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/image"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

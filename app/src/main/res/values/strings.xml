@@ -84,4 +84,11 @@
     <string name="account_exists">Already have an account? Click here to log in</string>
     <string name="try_sending_someone_a_message">Try sending someone a message!</string>
     <string name="related_post">Related Post</string>
+    <string name="blocked_accounts">Blocked Accounts</string>
+    <string name="reported_posts">Reported Posts</string>
+    <string name="reported_users">Reported Users</string>
+    <string name="manage_reported_posts">Manage Reported Posts</string>
+    <string name="completed_review">Completed Review</string>
+    <string name="under_review">Under Review</string>
+    <string name="status">Status:</string>
 </resources>

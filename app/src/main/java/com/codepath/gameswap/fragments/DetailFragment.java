@@ -337,6 +337,8 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
                         Toast.makeText(context, "Report sent!", Toast.LENGTH_SHORT).show();
                         post.getRelation("reports").add(report);
                         post.saveInBackground();
+                        ParseUser.getCurrentUser().getRelation("postReports").add(report);
+                        ParseUser.getCurrentUser().saveInBackground();
                     }
                 });
             }

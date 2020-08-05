@@ -80,6 +80,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         notifyDataSetChanged();
     }
 
+    public List<Post> getAll() {
+        return posts;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
@@ -111,8 +115,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         public void bind(Post post) {
             this.post = post;
             ParseUser user = post.getUser();
-            String firstName = user.getString("firstName");
-            String lastName = user.getString("lastName");
+            String firstName = null;
+            String lastName = null;
+            try {
+                firstName = user.fetchIfNeeded().getString("firstName");
+                lastName = user.getString("lastName");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             if (lastName != null) {
                 tvName.setText(String.format("%s %s.", firstName, lastName.charAt(0)));
             } else {
@@ -166,7 +176,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 fragmentManager.beginTransaction()
                         .replace(R.id.flContainer, fragment)
                         .addToBackStack(null).commit();
-
             }
         }
     }

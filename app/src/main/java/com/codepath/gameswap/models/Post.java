@@ -36,6 +36,7 @@ public class Post extends ParseObject {
     public static final String KEY_IMAGE_FOUR = "image4";
     public static final String KEY_TYPE = "type";
     public static final String KEY_REPORTED_BY = "reportedBy";
+    public static final String KEY_TO_BE_DELETED = "toBeDeleted";
 
     public String getTitle() { return getString(KEY_TITLE); }
 
@@ -174,5 +175,9 @@ public class Post extends ParseObject {
         newPost.setReports(oldPost.getReports());
         return newPost;
     }
+
+    public void setToBeDeleted(boolean toBeDeleted) { put(KEY_TO_BE_DELETED, toBeDeleted); }
+
+    public boolean isToBeDeleted() { return getBoolean(KEY_TO_BE_DELETED); }
 
 }

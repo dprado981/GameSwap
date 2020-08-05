@@ -105,6 +105,13 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        context = getContext();
+        activity = (FragmentActivity) context;
+        if (activity != null) {
+            fragmentManager = activity.getSupportFragmentManager();
+        }
+        currentUser = ParseUser.getCurrentUser();
+
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         TextView tvTitle = toolbar.findViewById(R.id.tvTitle);
         rvPosts = view.findViewById(R.id.rvPosts);
@@ -121,13 +128,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         if (appCompatActivity != null) {
             appCompatActivity.setSupportActionBar(toolbar);
         }
-
-        context = getContext();
-        activity = (FragmentActivity) context;
-        if (activity != null) {
-            fragmentManager = activity.getSupportFragmentManager();
-        }
-        currentUser = ParseUser.getCurrentUser();
 
         layoutManager = new LinearLayoutManager(context);
         allPosts = new ArrayList<>();
@@ -227,7 +227,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 R.color.colorPrimary,
                 R.color.colorDelete);
     }
-
 
     private void queryPosts(final boolean loadNext) {
         // Specify which class to query
@@ -385,8 +384,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         } else if (id == R.id.actionEdit) {
             goToEditProfile();
             return true;
-        } else if (id == R.id.actionSettings) {
-            Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.actionReportedPosts) {
+            goToReportedPosts();
+            return true;
+        } else if (id == R.id.actionReportedUsers) {
+            goToReportedUsers();
+            return true;
+        } else if (id == R.id.actionBlockedAccounts) {
+            goToBlockedAccounts();
             return true;
         } else {
             return false;
@@ -475,6 +480,20 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         bundle.putParcelable(Post.KEY_USER, currentUser);
         fragment.setArguments(bundle);
         fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+    }
+
+
+    private void goToReportedPosts() {
+        Fragment fragment = new ManagePostReportsFragment();
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
+    }
+
+    private void goToReportedUsers() {
+        Toast.makeText(context, "Not yet implemented users", Toast.LENGTH_SHORT).show();
+    }
+
+    private void goToBlockedAccounts() {
+        Toast.makeText(context, "Not yet implemented users", Toast.LENGTH_SHORT).show();
     }
 
 }

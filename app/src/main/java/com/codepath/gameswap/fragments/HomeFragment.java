@@ -101,8 +101,6 @@ public class HomeFragment extends Fragment
         // Required empty public constructor
     }
 
-    // TODO: add difficulty and age rating to filter
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -468,16 +466,18 @@ public class HomeFragment extends Fragment
 
     // TODO: implement reporting/block dashboard
 
-    // TODO: improve search of chats to include messages (?)
-
     // TODO: add toolbar on conversation fragment with options to block/report user and display username
 
+    // TODO: For 8/5
     // TODO: add ability to favorite posts (be able to do from list view and detail view (and maybe infowindow))
     // TODO: add tab in profile to view all favorited posts (swipe left on main post thingy to get to favorites)
     // TODO: add bar between profile header and list to show user posted items vs favorited
 
     // TODO: do something different with info window maybe
 
+    // TODO: improve search of chats to include messages (?)
+
     // TODO: add ability to change password
+    // TODO: implement 'forgot password'
 
 }

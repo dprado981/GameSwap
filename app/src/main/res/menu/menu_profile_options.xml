@@ -15,5 +15,17 @@
         app:showAsAction="never" />
     <item android:id="@+id/actionSettings"
         android:title="@string/settings"
-        app:showAsAction="never" />
+        app:showAsAction="never">
+        <menu>
+            <item android:id="@+id/actionReportedPosts"
+                android:title="@string/reported_posts"
+                app:showAsAction="never" />
+            <item android:id="@+id/actionReportedUsers"
+                android:title="@string/reported_users"
+                app:showAsAction="never" />
+            <item android:id="@+id/actionBlockedAccounts"
+                android:title="@string/blocked_accounts"
+                app:showAsAction="never" />
+        </menu>
+    </item>
 </menu>
