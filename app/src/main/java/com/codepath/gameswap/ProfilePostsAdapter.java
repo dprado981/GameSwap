@@ -9,6 +9,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,8 +51,18 @@ public class ProfilePostsAdapter extends PostsAdapter {
 
         public ViewHolder(@NonNull View view) {
             super(view);
-            llHeader.setVisibility(View.GONE);
             CardView cvContent = view.findViewById(R.id.cvContent);
+            LinearLayout llDetails = view.findViewById(R.id.llDetails);
+
+            RelativeLayout.LayoutParams ivFavoriteLayoutParams = (RelativeLayout.LayoutParams)ivFavorite.getLayoutParams();
+            ivFavoriteLayoutParams.removeRule(RelativeLayout.END_OF);
+            ivFavorite.setLayoutParams(ivFavoriteLayoutParams);
+
+            RelativeLayout.LayoutParams llDetailsLayoutParams = (RelativeLayout.LayoutParams)llDetails.getLayoutParams();
+            llDetailsLayoutParams.addRule(RelativeLayout.START_OF, R.id.ivFavorite);
+            llDetails.setLayoutParams(llDetailsLayoutParams);
+
+            llHeader.setVisibility(View.GONE);
             ViewGroup.LayoutParams cvParams = cvContent.getLayoutParams();
             cvParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
             cvParams.height = 320;

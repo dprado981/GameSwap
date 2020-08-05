@@ -79,7 +79,7 @@
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
                 android:ellipsize="end"
-                android:maxWidth="250dp"
+                android:maxWidth="200dp"
                 android:maxLines="1"
                 android:textSize="30sp"
                 tools:text="Title" />
@@ -127,10 +127,24 @@
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:layout_marginEnd="12dp"
             android:contentDescription="@string/image"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_clear"
             android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/ivFavorite"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:layout_toEndOf="@+id/llDetails"
+            android:contentDescription="@string/image"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_favorite_outline"
+            android:visibility="visible" />
 
     </RelativeLayout>
 

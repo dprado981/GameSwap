@@ -37,6 +37,7 @@ public class Post extends ParseObject {
     public static final String KEY_TYPE = "type";
     public static final String KEY_REPORTED_BY = "reportedBy";
     public static final String KEY_TO_BE_DELETED = "toBeDeleted";
+    public static final String KEY_FAVORITED_BY = "favoritedBy";
 
     public String getTitle() { return getString(KEY_TITLE); }
 

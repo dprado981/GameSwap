@@ -33,8 +33,11 @@ import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.DeleteCallback;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -94,6 +97,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         protected TextView tvTitle;
         protected ImageView ivImage;
         protected RatingBar rbCondition;
+        protected ImageView ivFavorite;
 
         protected Post post;
 
@@ -107,13 +111,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvTitle = view.findViewById(R.id.tvTitle);
             ivImage = view.findViewById(R.id.ivImage);
             rbCondition = view.findViewById(R.id.rbCondition);
+            ivFavorite = view.findViewById(R.id.ivFavorite);
 
             llHeader.setOnClickListener(this);
             rlContent.setOnClickListener(this);
+            ivFavorite.setOnClickListener(this);
         }
 
         public void bind(Post post) {
             this.post = post;
+            setFavorite(true);
             ParseUser user = post.getUser();
             String firstName = null;
             String lastName = null;
@@ -176,7 +183,51 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 fragmentManager.beginTransaction()
                         .replace(R.id.flContainer, fragment)
                         .addToBackStack(null).commit();
+            } else if (view == ivFavorite) {
+                setFavorite(false);
             }
+        }
+
+        private void setFavorite(final boolean forSetup) {
+            final ParseRelation<ParseUser> relation = post.getRelation(Post.KEY_FAVORITED_BY);
+            ParseQuery<ParseUser> query = relation.getQuery();
+            query.findInBackground(new FindCallback<ParseUser>() {
+                @Override
+                public void done(List<ParseUser> users, ParseException e) {
+                    if (e != null) {
+                        Log.e(TAG, "Error getting favorites");
+                        return;
+                    }
+                    ParseUser currentUser = ParseUser.getCurrentUser();
+                    boolean isFavorited = false;
+                    for (ParseUser user : users) {
+                        Log.d(TAG, "username: " + user.getUsername());
+                        if (user.getUsername().equals(currentUser.getUsername())) {
+                            isFavorited = true;
+                            break;
+                        }
+                    }
+                    if (forSetup) {
+                        if (isFavorited) {
+                            ivFavorite.setImageResource(R.drawable.ic_favorite_filled);
+                        } else {
+                            ivFavorite.setImageResource(R.drawable.ic_favorite_outline);
+                        }
+                    } else {
+                        if (isFavorited) {
+                            ivFavorite.setImageResource(R.drawable.ic_favorite_outline);
+                            relation.remove(currentUser);
+                            currentUser.getRelation("favorites").remove(post);
+                        } else {
+                            ivFavorite.setImageResource(R.drawable.ic_favorite_filled);
+                            relation.add(currentUser);
+                            currentUser.getRelation("favorites").add(post);
+                        }
+                        post.saveInBackground();
+                        currentUser.saveInBackground();
+                    }
+                }
+            });
         }
     }
 }

@@ -45,6 +45,7 @@ public class ReportedPostsAdapter extends PostsAdapter {
     public class ViewHolder extends PostsAdapter.ViewHolder {
 
         private ImageView ivClear;
+        private ImageView ivFavorite;
         private LinearLayout llStatus;
         private TextView tvStatusText;
 
@@ -54,9 +55,11 @@ public class ReportedPostsAdapter extends PostsAdapter {
             super(view);
             CardView cvContent = view.findViewById(R.id.cvContent);
             ivClear = view.findViewById(R.id.ivClear);
+            ivFavorite = view.findViewById(R.id.ivFavorite);
             llStatus = view.findViewById(R.id.llStatus);
             tvStatusText = view.findViewById(R.id.tvStatusText);
 
+            ivFavorite.setVisibility(View.GONE);
             ViewGroup.LayoutParams cvParams = cvContent.getLayoutParams();
             cvParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
             cvParams.height = 320;
