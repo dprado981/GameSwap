@@ -106,6 +106,7 @@ public class CameraUtils {
         return String.format(Locale.getDefault(), PHOTO_FILE_NAME_FORMAT, 1);
     }
 
+    @SuppressWarnings("SameReturnValue")
     public static String getProfileFileName() {
         return PROFILE_PHOTO_FILE_NAME;
     }

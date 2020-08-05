@@ -306,7 +306,7 @@
                         android:layout_column="1"
                         android:layout_gravity="center_vertical"
                         android:layout_marginStart="8dp"
-                        android:hint="@string/hieght_in_inches"
+                        android:hint="@string/height_in_inches"
                         android:importantForAutofill="no"
                         android:inputType="number"
                         android:visibility="gone" />

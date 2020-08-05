@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,7 +22,6 @@ import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Post;
-import com.codepath.gameswap.models.Report;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;

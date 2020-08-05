@@ -465,14 +465,7 @@ public class HomeFragment extends Fragment
         });
     }
 
-    // TODO: implement reporting/block dashboard
-
     // TODO: add toolbar on conversation fragment with options to block/report user and display username
-
-    // TODO: For 8/5
-    // TODO: add ability to favorite posts (be able to do from list view and detail view (and maybe infowindow))
-    // TODO: add tab in profile to view all favorited posts (swipe left on main post thingy to get to favorites)
-    // TODO: add bar between profile header and list to show user posted items vs favorited
 
     // TODO: do something different with info window maybe
 

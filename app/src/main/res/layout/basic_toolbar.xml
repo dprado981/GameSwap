@@ -17,7 +17,7 @@
             android:layout_centerVertical="true"
             android:textSize="20sp"
             android:textStyle="bold"
-            tools:text="Basic Toobar" />
+            tools:text="Basic Toolbar" />
 
     </RelativeLayout>
 

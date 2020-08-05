@@ -31,7 +31,6 @@ import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.models.PostReport;
-import com.codepath.gameswap.models.Report;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.parse.DeleteCallback;

@@ -146,13 +146,12 @@ public class Post extends ParseObject {
     public List<String> getReports() { return (List<String>) get(KEY_REPORTED_BY); }
 
     public boolean containedIn(List<Post> posts) {
-        boolean containedIn = false;
         for (Post post : posts) {
             if (post.getObjectId().equals(this.getObjectId())) {
-                containedIn = true;
+                return true;
             }
         }
-        return containedIn;
+        return false;
     }
 
     public static Post copy(Post oldPost) {

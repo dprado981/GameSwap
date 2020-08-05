@@ -98,7 +98,6 @@ public class Filters {
         return this;
     }
 
-
     @NotNull
     @Override
     public String toString() {

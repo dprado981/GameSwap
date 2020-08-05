@@ -18,7 +18,8 @@
             android:text="@string/chats"
             android:textSize="20sp"
             android:textStyle="bold"
-            tools:text="Chats" />
+            tools:text="Chats"
+            tools:ignore="RelativeOverlap" />
 
         <SearchView
             android:id="@+id/searchView"

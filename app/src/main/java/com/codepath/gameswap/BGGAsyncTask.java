@@ -7,6 +7,7 @@ import java.io.IOException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class BGGAsyncTask extends AsyncTask<String, String, String> {
 
@@ -32,7 +33,10 @@ public class BGGAsyncTask extends AsyncTask<String, String, String> {
                 .build();
         try {
             Response response = client.newCall(request).execute();
-            return response.body().string();
+            ResponseBody responseBody = response.body();
+            if (responseBody != null) {
+                return responseBody.string();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

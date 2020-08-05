@@ -123,7 +123,7 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher, 
                 etUsername.setText("");
                 etPassword.setText("");
                 ParseUser.logOutInBackground();
-                Toast.makeText(context, "Sucess! Log in to start!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Success! Log in to start!", Toast.LENGTH_SHORT).show();
                 goToLogin();
             }
         });

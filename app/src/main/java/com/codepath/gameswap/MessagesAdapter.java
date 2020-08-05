@@ -13,6 +13,8 @@ import com.codepath.gameswap.models.Message;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
@@ -43,17 +45,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    @NonNull
+    @NotNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == SENT_MESSAGE) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_sent_message, parent, false);
             return new SentViewHolder(view);
-        } else if (viewType == RECEIVED_MESSAGE) {
+        } else { // viewType == RECEIVED_MESSAGE
             View view = LayoutInflater.from(context).inflate(R.layout.item_received_message, parent, false);
             return new ReceivedViewHolder(view);
-        } else {
-            return null;
         }
     }
 

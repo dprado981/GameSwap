@@ -42,7 +42,7 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
 
     protected Context context;
     protected int lastPosition;
-    private boolean layedOut;
+    private boolean laidOut;
     private PostsFragmentInterface callback;
 
     protected List<Post> allPosts;
@@ -71,7 +71,7 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
 
         rvPosts = view.findViewById(R.id.rvPosts);
         lastPosition = 0;
-        layedOut = false;
+        laidOut = false;
         Bundle bundle = getArguments();
         if (bundle != null) {
             lastPosition = bundle.getInt("lastPosition");
@@ -92,12 +92,12 @@ public class PostsFragment extends Fragment implements OnSnapPositionChangeListe
             @Override
             public void onGlobalLayout() {
                 int itemCount = adapter.getItemCount();
-                if (!layedOut && itemCount > 0) {
+                if (!laidOut && itemCount > 0) {
                     if (itemCount - 1 < lastPosition) {
                         scrollTo(itemCount - 1);
                     } else {
                         scrollTo(lastPosition);
-                        layedOut = true;
+                        laidOut = true;
                     }
                 }
             }

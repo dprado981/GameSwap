@@ -22,12 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.codepath.gameswap.BlocksAdapter;
 import com.codepath.gameswap.R;
-import com.codepath.gameswap.ReportedPostsAdapter;
-import com.codepath.gameswap.UserReportsAdapter;
 import com.codepath.gameswap.models.Block;
-import com.codepath.gameswap.models.Post;
-import com.codepath.gameswap.models.PostReport;
-import com.codepath.gameswap.models.Report;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;

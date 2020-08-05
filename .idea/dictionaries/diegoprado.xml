@@ -2,9 +2,24 @@
   <dictionary name="diegoprado">
     <words>
       <w>autofill</w>
+      <w>averageweight</w>
+      <w>bottomsheet</w>
       <w>codepath</w>
+      <w>dataset</w>
+      <w>favorited</w>
       <w>fileprovider</w>
       <w>gameswap</w>
+      <w>gnkg</w>
+      <w>gtpw</w>
+      <w>heroku</w>
+      <w>hieght</w>
+      <w>infowindow</w>
+      <w>maxplayers</w>
+      <w>maxplaytime</w>
+      <w>minage</w>
+      <w>minplayers</w>
+      <w>minplaytime</w>
+      <w>signin</w>
       <w>userone</w>
       <w>usertwo</w>
     </words>

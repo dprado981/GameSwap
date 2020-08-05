@@ -1,33 +1,14 @@
 package com.codepath.gameswap.fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -35,26 +16,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
 import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
-import com.codepath.gameswap.LoginActivity;
 import com.codepath.gameswap.PostsAdapter;
 import com.codepath.gameswap.ProfilePostsAdapter;
 import com.codepath.gameswap.R;
-import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
-import com.codepath.gameswap.models.Report;
 import com.parse.FindCallback;
-import com.parse.LogOutCallback;
 import com.parse.ParseException;
-import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -212,7 +184,13 @@ public class ProfilePostsFragment extends Fragment {
                     scrollListener.resetState();
                     swipeContainer.setRefreshing(false);
                 }
-                adapter.addAll(posts);
+                List<Post> newPosts = new ArrayList<>();
+                for (Post post : posts) {
+                    if (!post.containedIn(allPosts)) {
+                        newPosts.add(post);
+                    }
+                }
+                adapter.addAll(newPosts);
                 adapter.notifyDataSetChanged();
                 if (lastPosition >= 0) {
                     rvPosts.scrollToPosition(lastPosition);

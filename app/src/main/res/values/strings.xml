@@ -33,7 +33,7 @@
     <string name="of_minutes"># of minutes</string>
     <string name="of_pieces"># of pieces</string>
     <string name="width_in_inches">width in inches</string>
-    <string name="hieght_in_inches">height in inches</string>
+    <string name="height_in_inches">height in inches</string>
     <string name="height">Height:</string>
     <string name="width">Width:</string>
     <string name="num_pieces">Num Pieces:</string>
