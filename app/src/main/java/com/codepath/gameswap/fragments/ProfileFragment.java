@@ -31,20 +31,17 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
-import com.codepath.gameswap.EndlessRecyclerViewScrollListener;
 import com.codepath.gameswap.LoginActivity;
-import com.codepath.gameswap.PostsAdapter;
-import com.codepath.gameswap.ProfilePostsAdapter;
+import com.codepath.gameswap.ProfilePagerAdapter;
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.models.Block;
 import com.codepath.gameswap.models.Conversation;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.models.Report;
+import com.google.android.material.tabs.TabLayout;
 import com.parse.FindCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
@@ -57,7 +54,6 @@ import com.parse.SaveCallback;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,13 +72,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private ParseUser user;
     private ParseUser currentUser;
     private Conversation targetConversation;
-
-    private List<Post> allPosts;
-    private LinearLayoutManager layoutManager;
-    private PostsAdapter adapter;
-    private RecyclerView rvPosts;
-    private SwipeRefreshLayout swipeContainer;
-    private EndlessRecyclerViewScrollListener scrollListener;
 
     private ImageView ivProfile;
     private TextView tvName;
@@ -113,12 +102,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         TextView tvTitle = toolbar.findViewById(R.id.tvTitle);
-        rvPosts = view.findViewById(R.id.rvPosts);
-        swipeContainer = view.findViewById(R.id.swipeContainer);
         ivProfile = view.findViewById(R.id.ivProfile);
         tvName = view.findViewById(R.id.tvName);
         tvBio = view.findViewById(R.id.tvBio);
         btnMessage = view.findViewById(R.id.btnMessage);
+        ViewPager viewPager = view.findViewById(R.id.viewPager);
+        TabLayout tabLayout = view.findViewById(R.id.tabLayout);
 
         toolbar.setTitle("");
         tvTitle.setText(getString(R.string.profile));
@@ -127,12 +116,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         if (appCompatActivity != null) {
             appCompatActivity.setSupportActionBar(toolbar);
         }
-
-        layoutManager = new LinearLayoutManager(context);
-        allPosts = new ArrayList<>();
-        adapter = new ProfilePostsAdapter(context, allPosts);
-        rvPosts.setAdapter(adapter);
-        rvPosts.setLayoutManager(layoutManager);
 
         Bundle bundle = getArguments();
         if (bundle == null) {
@@ -202,69 +185,22 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         btnMessage.setOnClickListener(this);
 
-        queryPosts(false);
+        // Create an adapter that knows which fragment should be shown on each page
+        ProfilePagerAdapter pagerAdapter = new ProfilePagerAdapter(context, getChildFragmentManager(),
+                new ProfilePostsFragment(false, user), new ProfilePostsFragment(true, user));
 
-        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                queryPosts(true);
-            }
-        };
-        // Adds the scroll listener to RecyclerView
-        rvPosts.addOnScrollListener(scrollListener);
+        // Set the adapter onto the view pager
+        viewPager.setAdapter(pagerAdapter);
 
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                queryPosts(false);
-            }
-        });
-        // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(
-                R.color.colorAccent,
-                R.color.colorPrimary,
-                R.color.colorDelete);
-    }
-
-    private void queryPosts(final boolean loadNext) {
-        // Specify which class to query
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        // Find all posts
-        query.include(Post.KEY_USER);
-        query.setLimit(HomeFragment.MAX_QUERY_SIZE);
-        query.whereEqualTo(Post.KEY_USER, user);
-        query.addDescendingOrder(Post.KEY_CREATED_AT);
-        if (loadNext) {
-            Date olderThanDate = allPosts.get(allPosts.size() - 1).getCreatedAt();
-            query.whereLessThan(Post.KEY_CREATED_AT, olderThanDate);
-        }
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with getting posts", e);
-                    return;
-                }
-                if (!loadNext) {
-                    adapter.clear();
-                    scrollListener.resetState();
-                    swipeContainer.setRefreshing(false);
-                }
-                adapter.addAll(posts);
-                adapter.notifyDataSetChanged();
-                if (lastPosition >= 0) {
-                    rvPosts.scrollToPosition(lastPosition);
-                    lastPosition = -1;
-                }
-            }
-        });
+        // Give the TabLayout the ViewPager
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        lastPosition = layoutManager.findFirstVisibleItemPosition();
+        //lastPosition = layoutManager.findFirstVisibleItemPosition();
+        lastPosition = 0;
     }
 
     @Override

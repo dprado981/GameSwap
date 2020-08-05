@@ -420,7 +420,6 @@ public class HomeFragment extends Fragment
     }
 
     private void filterUnblocked(final List<Post> posts, final boolean forSearch, final boolean forLoadMore, final boolean firstQuery, final boolean forFilter) {
-        Log.d(TAG, "filtering blocked");
         ParseRelation<Block> blockRelation = ParseUser.getCurrentUser().getRelation("blocks");
         ParseQuery<Block> blockQuery = blockRelation.getQuery();
         blockQuery.include(Block.KEY_USER);
@@ -432,9 +431,6 @@ public class HomeFragment extends Fragment
                     pages = 1;
                     allPosts.clear();
                     postsFragment.clear();
-                }
-                for (Block block : blocks) {
-                    Log.d(TAG, block.getUser().getUsername());
                 }
                 List<Post> newPosts = new ArrayList<>();
                 for (Post post : posts) {

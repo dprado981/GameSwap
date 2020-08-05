@@ -4,12 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -18,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -27,19 +22,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.codepath.gameswap.fragments.DetailGameFragment;
 import com.codepath.gameswap.fragments.DetailPuzzleFragment;
-import com.codepath.gameswap.fragments.EditGameFragment;
-import com.codepath.gameswap.fragments.EditPuzzleFragment;
 import com.codepath.gameswap.fragments.ProfileFragment;
 import com.codepath.gameswap.models.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -201,7 +192,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                     ParseUser currentUser = ParseUser.getCurrentUser();
                     boolean isFavorited = false;
                     for (ParseUser user : users) {
-                        Log.d(TAG, "username: " + user.getUsername());
                         if (user.getUsername().equals(currentUser.getUsername())) {
                             isFavorited = true;
                             break;

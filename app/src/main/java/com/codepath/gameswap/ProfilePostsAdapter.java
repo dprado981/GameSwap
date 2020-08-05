@@ -1,32 +1,24 @@
 package com.codepath.gameswap;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
+import androidx.viewpager.widget.ViewPager;
 
-import com.codepath.gameswap.fragments.EditGameFragment;
-import com.codepath.gameswap.fragments.EditPuzzleFragment;
 import com.codepath.gameswap.models.Post;
-import com.parse.DeleteCallback;
+import com.google.android.material.tabs.TabLayout;
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,6 +49,7 @@ public class ProfilePostsAdapter extends PostsAdapter {
             RelativeLayout.LayoutParams ivFavoriteLayoutParams = (RelativeLayout.LayoutParams)ivFavorite.getLayoutParams();
             ivFavoriteLayoutParams.removeRule(RelativeLayout.END_OF);
             ivFavorite.setLayoutParams(ivFavoriteLayoutParams);
+            ivFavorite.setOnClickListener(this);
 
             RelativeLayout.LayoutParams llDetailsLayoutParams = (RelativeLayout.LayoutParams)llDetails.getLayoutParams();
             llDetailsLayoutParams.addRule(RelativeLayout.START_OF, R.id.ivFavorite);
@@ -67,6 +60,43 @@ public class ProfilePostsAdapter extends PostsAdapter {
             cvParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
             cvParams.height = 320;
             cvContent.setLayoutParams(cvParams);
+        }
+
+        @Override
+        public void onClick(View view) {
+            super.onClick(view);
+            if (view == ivFavorite) {
+                final ParseRelation<ParseUser> relation = post.getRelation(Post.KEY_FAVORITED_BY);
+                ParseQuery<ParseUser> query = relation.getQuery();
+                query.findInBackground(new FindCallback<ParseUser>() {
+                    @Override
+                    public void done(List<ParseUser> users, ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Error getting favorites");
+                            return;
+                        }
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        boolean isFavorited = false;
+                        for (ParseUser user : users) {
+                            if (user.getUsername().equals(currentUser.getUsername())) {
+                                isFavorited = true;
+                                break;
+                            }
+                        }
+                        if (isFavorited) {
+                            ivFavorite.setImageResource(R.drawable.ic_favorite_outline);
+                            relation.remove(currentUser);
+                            currentUser.getRelation("favorites").remove(post);
+                        } else {
+                            ivFavorite.setImageResource(R.drawable.ic_favorite_filled);
+                            relation.add(currentUser);
+                            currentUser.getRelation("favorites").add(post);
+                        }
+                        post.saveInBackground();
+                        currentUser.saveInBackground();
+                    }
+                });
+            }
         }
     }
 }
