@@ -489,7 +489,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void goToReportedUsers() {
-        Toast.makeText(context, "Not yet implemented users", Toast.LENGTH_SHORT).show();
+        Fragment fragment = new ManageUserReportsFragment();
+        fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
     }
 
     private void goToBlockedAccounts() {

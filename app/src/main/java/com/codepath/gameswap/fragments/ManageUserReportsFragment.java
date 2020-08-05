@@ -22,8 +22,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.codepath.gameswap.R;
 import com.codepath.gameswap.ReportedPostsAdapter;
+import com.codepath.gameswap.UserReportsAdapter;
 import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.models.PostReport;
+import com.codepath.gameswap.models.Report;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -36,9 +38,9 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ManagePostReportsFragment extends Fragment implements View.OnClickListener {
+public class ManageUserReportsFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = ManagePostReportsFragment.class.getSimpleName();
+    private static final String TAG = ManageUserReportsFragment.class.getSimpleName();
 
     private Context context;
     private FragmentActivity activity;
@@ -49,13 +51,13 @@ public class ManagePostReportsFragment extends Fragment implements View.OnClickL
     private Button btnClear;
 
     private LinearLayoutManager underReviewLayoutManager;
-    private List<Post> underReviewPosts;
-    private ReportedPostsAdapter underReviewAdapter;
+    private List<Report> underReviewReports;
+    private UserReportsAdapter underReviewAdapter;
     private LinearLayoutManager completedReviewLayoutManager;
-    private List<Post> completedReviewPosts;
-    private ReportedPostsAdapter completedReviewAdapter;
+    private List<Report> completedReviewReports;
+    private UserReportsAdapter completedReviewAdapter;
 
-    public ManagePostReportsFragment() {
+    public ManageUserReportsFragment() {
         // Required empty public constructor
     }
 
@@ -86,14 +88,14 @@ public class ManagePostReportsFragment extends Fragment implements View.OnClickL
         btnClear.setOnClickListener(this);
 
         underReviewLayoutManager = new LinearLayoutManager(context);
-        underReviewPosts = new ArrayList<>();
-        underReviewAdapter = new ReportedPostsAdapter(context, underReviewPosts);
+        underReviewReports = new ArrayList<>();
+        underReviewAdapter = new UserReportsAdapter(context, underReviewReports);
         rvUnderReview.setAdapter(underReviewAdapter);
         rvUnderReview.setLayoutManager(underReviewLayoutManager);
 
         completedReviewLayoutManager = new LinearLayoutManager(context);
-        completedReviewPosts = new ArrayList<>();
-        completedReviewAdapter = new ReportedPostsAdapter(context, completedReviewPosts);
+        completedReviewReports = new ArrayList<>();
+        completedReviewAdapter = new UserReportsAdapter(context, completedReviewReports);
         rvCompletedReview.setAdapter(completedReviewAdapter);
         rvCompletedReview.setLayoutManager(completedReviewLayoutManager);
 
@@ -101,24 +103,24 @@ public class ManagePostReportsFragment extends Fragment implements View.OnClickL
     }
 
     private void queryReportedPosts() {
-        ParseRelation<PostReport> relation = ParseUser.getCurrentUser().getRelation("postReports");
-        ParseQuery<PostReport> query = relation.getQuery();
+        ParseRelation<Report> relation = ParseUser.getCurrentUser().getRelation("reports");
+        ParseQuery<Report> query = relation.getQuery();
         query.include("post");
         query.include("reportedBy");
-        query.findInBackground(new FindCallback<PostReport>() {
+        query.findInBackground(new FindCallback<Report>() {
             @Override
-            public void done(List<PostReport> postReports, ParseException e) {
+            public void done(List<Report> reports, ParseException e) {
                 if (e != null) {
                     Log.e(TAG, "Error getting reports");
                     return;
                 }
-                List<Post> underReview = new ArrayList<>();
-                List<Post> completedReview = new ArrayList<>();
-                for (PostReport postReport : postReports) {
-                    if (postReport.isUnderReview()) {
-                        underReview.add(postReport.getPost());
+                List<Report> underReview = new ArrayList<>();
+                List<Report> completedReview = new ArrayList<>();
+                for (Report report : reports) {
+                    if (report.isUnderReview()) {
+                        underReview.add(report);
                     } else {
-                        completedReview.add(postReport.getPost());
+                        completedReview.add(report);
                     }
                 }
                 underReviewAdapter.addAll(underReview);

@@ -11,6 +11,8 @@ public class Report extends ParseObject {
     public static final String KEY_USER = "user";
     public static final String KEY_REPORTED_BY = "reportedBy";
     public static final String KEY_REASON = "reason";
+    public static final String KEY_STATUS = "status";
+    public static final String KEY_UNDER_REVIEW = "underReview";
 
     public ParseUser getUser() { return getParseUser(KEY_USER); }
 
@@ -23,5 +25,13 @@ public class Report extends ParseObject {
     public String getReason() { return getString(KEY_REASON); }
 
     public void setReason(String reason) { put(KEY_REASON, reason); }
+
+    public String getStatus() { return getString(KEY_STATUS); }
+
+    public void setStatus(String status) { put(KEY_STATUS, status); }
+
+    public boolean isUnderReview() { return getBoolean(KEY_UNDER_REVIEW); }
+
+    public void setStatus(boolean isUnderReview) { put(KEY_UNDER_REVIEW, isUnderReview); }
 
 }
