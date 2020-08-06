@@ -128,8 +128,8 @@ public class LoginActivity extends AppCompatActivity implements TextView.OnEdito
     public void onClick(View view) {
         if (allFieldsFilled(true)) {
             pbLogin.setVisibility(View.VISIBLE);
-            String username = etUsername.getText().toString();
-            String password = etPassword.getText().toString();
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
             if (view.getId() == R.id.btnLogin) {
                 loginUser(username, password);
             } else {
@@ -157,12 +157,12 @@ public class LoginActivity extends AppCompatActivity implements TextView.OnEdito
     }
 
     private boolean allFieldsFilled(boolean notifyUser) {
-        if (etUsername.getText().toString().isEmpty()) {
+        if (etUsername.getText().toString().trim().isEmpty()) {
             if (notifyUser) {
                 Toast.makeText(context, "Must have a username", Toast.LENGTH_SHORT).show();
             }
             return false;
-        } else if (etPassword.getText().toString().isEmpty()) {
+        } else if (etPassword.getText().toString().trim().isEmpty()) {
             if (notifyUser) {
                 Toast.makeText(context, "Must have a password", Toast.LENGTH_SHORT).show();
             }

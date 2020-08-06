@@ -468,12 +468,6 @@ public class HomeFragment extends Fragment
         });
     }
 
-
     // TODO: do something different with info window maybe
-
-    // TODO: improve search of chats to include messages (?)
-
-    // TODO: add ability to change password
-    // TODO: implement 'forgot password'
 
 }

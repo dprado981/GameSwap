@@ -143,11 +143,11 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher, 
     public void onClick(View view) {
         if (allFieldsFilled(true)) {
             pbRegister.setVisibility(View.VISIBLE);
-            String email = etEmail.getText().toString();
-            String username = etUsername.getText().toString();
-            String password = etPassword.getText().toString();
-            String firstName = etFirstName.getText().toString();
-            String lastName = etLastName.getText().toString();
+            String email = etEmail.getText().toString().trim();
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            String firstName = etFirstName.getText().toString().trim();
+            String lastName = etLastName.getText().toString().trim();
             if (view.getId() == R.id.btnRegister) {
                 registerUser(email, username, password, firstName, lastName);
             } else {
@@ -189,27 +189,27 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher, 
     }
 
     private boolean allFieldsFilled(boolean notifyUser) {
-        if (etEmail.getText().toString().isEmpty()) {
+        if (etEmail.getText().toString().trim().isEmpty()) {
             if (notifyUser) {
                 Toast.makeText(context, "Must have a email", Toast.LENGTH_SHORT).show();
             }
             return false;
-        } else if (etUsername.getText().toString().isEmpty()) {
+        } else if (etUsername.getText().toString().trim().isEmpty()) {
             if (notifyUser) {
                 Toast.makeText(context, "Must have a username", Toast.LENGTH_SHORT).show();
             }
             return false;
-        } else if (etPassword.getText().toString().isEmpty()) {
+        } else if (etPassword.getText().toString().trim().isEmpty()) {
             if (notifyUser) {
                 Toast.makeText(context, "Must have a password", Toast.LENGTH_SHORT).show();
             }
             return false;
-        } else if (etFirstName.getText().toString().isEmpty()) {
+        } else if (etFirstName.getText().toString().trim().isEmpty()) {
             if (notifyUser) {
                 Toast.makeText(context, "Must have a first name", Toast.LENGTH_SHORT).show();
             }
             return false;
-        } else if (etLastName.getText().toString().isEmpty()) {
+        } else if (etLastName.getText().toString().trim().isEmpty()) {
             if (notifyUser) {
                 Toast.makeText(context, "Must have a last name", Toast.LENGTH_SHORT).show();
             }

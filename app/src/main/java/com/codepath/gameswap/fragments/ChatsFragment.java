@@ -147,7 +147,6 @@ public class ChatsFragment extends Fragment {
         ImageView searchIcon = searchView.findViewById(searchIconId);
         searchIcon.setColorFilter(android.R.color.white);
 
-
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -254,15 +253,24 @@ public class ChatsFragment extends Fragment {
                 }
                 List<Conversation> relevantConversations = new ArrayList<>();
                 for (Conversation conversation : conversations) {
-                    String usernameOne = conversation.getUserOne().getUsername();
-                    String usernameTwo = conversation.getUserTwo().getUsername();
+                    String usernameOne = conversation.getUserOne().getUsername().toLowerCase();
+                    String usernameTwo = conversation.getUserTwo().getUsername().toLowerCase();
+                    String firstNameOne = conversation.getUserOne().getString("firstName");
+                    String lastNameOne = conversation.getUserOne().getString("lastName");
+                    String firstNameTwo = conversation.getUserOne().getString("firstName");
+                    String lastNameTwo = conversation.getUserOne().getString("lastName");
+                    String fullNameOne = (firstNameOne + lastNameOne).toLowerCase();
+                    String fullNameTwo = (firstNameTwo + lastNameTwo).toLowerCase();
                     // If the current user hasn't deleted the conversation, add it
                     boolean isUserOne = usernameOne.equals(ParseUser.getCurrentUser().getUsername());
                     if (!((isUserOne && conversation.getDeletedByOne())
                             || (!isUserOne && conversation.getDeletedByTwo()))) {
                         if (searchString != null) {
-                            if ((isUserOne && usernameTwo.contains(searchString))
-                            || (!isUserOne && usernameOne.contains(searchString))) {
+                            String modifiedString = searchString.trim().toLowerCase();
+                            if ((isUserOne && usernameTwo.contains(modifiedString))
+                            || (!isUserOne && usernameOne.contains(modifiedString))
+                            || (isUserOne && fullNameTwo.contains(modifiedString))
+                            || (!isUserOne && fullNameOne.contains(modifiedString))) {
                                 relevantConversations.add(conversation);
                             }
                         } else {
