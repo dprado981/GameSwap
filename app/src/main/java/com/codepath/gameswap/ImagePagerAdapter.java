@@ -3,6 +3,7 @@ package com.codepath.gameswap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,6 +29,7 @@ public class ImagePagerAdapter<T> extends PagerAdapter implements View.OnClickLi
     private Context context;
     private List<T> images;
     private Post post;
+    private int maxSize;
 
     public ImagePagerAdapter(Context context, List<T> images) {
         this.context = context;
@@ -44,12 +46,17 @@ public class ImagePagerAdapter<T> extends PagerAdapter implements View.OnClickLi
     }
 
     public void add(T item) {
-        images.add(item);
-        notifyDataSetChanged();
+        if (images.size() < maxSize) {
+            images.add(item);
+            notifyDataSetChanged();
+        }
     }
 
     public void addAll(List<T> items) {
-        images.addAll(items);
+        int numLeft = maxSize - images.size();
+        for (int i = 0; i < numLeft; i++) {
+            images.add(items.get(i));
+        }
         notifyDataSetChanged();
     }
 
@@ -113,5 +120,9 @@ public class ImagePagerAdapter<T> extends PagerAdapter implements View.OnClickLi
             fragment.setArguments(bundle);
             fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).addToBackStack(null).commit();
         }
+    }
+
+    public void setMaxSize(int size) {
+        this.maxSize = size;
     }
 }

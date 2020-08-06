@@ -33,6 +33,7 @@ import com.codepath.gameswap.models.Post;
 import com.codepath.gameswap.models.PostReport;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -110,6 +111,8 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         rbCondition = view.findViewById(R.id.rbCondition);
         rbDifficulty = view.findViewById(R.id.rbDifficulty);
         tvAgeRatingValue = view.findViewById(R.id.tvAgeRatingValue);
+        TabLayout tabLayout = view.findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(viewPager);
 
         // Set up options menu
         setHasOptionsMenu(true);
@@ -173,6 +176,12 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
             tvNotesContent.setText(notes);
         }
 
+        List<ParseFile> postImages = post.getImages();
+        int maxSize = postImages.size();
+        if (maxSize == 1) {
+            tabLayout.setVisibility(View.GONE);
+        }
+        adapter.setMaxSize(maxSize);
         images.addAll(post.getImages());
         adapter.addAll(post.getImages());
 
@@ -187,7 +196,6 @@ public abstract class DetailFragment extends Fragment implements View.OnClickLis
         ivProfile.setOnClickListener(this);
         tvUsername.setOnClickListener(this);
         btnMessage.setOnClickListener(this);
-        //ibMore.setOnClickListener(this);
 
     }
 

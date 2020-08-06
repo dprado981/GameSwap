@@ -38,6 +38,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,6 +67,7 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
     protected Button btnCamera;
     protected Button btnGallery;
     protected ViewPager viewPager;
+    protected TabLayout tabLayout;
     protected EditText etNotes;
     protected RatingBar rbCondition;
     protected RatingBar rbDifficulty;
@@ -99,6 +101,8 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
         List<Bitmap> bitmaps = new ArrayList<>();
         adapter = new ImagePagerAdapter<>(context, bitmaps);
         viewPager.setAdapter(adapter);
+        tabLayout = view.findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(viewPager);
 
         // Set up Age Rating Spinner
         spAdapter = ArrayAdapter.createFromResource(context,
@@ -226,6 +230,8 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
             Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
             // Load correctly oriented bitmap into ViewPager
             adapter.clear();
+            adapter.setMaxSize(1);
+            tabLayout.setVisibility(View.GONE);
             try {
                 loadBitmap(CameraUtils.adjustRotation(takenImage, photoFile), photoFile);
             } catch (IOException e) {
@@ -235,13 +241,20 @@ public abstract class ComposeFragment extends Fragment implements View.OnClickLi
                 && resultCode == RESULT_OK) {
             ClipData clipData = data.getClipData();
             if (clipData != null) {
+                int maxSize = clipData.getItemCount();
                 // Ensure that only up to 4 photos are selected
-                if (clipData.getItemCount() > 4) {
+                if (maxSize > 4) {
                     Toast.makeText(context, "Only select up to four images", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 adapter.clear();
-                for (int i = 0; i < clipData.getItemCount(); i++) {
+                adapter.setMaxSize(maxSize);
+                if (maxSize == 1) {
+                    tabLayout.setVisibility(View.GONE);
+                } else {
+                    tabLayout.setVisibility(View.VISIBLE);
+                }
+                for (int i = 0; i < maxSize; i++) {
                     Uri photoUri = clipData.getItemAt(i).getUri();
                     Bitmap selectedImage = CameraUtils.loadFromUri(context, photoUri);
                     File newPhotoFile = CameraUtils.getPhotoFileUri(context, CameraUtils.getFileName(i+1), TAG);
