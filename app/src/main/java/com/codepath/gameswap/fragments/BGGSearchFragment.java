@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -73,6 +75,11 @@ public class BGGSearchFragment extends Fragment implements BGGAsyncTask.BGGRespo
         tvTitle.setText(R.string.bgg_lookup);
         final android.widget.SearchView searchView = view.findViewById(R.id.searchView);
         searchView.setMaxWidth(Integer.MAX_VALUE);
+
+        int searchIconId = ((LinearLayout)searchView.getChildAt(0)).getChildAt(1).getId();
+        ImageView searchIcon = searchView.findViewById(searchIconId);
+        searchIcon.setColorFilter(android.R.color.white);
+
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {

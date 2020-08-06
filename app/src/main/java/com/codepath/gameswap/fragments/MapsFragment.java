@@ -1,5 +1,6 @@
 package com.codepath.gameswap.fragments;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -50,6 +51,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Google
 
     public interface MapsFragmentInterface {
         void onMapReady();
+
         void onMarkerClick(Post post);
     }
 
@@ -91,12 +93,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback, Google
         }
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(final GoogleMap map) {
         this.map = map;
         callback.onMapReady();
         map.setInfoWindowAdapter(new CustomWindowAdapter(getLayoutInflater(), context));
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    MapUtils.LOCATION_PERMISSION_CODE);
+            return;
+        }
         map.setMyLocationEnabled(true);
         map.setOnMarkerClickListener(this);
         map.setOnInfoWindowClickListener(this);

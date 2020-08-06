@@ -101,7 +101,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:numStars="5"
-                        android:secondaryProgressTint="#00000000"
+                android:secondaryProgressTint="#00000000"
                         android:stepSize="0.1" />
 
                     <TextView
@@ -118,7 +118,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:numStars="5"
-                        android:secondaryProgressTint="#00000000"
+                android:secondaryProgressTint="#00000000"
                         android:stepSize="0.1" />
 
                     <TextView
@@ -135,7 +135,7 @@
                         android:layout_marginStart="8dp"
                         android:isIndicator="true"
                         android:numStars="5"
-                        android:secondaryProgressTint="#00000000"
+                android:secondaryProgressTint="#00000000"
                         android:stepSize="0.1"
                         android:visibility="invisible" />
 
@@ -165,7 +165,7 @@
                         android:layout_marginStart="8dp"
                         android:isIndicator="true"
                         android:numStars="5"
-                        android:secondaryProgressTint="#00000000"
+                android:secondaryProgressTint="#00000000"
                         android:stepSize="0.1"
                         android:visibility="invisible" />
 
@@ -197,7 +197,7 @@
                         android:layout_marginStart="8dp"
                         android:isIndicator="true"
                         android:numStars="5"
-                        android:secondaryProgressTint="#00000000"
+                android:secondaryProgressTint="#00000000"
                         android:stepSize="0.1"
                         android:visibility="invisible" />
 
@@ -229,7 +229,7 @@
                         android:layout_marginStart="8dp"
                         android:isIndicator="true"
                         android:numStars="5"
-                        android:secondaryProgressTint="#00000000"
+                android:secondaryProgressTint="#00000000"
                         android:stepSize="0.1"
                         android:visibility="invisible" />
 

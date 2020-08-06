@@ -16,10 +16,11 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:text="@string/chats"
+            android:textColor="@android:color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            tools:text="Chats"
-            tools:ignore="RelativeOverlap" />
+            tools:ignore="RelativeOverlap"
+            tools:text="Chats" />
 
         <SearchView
             android:id="@+id/searchView"

@@ -461,11 +461,13 @@ public class HomeFragment extends Fragment
                         mapsFragment.panTo(point, 12);
                     }
                 }
+                if (allPosts.isEmpty() && !forLoadMore) {
+                    processQuery(lastQuery, forSearch, forLoadMore, firstQuery, forFilter);
+                }
             }
         });
     }
 
-    // TODO: add toolbar on conversation fragment with options to block/report user and display username
 
     // TODO: do something different with info window maybe
 

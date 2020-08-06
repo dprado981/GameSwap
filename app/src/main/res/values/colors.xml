@@ -6,4 +6,6 @@
     <color name="colorDelete">#D10707</color>
     <color name="colorButtonDisabled">#A14021</color>
     <color name="sentMessage">#A8A5A4</color>
+    <color name="colorSecondary">#21333B</color>
+    <color name="textColorSecondary">#FFFFFF</color>
 </resources>

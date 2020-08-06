@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -14,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,6 +52,7 @@ public class ChatsFragment extends Fragment {
     public static final String TAG = ChatsFragment.class.getSimpleName();
 
     private Context context;
+    private FragmentActivity activity;
 
     private RecyclerView rvConversations;
     private SwipeRefreshLayout swipeContainer;
@@ -130,6 +134,7 @@ public class ChatsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = getContext();
+        activity = (FragmentActivity) context;
 
         rvConversations = view.findViewById(R.id.rvConversations);
         swipeContainer = view.findViewById(R.id.swipeContainer);
@@ -137,6 +142,12 @@ public class ChatsFragment extends Fragment {
 
         final TextView tvTitle = view.findViewById(R.id.tvTitle);
         final SearchView searchView = view.findViewById(R.id.searchView);
+
+        int searchIconId = ((LinearLayout)searchView.getChildAt(0)).getChildAt(1).getId();
+        ImageView searchIcon = searchView.findViewById(searchIconId);
+        searchIcon.setColorFilter(android.R.color.white);
+
+
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override

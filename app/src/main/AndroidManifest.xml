@@ -20,10 +20,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
-        <activity
-            android:name=".RegisterActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/AppTheme.ActionBar"/>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -48,14 +44,16 @@
 
         <activity
             android:name=".LoginActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/AppTheme.ActionBar">
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustPan" />

@@ -13,6 +13,7 @@
         android:layout_gravity="center"
         android:textSize="20sp"
         android:textStyle="bold"
-        tools:text="Username" />
+        tools:text="Username"
+        android:textColor="@android:color/white" />
 
 </androidx.appcompat.widget.Toolbar>

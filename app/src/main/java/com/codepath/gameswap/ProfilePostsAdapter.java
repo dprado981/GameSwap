@@ -53,7 +53,6 @@ public class ProfilePostsAdapter extends PostsAdapter {
             llDetailsLayoutParams.addRule(RelativeLayout.START_OF, R.id.ivFavorite);
             llDetails.setLayoutParams(llDetailsLayoutParams);
 
-            llHeader.setVisibility(View.GONE);
             ViewGroup.LayoutParams cvParams = cvContent.getLayoutParams();
             cvParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
             cvParams.height = 320;

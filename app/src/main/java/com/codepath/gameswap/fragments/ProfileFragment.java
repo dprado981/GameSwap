@@ -112,6 +112,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         toolbar.setTitle("");
         tvTitle.setText(getString(R.string.profile));
         setHasOptionsMenu(true);
+        toolbar.setOverflowIcon(getResources().getDrawable(R.drawable.ic_overflow));
         AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
         if (appCompatActivity != null) {
             appCompatActivity.setSupportActionBar(toolbar);
@@ -391,8 +392,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     }
                 }
                 final Block block = new Block();
-                block.setUser(ParseUser.getCurrentUser());
-                block.setBlockedBy(user);
+                block.setUser(user);
+                block.setBlockedBy(ParseUser.getCurrentUser());
                 block.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {

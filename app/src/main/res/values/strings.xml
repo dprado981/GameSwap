@@ -93,4 +93,5 @@
     <string name="status">Status:</string>
     <string name="manage_reported_users">Manage Reported Users</string>
     <string name="manage_blocked_users">Manage Blocked Users</string>
+    <string name="logo">logo</string>
 </resources>
